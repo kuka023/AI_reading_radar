@@ -1,0 +1,1268 @@
+{
+  "_comment": "策展清单 —— 只有书名、作者、人工标注。刻意不写 ISBN。",
+  "_why_no_isbn": "凭记忆写 ISBN 必然出错（12 本的原型里就错了一个）。ISBN 由 src/resolve_isbn.py 从 Open Library 查回来，查不到的书直接淘汰，绝不进库。这是防幻觉的第一道闸门，作用在策展环节而不是模型环节。",
+  "_ratio": "经典（常青，撑 Adopt/Trial/Assess 的权威）: 时效书（会腐烂，提供 Hold 和移动）≈ 6:4",
+  "books": [
+    {
+      "title": "Deep Learning",
+      "author": "Ian Goodfellow",
+      "year": 2016,
+      "quadrant": "foundations",
+      "difficulty": "hardcore",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "theory"
+      },
+      "note": "深度学习的圣经。数学密集，参考书性质，不必通读。",
+      "isbn_hint": "9780262035613"
+    },
+    {
+      "title": "Pattern Recognition and Machine Learning",
+      "author": "Christopher Bishop",
+      "year": 2006,
+      "quadrant": "foundations",
+      "difficulty": "hardcore",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "theory"
+      },
+      "note": "贝叶斯视角的经典。数学密度极高 —— 数学承受度低的人读它是浪费生命。"
+    },
+    {
+      "title": "The Elements of Statistical Learning",
+      "author": "Trevor Hastie",
+      "year": 2009,
+      "quadrant": "foundations",
+      "difficulty": "hardcore",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "theory"
+      },
+      "note": "统计学习的权威。免费 PDF。查阅型，不是通读型。"
+    },
+    {
+      "title": "An Introduction to Statistical Learning",
+      "author": "Gareth James",
+      "year": 2013,
+      "quadrant": "foundations",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "theory"
+      },
+      "note": "ESL 的入门版。数学基础薄弱的人补统计的最佳起点。"
+    },
+    {
+      "title": "Mathematics for Machine Learning",
+      "author": "Marc Peter Deisenroth",
+      "year": 2020,
+      "quadrant": "foundations",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "theory"
+      },
+      "note": "补数学地基的最短路径。不讲模型，只讲线代/微积分/概率。"
+    },
+    {
+      "title": "Probabilistic Machine Learning: An Introduction",
+      "author": "Kevin Murphy",
+      "year": 2022,
+      "quadrant": "foundations",
+      "difficulty": "hardcore",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "theory"
+      },
+      "note": "Murphy 的重写版，覆盖到深度学习时代。当代 ML 理论的最佳单本参考。",
+      "isbn_hint": "9780262046824"
+    },
+    {
+      "title": "Reinforcement Learning: An Introduction",
+      "author": "Richard Sutton",
+      "year": 2018,
+      "quadrant": "foundations",
+      "difficulty": "hardcore",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "theory"
+      },
+      "note": "RL 的唯一圣经。RLHF 时代反而更重要了。",
+      "isbn_hint": "9780262039246"
+    },
+    {
+      "title": "Information Theory, Inference and Learning Algorithms",
+      "author": "David MacKay",
+      "year": 2003,
+      "quadrant": "foundations",
+      "difficulty": "hardcore",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "theory"
+      },
+      "note": "信息论视角。写得极其漂亮，但门槛真实存在。",
+      "isbn_hint": "9780521642989"
+    },
+    {
+      "title": "Artificial Intelligence: A Modern Approach",
+      "author": "Stuart Russell",
+      "year": 2020,
+      "quadrant": "foundations",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "theory"
+      },
+      "note": "AI 全景教科书。厚，但它是唯一一本让你看到 AI 不只是深度学习的书。",
+      "isbn_hint": "9780134610993"
+    },
+    {
+      "title": "Understanding Deep Learning",
+      "author": "Simon Prince",
+      "year": 2023,
+      "quadrant": "foundations",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "theory"
+      },
+      "note": "Goodfellow 那本的当代替代品。图讲得极好，免费 PDF。"
+    },
+    {
+      "title": "Dive into Deep Learning",
+      "author": "Aston Zhang",
+      "year": 2023,
+      "quadrant": "foundations",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "theory"
+      },
+      "note": "理论 + 可跑代码。李沐等人写的，中英文都有。"
+    },
+    {
+      "title": "The Hundred-Page Machine Learning Book",
+      "author": "Andriy Burkov",
+      "year": 2019,
+      "quadrant": "foundations",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "theory"
+      },
+      "note": "一百页讲完 ML 全景。转行者建立地图的最快方式。"
+    },
+    {
+      "title": "Why Machines Learn",
+      "author": "Anil Ananthaswamy",
+      "year": 2024,
+      "quadrant": "foundations",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "llm",
+        "content_type": "narrative"
+      },
+      "note": "把 ML 背后的数学讲成故事。数学恐惧者的入口。"
+    },
+    {
+      "title": "Linear Algebra and Learning from Data",
+      "author": "Gilbert Strang",
+      "year": 2019,
+      "quadrant": "foundations",
+      "difficulty": "hardcore",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "theory"
+      },
+      "note": "Strang 讲线代。数学不会过时的最好例证。"
+    },
+    {
+      "title": "Build a Large Language Model From Scratch",
+      "author": "Sebastian Raschka",
+      "year": 2024,
+      "quadrant": "models",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "llm",
+        "content_type": "hands-on"
+      },
+      "note": "从零手写一个 LLM。当前范式，且刻意不绑框架 —— 衰变慢。"
+    },
+    {
+      "title": "Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow",
+      "author": "Aurélien Géron",
+      "year": 2022,
+      "edition": 3,
+      "quadrant": "models",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "tensorflow-2.x",
+          "keras-3"
+        ]
+      },
+      "note": "最新版。仍是最好的动手入门书，但绑了 TF/Keras —— 框架大版本变更就会开始衰变。",
+      "isbn_hint": "9781098125974"
+    },
+    {
+      "title": "Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow",
+      "author": "Aurélien Géron",
+      "year": 2019,
+      "edition": 2,
+      "quadrant": "models",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "tensorflow-1.x",
+          "keras-legacy"
+        ],
+        "superseded_by_title": "Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow (3rd)"
+      },
+      "note": "旧版。二手市场仍在卖，仍有人推荐 —— 这正是雷达要喊停的那类书。",
+      "isbn_hint": "9781492032649"
+    },
+    {
+      "title": "Natural Language Processing with Python",
+      "author": "Steven Bird",
+      "year": 2009,
+      "quadrant": "models",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "nltk"
+        ]
+      },
+      "note": "NLTK 时代的经典。今天读它，学到的是一整套已被 transformer 彻底取代的心智模型 —— 负资产。",
+      "isbn_hint": "9780596516499"
+    },
+    {
+      "title": "Learning TensorFlow",
+      "author": "Tom Hope",
+      "year": 2017,
+      "quadrant": "models",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "tensorflow-1.x"
+        ]
+      },
+      "note": "TF 1.x 静态图时代。API 已被彻底重写 —— 书里的代码一行都跑不了。"
+    },
+    {
+      "title": "GANs in Action",
+      "author": "Jakub Langr",
+      "year": 2019,
+      "quadrant": "models",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "hands-on",
+        "superseded_technique": "扩散模型（diffusion）已全面取代 GAN 成为图像生成的主流路线"
+      },
+      "note": "GAN 时代的代表作。技术路线已被 diffusion 取代 —— 这是「技术被取代」而非「框架过期」的典型。"
+    },
+    {
+      "title": "Speech and Language Processing",
+      "author": "Daniel Jurafsky",
+      "year": 2008,
+      "quadrant": "models",
+      "difficulty": "hardcore",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "llm",
+        "content_type": "theory"
+      },
+      "note": "NLP 教科书。纸质版停在 2008 年第 2 版；第 3 版是持续更新的免费草稿（涵盖 LLM），网上直接读。"
+    },
+    {
+      "title": "Natural Language Processing with Transformers",
+      "author": "Lewis Tunstall",
+      "year": 2022,
+      "quadrant": "models",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "huggingface-transformers"
+        ]
+      },
+      "note": "HuggingFace 官方出品。绑生态，但那个生态还活着。"
+    },
+    {
+      "title": "Hands-On Large Language Models",
+      "author": "Jay Alammar",
+      "year": 2024,
+      "quadrant": "models",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "llm",
+        "content_type": "hands-on"
+      },
+      "note": "图解 LLM 的那位作者写的。可视化讲解无人能及。"
+    },
+    {
+      "title": "Deep Learning for Coders with fastai and PyTorch",
+      "author": "Jeremy Howard",
+      "year": 2020,
+      "quadrant": "models",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "fastai"
+        ]
+      },
+      "note": "自上而下教学法：先跑通再讲原理。绑 fastai 生态。"
+    },
+    {
+      "title": "Deep Learning with Python",
+      "author": "François Chollet",
+      "year": 2021,
+      "edition": 2,
+      "quadrant": "models",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "keras-2"
+        ]
+      },
+      "note": "Keras 作者亲笔，讲解品味极佳。但深度绑定 Keras 2 API，正在老化。",
+      "isbn_hint": "9781617296864"
+    },
+    {
+      "title": "Machine Learning with PyTorch and Scikit-Learn",
+      "author": "Sebastian Raschka",
+      "year": 2022,
+      "quadrant": "models",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "pytorch"
+        ]
+      },
+      "note": "Raschka 的 Python Machine Learning 的 PyTorch 重写版。"
+    },
+    {
+      "title": "Python Machine Learning",
+      "author": "Sebastian Raschka",
+      "year": 2019,
+      "edition": 3,
+      "quadrant": "models",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "tensorflow-1.x"
+        ],
+        "superseded_by_title": "Machine Learning with PyTorch and Scikit-Learn"
+      },
+      "note": "被作者自己的 PyTorch 版取代了。作者都不推荐了，别读。"
+    },
+    {
+      "title": "Generative Deep Learning",
+      "author": "David Foster",
+      "year": 2023,
+      "edition": 2,
+      "quadrant": "models",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "keras-2"
+        ]
+      },
+      "note": "生成模型全景：VAE、GAN、diffusion、transformer。第 2 版补上了 diffusion。"
+    },
+    {
+      "title": "Grokking Deep Learning",
+      "author": "Andrew Trask",
+      "year": 2019,
+      "quadrant": "models",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "hands-on"
+      },
+      "note": "用纯 numpy 从零搭神经网络。不绑框架，所以不衰变。理解反向传播的最好方式。"
+    },
+    {
+      "title": "Deep Learning with PyTorch",
+      "author": "Eli Stevens",
+      "year": 2020,
+      "quadrant": "models",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "pytorch"
+        ]
+      },
+      "note": "PyTorch 官方背书。API 稳定，衰变较慢。"
+    },
+    {
+      "title": "Designing Machine Learning Systems",
+      "author": "Chip Huyen",
+      "year": 2022,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "systems"
+      },
+      "note": "讲 ML 系统的设计权衡（数据、特征、部署、监控），不绑框架。工程侧的地基书。"
+    },
+    {
+      "title": "AI Engineering",
+      "author": "Chip Huyen",
+      "year": 2025,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "agentic",
+        "content_type": "systems"
+      },
+      "note": "当前范式的工程书：评估、RAG、微调、agent。做 LLM 应用的人最该读的一本。"
+    },
+    {
+      "title": "Designing Data-Intensive Applications",
+      "author": "Martin Kleppmann",
+      "year": 2017,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "systems"
+      },
+      "note": "不是 AI 书，但 AI 系统跑在数据系统之上。讲原理不讲产品，衰变极慢。",
+      "isbn_hint": "9781449373320"
+    },
+    {
+      "title": "Machine Learning Engineering",
+      "author": "Andriy Burkov",
+      "year": 2020,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "systems"
+      },
+      "note": "ML 项目的全生命周期。讲流程和陷阱，不讲工具 —— 所以不过时。"
+    },
+    {
+      "title": "Building Machine Learning Powered Applications",
+      "author": "Emmanuel Ameisen",
+      "year": 2020,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "systems"
+      },
+      "note": "从想法到产品的完整链路。讲怎么把 ML 变成产品，而不是怎么调模型。"
+    },
+    {
+      "title": "Machine Learning Design Patterns",
+      "author": "Valliappa Lakshmanan",
+      "year": 2020,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "systems"
+      },
+      "note": "30 个 ML 工程的设计模式。模式层面的东西衰变很慢。"
+    },
+    {
+      "title": "Reliable Machine Learning",
+      "author": "Cathy Chen",
+      "year": 2022,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "systems"
+      },
+      "note": "把 SRE 那套搬到 ML。讲可靠性、监控、事故响应。"
+    },
+    {
+      "title": "Fundamentals of Data Engineering",
+      "author": "Joe Reis",
+      "year": 2022,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "systems"
+      },
+      "note": "数据工程的全景。AI 的燃料是数据 —— 这是上游。"
+    },
+    {
+      "title": "Practical MLOps",
+      "author": "Noah Gift",
+      "year": 2021,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "aws-sagemaker",
+          "azure-ml"
+        ]
+      },
+      "note": "绑了具体的云厂商工具链 —— 这类书衰变最快。"
+    },
+    {
+      "title": "LLM Engineer's Handbook",
+      "author": "Paul Iusztin",
+      "year": 2024,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "llm",
+        "content_type": "hands-on"
+      },
+      "note": "LLM 应用的端到端工程实践。当前范式。"
+    },
+    {
+      "title": "Prompt Engineering for Generative AI",
+      "author": "James Phoenix",
+      "year": 2024,
+      "quadrant": "systems",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "llm",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "langchain"
+        ]
+      },
+      "note": "绑 LangChain。提示工程本身衰变极快 —— 谨慎投入。"
+    },
+    {
+      "title": "Data Mesh",
+      "author": "Zhamak Dehghani",
+      "year": 2022,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "systems"
+      },
+      "note": "数据架构的组织视角。理念书，不是工具书。"
+    },
+    {
+      "title": "Streaming Systems",
+      "author": "Tyler Akidau",
+      "year": 2018,
+      "quadrant": "systems",
+      "difficulty": "hardcore",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "systems"
+      },
+      "note": "流处理的原理书。实时 ML 的地基。"
+    },
+    {
+      "title": "Site Reliability Engineering",
+      "author": "Betsy Beyer",
+      "year": 2016,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "systems"
+      },
+      "note": "Google SRE。AI 系统一样要在线上活着 —— 这本讲怎么活。"
+    },
+    {
+      "title": "The Alignment Problem",
+      "author": "Brian Christian",
+      "year": 2020,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "narrative"
+      },
+      "note": "对齐问题的叙事史。技术细节会过时，但提出的问题只会越来越紧迫。"
+    },
+    {
+      "title": "Human Compatible",
+      "author": "Stuart Russell",
+      "year": 2019,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "narrative"
+      },
+      "note": "AI 教科书作者写的安全论。有分量，因为他懂技术。"
+    },
+    {
+      "title": "Prediction Machines",
+      "author": "Ajay Agrawal",
+      "year": 2018,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "narrative"
+      },
+      "note": "经济学家看 AI：AI 降低的是「预测」的成本。产品经理必读的思维框架。"
+    },
+    {
+      "title": "Power and Prediction",
+      "author": "Ajay Agrawal",
+      "year": 2022,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "narrative"
+      },
+      "note": "Prediction Machines 的续作：讲 AI 落地为什么这么难（答案是系统改造，不是模型）。"
+    },
+    {
+      "title": "Weapons of Math Destruction",
+      "author": "Cathy O'Neil",
+      "year": 2016,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "narrative"
+      },
+      "note": "算法伤害的实证。做任何决策系统之前该读的一本。"
+    },
+    {
+      "title": "Superintelligence",
+      "author": "Nick Bostrom",
+      "year": 2014,
+      "quadrant": "applied",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "narrative"
+      },
+      "note": "十年前写的，很多论证已被现实绕过。但它定义了整场讨论的词汇表。",
+      "isbn_hint": "9780198739838"
+    },
+    {
+      "title": "Atlas of AI",
+      "author": "Kate Crawford",
+      "year": 2021,
+      "quadrant": "applied",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "narrative"
+      },
+      "note": "AI 的物质成本：矿产、能源、劳动力。技术乐观主义的解毒剂。"
+    },
+    {
+      "title": "Co-Intelligence",
+      "author": "Ethan Mollick",
+      "year": 2024,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "llm",
+        "content_type": "narrative"
+      },
+      "note": "怎么和 LLM 一起工作。实践导向，当前范式。"
+    },
+    {
+      "title": "The Coming Wave",
+      "author": "Mustafa Suleyman",
+      "year": 2023,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "llm",
+        "content_type": "narrative"
+      },
+      "note": "DeepMind 联创写的治理论。有内部视角。"
+    },
+    {
+      "title": "The Worlds I See",
+      "author": "Fei-Fei Li",
+      "year": 2023,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "llm",
+        "content_type": "narrative"
+      },
+      "note": "李飞飞的自传 + ImageNet 的诞生史。理解这个领域怎么走到今天。",
+      "isbn_hint": "9781250897930"
+    },
+    {
+      "title": "Genius Makers",
+      "author": "Cade Metz",
+      "year": 2021,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "narrative"
+      },
+      "note": "深度学习复兴的人物史。Hinton、LeCun、Bengio 是怎么熬过寒冬的。"
+    },
+    {
+      "title": "Chip War",
+      "author": "Chris Miller",
+      "year": 2022,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "narrative"
+      },
+      "note": "算力的地缘政治。AI 的物理约束在这里。"
+    },
+    {
+      "title": "Rebooting AI",
+      "author": "Gary Marcus",
+      "year": 2019,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "narrative",
+        "superseded_technique": "书中「深度学习无法做到 X」的核心论证，多数已被 LLM 的实际表现推翻"
+      },
+      "note": "2019 年对深度学习的批判。它的很多预言被 LLM 直接打脸 —— 保留在库里作为「思想也会过时」的样本。"
+    },
+    {
+      "title": "Life 3.0",
+      "author": "Max Tegmark",
+      "year": 2017,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "narrative"
+      },
+      "note": "AI 未来的思想实验。哲学多过技术。"
+    },
+    {
+      "title": "AI Superpowers",
+      "author": "Kai-Fu Lee",
+      "year": 2018,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "narrative"
+      },
+      "note": "中美 AI 竞争的 2018 年快照。作为历史读可以，作为现状读会误导。"
+    },
+    {
+      "title": "Building Intelligent Systems",
+      "author": "Geoff Hulten",
+      "year": 2018,
+      "quadrant": "applied",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "systems"
+      },
+      "note": "怎么造一个真正的 AI 产品：从问题定义、数据、模型到线上迭代的产品视角。AIPM 少见的专业书。"
+    },
+    {
+      "title": "The AI-First Company",
+      "author": "Ash Fontana",
+      "year": 2021,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "narrative"
+      },
+      "note": "AI 优先的公司怎么建：数据飞轮、护城河、组织。投资人视角，讲战略不讲模型。"
+    },
+    {
+      "title": "Competing in the Age of AI",
+      "author": "Marco Iansiti",
+      "year": 2020,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "narrative"
+      },
+      "note": "哈佛商学院视角：AI 如何重构公司的运营核心与竞争边界。AIPM 的战略地图。"
+    },
+    {
+      "title": "Human + Machine: Reimagining Work in the Age of AI",
+      "author": "Paul Daugherty",
+      "year": 2018,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "narrative"
+      },
+      "note": "AI 不是取代人，是重排人机分工。讲落地的流程改造，比空谈未来实在。",
+      "isbn_hint": "9781633693869"
+    },
+    {
+      "title": "Inspired: How to Create Tech Products Customers Love",
+      "author": "Marty Cagan",
+      "year": 2017,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "narrative"
+      },
+      "note": "产品管理的方法论经典。不讲 AI，但讲怎么做出人要的产品 —— PM 的地基。",
+      "isbn_hint": "9781119387503"
+    },
+    {
+      "title": "The Lean Startup",
+      "author": "Eric Ries",
+      "year": 2011,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "narrative"
+      },
+      "note": "验证学习循环。AI 产品尤其需要 —— 模型效果只有上线才知道。",
+      "isbn_hint": "9780307887894"
+    },
+    {
+      "title": "Thinking, Fast and Slow",
+      "author": "Daniel Kahneman",
+      "year": 2011,
+      "quadrant": "applied",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "narrative"
+      },
+      "note": "人类决策的两个系统。理解人的偏差，才设计得好人机交互。",
+      "isbn_hint": "9780374533557"
+    },
+    {
+      "title": "The Design of Everyday Things",
+      "author": "Don Norman",
+      "year": 2013,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "narrative"
+      },
+      "note": "设计心理学经典。以人为中心的设计原理，AI 产品的交互地基。",
+      "isbn_hint": "9780465050659"
+    },
+    {
+      "title": "Convex Optimization",
+      "author": "Stephen Boyd",
+      "year": 2004,
+      "quadrant": "foundations",
+      "difficulty": "hardcore",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "theory"
+      },
+      "note": "凸优化圣经。理解 SVM、正则化、几乎所有训练算法的理论底座。免费 PDF。",
+      "isbn_hint": "9780521833783"
+    },
+    {
+      "title": "The Book of Why",
+      "author": "Judea Pearl",
+      "year": 2018,
+      "quadrant": "foundations",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "narrative"
+      },
+      "note": "因果推理的科普。从相关到因果，是当前 ML 最薄弱的一环。",
+      "isbn_hint": "9780465097609"
+    },
+    {
+      "title": "Neural Networks and Deep Learning",
+      "author": "Michael Nielsen",
+      "year": 2015,
+      "quadrant": "foundations",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "theory"
+      },
+      "note": "在线免费书，把反向传播讲得最直观的一本。入门神经网络的最短路径。"
+    },
+    {
+      "title": "Computer Vision: Algorithms and Applications",
+      "author": "Richard Szeliski",
+      "year": 2022,
+      "quadrant": "models",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "theory"
+      },
+      "note": "CV 综合教科书，第 2 版补上了深度学习方法。免费 PDF。"
+    },
+    {
+      "title": "Probabilistic Graphical Models: Principles and Techniques",
+      "author": "Daphne Koller",
+      "year": 2009,
+      "quadrant": "models",
+      "difficulty": "hardcore",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "theory"
+      },
+      "note": "概率图模型权威。硬，但贝叶斯网络与推理的完整理论都在这。"
+    },
+    {
+      "title": "Naked Statistics",
+      "author": "Charles Wheelan",
+      "year": 2013,
+      "quadrant": "foundations",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "narrative"
+      },
+      "note": "把标准差、相关、回归讲成故事。数学恐惧者的统计入口。",
+      "isbn_hint": "9780393347777"
+    },
+    {
+      "title": "Practical Statistics for Data Scientists",
+      "author": "Peter Bruce",
+      "year": 2020,
+      "quadrant": "foundations",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "theory"
+      },
+      "note": "面向数据科学家的实用统计：A/B 测试、回归、聚类。够用不啰嗦。"
+    },
+    {
+      "title": "Causal Inference in Statistics: A Primer",
+      "author": "Judea Pearl",
+      "year": 2016,
+      "quadrant": "foundations",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "theory"
+      },
+      "note": "因果推断入门教材，从有向无环图到后门准则。比《The Book of Why》技术。"
+    },
+    {
+      "title": "Statistical Inference",
+      "author": "George Casella",
+      "year": 2001,
+      "quadrant": "foundations",
+      "difficulty": "hardcore",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "theory"
+      },
+      "note": "数理统计经典（换《概率论与数理统计》）。假设检验、估计理论的严谨底座。",
+      "isbn_hint": "9780534243128"
+    },
+    {
+      "title": "Bayesian Data Analysis",
+      "author": "Andrew Gelman",
+      "year": 2013,
+      "quadrant": "foundations",
+      "difficulty": "hardcore",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "theory"
+      },
+      "note": "贝叶斯数据分析权威：层次模型、MCMC、模型检验。深。"
+    },
+    {
+      "title": "Data Science from Scratch",
+      "author": "Joel Grus",
+      "year": 2019,
+      "quadrant": "models",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "hands-on"
+      },
+      "note": "从零用 Python 实现数据科学核心算法。理解底层原理，不调库。"
+    },
+    {
+      "title": "Feature Engineering for Machine Learning",
+      "author": "Alice Zheng",
+      "year": 2018,
+      "quadrant": "models",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "hands-on"
+      },
+      "note": "特征工程专项：数值、文本、图像特征的编码与变换。经典 ML 时代仍适用。"
+    },
+    {
+      "title": "Python Data Science Handbook",
+      "author": "Jake VanderPlas",
+      "year": 2022,
+      "quadrant": "systems",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "numpy",
+          "pandas",
+          "scikit-learn"
+        ]
+      },
+      "note": "NumPy/Pandas/Matplotlib/Sklearn 生态全景。数据科学的工具地图。",
+      "isbn_hint": "9781098121228"
+    },
+    {
+      "title": "Python for Data Analysis",
+      "author": "Wes McKinney",
+      "year": 2022,
+      "quadrant": "systems",
+      "difficulty": "entry",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "pandas"
+        ]
+      },
+      "note": "Pandas 作者亲笔。数据清洗与处理的权威参考。绑 pandas 生态。",
+      "isbn_hint": "9781098104030"
+    },
+    {
+      "title": "Mining of Massive Datasets",
+      "author": "Jure Leskovec",
+      "year": 2020,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "systems"
+      },
+      "note": "大规模数据挖掘（换《数据科学实战》原版）。MapReduce、相似性、流处理。免费 PDF。"
+    },
+    {
+      "title": "Clean Code",
+      "author": "Robert Martin",
+      "year": 2008,
+      "quadrant": "systems",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "systems"
+      },
+      "note": "编码规范经典。AI 代码一样要人读、要维护 —— 工程师的基本素养。",
+      "isbn_hint": "9780132350884"
+    },
+    {
+      "title": "The Pragmatic Programmer",
+      "author": "David Thomas",
+      "year": 2019,
+      "quadrant": "systems",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "systems"
+      },
+      "note": "程序员实用主义经典，20 周年版。讲习惯与判断，不讲具体技术，所以不过时。",
+      "isbn_hint": "9780135957059"
+    },
+    {
+      "title": "System Design Interview – An Insider's Guide",
+      "author": "Alex Xu",
+      "year": 2020,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "dl",
+        "content_type": "systems"
+      },
+      "note": "系统设计的 80+ 模式：一致性哈希、消息队列、限流。ML 系统也跑在这上面。"
+    },
+    {
+      "title": "Fluent Python",
+      "author": "Luciano Ramalho",
+      "year": 2022,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "transformer",
+        "content_type": "hands-on",
+        "pinned_apis": [
+          "python-3"
+        ]
+      },
+      "note": "Python 高级特性深度解析。AI 全在 Python 上写，值得精通语言本身。",
+      "isbn_hint": "9781492056355"
+    },
+    {
+      "title": "Database System Concepts",
+      "author": "Abraham Silberschatz",
+      "year": 2019,
+      "quadrant": "systems",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "systems"
+      },
+      "note": "数据库系统经典教材（换《数据库系统概论》）。关系模型、事务、查询优化。"
+    },
+    {
+      "title": "Storytelling with Data",
+      "author": "Cole Nussbaumer Knaflic",
+      "year": 2015,
+      "quadrant": "applied",
+      "difficulty": "entry",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-transformer",
+        "content_type": "narrative"
+      },
+      "note": "数据可视化叙事方法论。分析做得再好，讲不清就没用。",
+      "isbn_hint": "9781119002253"
+    },
+    {
+      "title": "The Visual Display of Quantitative Information",
+      "author": "Edward Tufte",
+      "year": 2001,
+      "quadrant": "applied",
+      "difficulty": "intermediate",
+      "kind": "classic",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "narrative"
+      },
+      "note": "可视化理论的圣经，「数据墨水比」的出处。至今是黄金标准。"
+    },
+    {
+      "title": "Machine Learning: A Probabilistic Perspective",
+      "author": "Kevin Murphy",
+      "year": 2012,
+      "quadrant": "foundations",
+      "difficulty": "hardcore",
+      "kind": "timely",
+      "decay": {
+        "paradigm": "pre-dl",
+        "content_type": "theory",
+        "superseded_by_title": "Probabilistic Machine Learning: An Introduction"
+      },
+      "note": "Murphy 2012 老版。已被作者自己的《Probabilistic Machine Learning》(2022) 重写取代 —— 别买旧的。",
+      "isbn_hint": "9780262018029"
+    }
+  ]
+}

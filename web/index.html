@@ -1,0 +1,1373 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 读书雷达</title>
+<style>
+  :root{
+    /* 纸与墨 —— 天体图版，不是科幻片 */
+    --paper:#f0ede4;
+    --paper-2:#e6e2d6;
+    --ink:#16181d;
+    --ink-2:#4a4f5c;
+    --ink-3:#8a8f9c;
+    --rule:#16181d1f;
+
+    /* 限定四色油墨（象限）—— 不是 Tailwind 默认色 */
+    --q-found:#2f3f96;   /* 靛蓝 */
+    --q-model:#a83252;   /* 绛红 */
+    --q-sys:#1d6b58;     /* 松绿 */
+    --q-app:#b0761c;     /* 赭黄 */
+    --dead:#8f4030;      /* 氧化铁红 */
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden}
+  body{
+    background:var(--paper); color:var(--ink);
+    font:14px/1.6 "PingFang SC","Avenir Next","Helvetica Neue",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  canvas{position:fixed;inset:0;display:block}
+
+  .layer{position:fixed;inset:0;pointer-events:none;opacity:0;transition:all .65s cubic-bezier(.4,0,.2,1);transform:scale(1.02) translateY(8px)}
+  .layer.on{opacity:1;pointer-events:auto;transform:scale(1) translateY(0)}
+
+  .mono{font-family:"SF Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+  /* ── 第一屏 ── */
+  #intro{display:flex;flex-direction:column;justify-content:space-between;padding:64px 46px 34px}
+  .masthead{display:flex;align-items:flex-end;justify-content:space-between;
+            border-bottom:1px solid var(--rule);padding-bottom:14px}
+  .masthead h1{font-size:25px;font-weight:600;letter-spacing:-.015em}
+  .masthead .claim{color:var(--ink-2);font-size:12.5px;margin-top:6px}
+  .masthead .tally{text-align:right;line-height:1.15}
+  .masthead .tally .n{font-size:36px;font-weight:600;letter-spacing:-.025em}
+  .masthead .tally .l{font-size:9px;letter-spacing:.2em;color:var(--ink-3);
+                      text-transform:uppercase;margin-top:2px}
+  .masthead .tally .dead{color:var(--dead)}
+
+  .foot{}
+  .cue{font-size:10px;letter-spacing:.2em;color:var(--ink-3);
+       text-transform:uppercase;margin-bottom:13px;text-align:center}
+  .roles{display:grid;grid-template-columns:repeat(5,1fr);gap:0;
+         border-top:1px solid var(--rule);border-left:1px solid var(--rule)}
+  .role{
+    padding:16px 15px 17px; cursor:pointer;
+    border-right:1px solid var(--rule); border-bottom:1px solid var(--rule);
+    background:transparent; transition:all .3s cubic-bezier(.4,0,.2,1);
+    position:relative; overflow:hidden;
+  }
+  .role::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;
+                background:var(--c);opacity:0;transition:opacity .35s ease;z-index:0}
+  .role::after{content:'';position:absolute;left:0;bottom:-1px;height:2px;width:0;
+               background:var(--c);transition:width .35s cubic-bezier(.4,0,.2,1)}
+  .role:hover{background:#0000000a; transform:translateY(-1px)}
+  .role:hover::after{width:100%}
+  .role:hover::before{opacity:.04}
+  .role:hover .glyph{transform:scale(1.2)}
+  .role:hover .nm{color:var(--c); font-weight:700}
+  .role:hover .tg{color:var(--ink-2)}
+  .role .row{display:flex;align-items:center;gap:8px;margin-bottom:6px;position:relative;z-index:1}
+  .role .glyph{width:11px;height:11px;border-radius:50%;background:var(--c);flex:none;
+               transition:all .3s cubic-bezier(.4,0,.2,1)}
+  .role .nm{font-size:13.5px;font-weight:600;transition:all .3s ease;position:relative;z-index:1}
+  .role .tg{color:var(--ink-3);font-size:11px;line-height:1.5;transition:all .3s ease;position:relative;z-index:1}
+
+  /* ── 第二屏 ── */
+  #hud{position:absolute;top:66px;left:46px;display:flex;flex-direction:column;gap:4px}
+  #hud .eyebrow{font-size:9px;letter-spacing:.28em;color:var(--ink-3);
+                text-transform:uppercase;font-family:"SF Mono",ui-monospace,monospace;
+                transition:all .4s ease;transform:translateX(-4px);opacity:0}
+  #hud .who{font-size:30px;font-weight:600;letter-spacing:-.02em;margin-top:7px;line-height:1.05;
+            transition:all .5s ease;transform:translateY(8px);opacity:0}
+  #hud .goal{color:var(--ink-2);font-size:12px;line-height:1.65;margin-top:11px;max-width:262px;
+             padding-top:11px;border-top:1px solid var(--rule);transition:all .6s ease;transform:translateY(8px);opacity:0}
+  #radar.on #hud .eyebrow{transform:translateX(0);opacity:1}
+  #radar.on #hud .who{transform:translateY(0);opacity:1}
+  #radar.on #hud .goal{transform:translateY(0);opacity:1}
+  #back{margin-top:16px;padding:8px 14px;border:1px solid var(--ink-3);background:none;cursor:pointer;
+        font:inherit;font-size:11px;letter-spacing:.1em;color:var(--ink-3);
+        text-transform:uppercase;transition:all .3s cubic-bezier(.4,0,.2,1);
+        border-radius:3px;display:flex;align-items:center;gap:6px;width:fit-content}
+  #back:hover{color:#faf8f2;background:var(--ink);border-color:var(--ink);transform:translateY(-1px)}
+  #back:active{transform:translateY(0)}
+
+  /* 图例：做成图版的图注 */
+  #key{position:absolute;bottom:34px;left:46px;width:256px;
+       border-top:1px solid var(--ink);padding-top:10px;
+       opacity:0;transform:translateY(8px);transition:all .5s ease;transition-delay:.2s}
+  #radar.on #key{opacity:1;transform:translateY(0)}
+  #key .hd{font-size:9px;letter-spacing:.2em;color:var(--ink-3);
+           text-transform:uppercase;margin-bottom:8px;
+           display:flex;align-items:center;gap:6px}
+  #key .hd::after{content:'';flex:1;height:1px;background:var(--rule);margin-left:8px}
+  #key dl{display:grid;grid-template-columns:40px 1fr;gap:4px 10px;font-size:10.5px;line-height:1.55}
+  #key dt{color:var(--ink);font-weight:600;transition:color .2s ease}
+  #key dd{color:var(--ink-2);transition:color .2s ease}
+  #key .sw{display:inline-block;width:7px;height:7px;border-radius:50%;
+           margin-right:3px;vertical-align:-1px;transition:transform .2s ease}
+  #key dt:hover .sw{transform:scale(1.5)}
+
+  /* 详情：实心卡片，无毛玻璃 */
+  #book{
+    position:absolute;top:38px;right:46px;width:326px;
+    background:#faf8f2;border:1px solid var(--ink);
+    box-shadow:7px 7px 0 #16181d0d, 0 0 0 0 var(--rc)00;
+    opacity:0;transform:translate(9px,-4px) scale(.96);pointer-events:none;
+    transition:all .35s cubic-bezier(.4,0,.2,1);
+    max-height:calc(100vh - 76px);overflow-y:auto;
+    border-radius:2px;
+  }
+  #book.on{opacity:1;transform:none;pointer-events:auto;box-shadow:7px 7px 0 #16181d0d, 0 0 0 1px var(--rc)33}
+  #book .bar{padding:9px 18px;border-bottom:1px solid var(--ink);
+             font-size:10px;letter-spacing:.16em;font-weight:700;color:#faf8f2;
+             background:var(--rc)}
+  #book .body{padding:18px}
+  #book h3{font-size:17px;line-height:1.35;letter-spacing:-.01em;margin-bottom:8px}
+  #book .facts{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px}
+  #book .facts span{font-size:10px;letter-spacing:.04em;padding:3px 8px;
+                    border:1px solid var(--rule);color:var(--ink-2);
+                    border-radius:3px;transition:all .2s ease}
+  #book .facts span:hover{background:var(--ink)06;border-color:var(--ink-3);transform:translateY(-1px)}
+  #book .h{font-size:9.5px;letter-spacing:.2em;color:var(--ink-3);
+           text-transform:uppercase;margin:16px 0 6px;
+           padding-bottom:5px;border-bottom:1px solid var(--rule);
+           display:flex;align-items:center;gap:6px}
+  #book .h::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--rc)}
+  #book .h:first-of-type{margin-top:0}
+  #book p{font-size:12.5px;line-height:1.8;color:var(--ink-2);transition:all .3s ease}
+  #book .why{border-left:3px solid var(--rc);padding-left:11px;color:var(--ink);
+             background:var(--rc)06;padding-top:6px;padding-bottom:6px;border-radius:0 4px 4px 0}
+  #book .go{display:flex;gap:0;margin-top:18px;border:1px solid var(--ink);border-radius:3px;overflow:hidden}
+  #book .go a{flex:1;text-align:center;padding:9px 0;font-size:11px;
+              color:var(--ink);text-decoration:none;transition:all .25s cubic-bezier(.4,0,.2,1);
+              position:relative;overflow:hidden}
+  #book .go a:first-child{border-right:1px solid var(--ink)}
+  #book .go a:hover{background:var(--ink);color:#faf8f2;transform:scale(1.02)}
+  #book .go a:active{transform:scale(.98)}
+  #book .isbn{margin-top:10px;font-size:9.5px;color:var(--ink-3);letter-spacing:.02em;
+              padding-top:10px;border-top:1px dashed var(--rule)}
+
+  /* 书架三态 */
+  #book .shelf{display:flex;gap:0;margin-top:16px;border:1px solid var(--ink);border-radius:3px;overflow:hidden}
+  #book .shelf button{flex:1;padding:9px 0;font:inherit;font-size:11px;cursor:pointer;
+                      background:#faf8f2;color:var(--ink-2);border:0;transition:all .2s}
+  #book .shelf button+button{border-left:1px solid var(--rule)}
+  #book .shelf button:hover{background:var(--rc)0d;color:var(--ink)}
+  #book .shelf button.on{background:var(--rc);color:#faf8f2;font-weight:600}
+  /* 读完反馈 */
+  #book .rate{margin-top:12px;padding:13px;background:var(--rc)0a;border-radius:4px;
+              border:1px solid var(--rc)22}
+  #book .rate .q{font-size:10.5px;color:var(--ink-2);margin-bottom:7px}
+  #book .rate .opts{display:flex;gap:6px;margin-bottom:11px}
+  #book .rate .opts:last-child{margin-bottom:0}
+  #book .rate .opts button{flex:1;padding:6px 0;font:inherit;font-size:10.5px;cursor:pointer;
+                           background:#faf8f2;color:var(--ink-2);border:1px solid var(--rule);
+                           border-radius:3px;transition:all .18s}
+  #book .rate .opts button:hover{border-color:var(--ink-3);color:var(--ink)}
+  #book .rate .opts button.on{background:var(--ink);color:#faf8f2;border-color:var(--ink)}
+  #book .done{margin-top:12px;font-size:10.5px;color:var(--rc);text-align:center;
+              padding:7px;background:var(--rc)0a;border-radius:4px}
+
+  /* 分享按钮 + toast */
+  /* 分享按钮：顶部居中，避开左右两侧的 hud 和详情面板 */
+  #share{position:absolute;top:40px;left:50%;display:flex;gap:8px;z-index:5;
+         opacity:0;transform:translateX(-50%) translateY(-6px);transition:all .5s ease;transition-delay:.35s}
+  #radar.on #share{opacity:1;transform:translateX(-50%)}
+  #share button{padding:8px 14px;border:1px solid var(--ink);background:#faf8f2;cursor:pointer;
+                font:inherit;font-size:11px;letter-spacing:.05em;color:var(--ink);
+                border-radius:3px;transition:all .22s;display:flex;align-items:center;gap:6px}
+  #share button:hover{background:var(--ink);color:#faf8f2;transform:translateY(-1px)}
+  /* 详情打开时，右下的阅读路径让位，避免重叠 */
+  #book.on ~ #path{opacity:0 !important;pointer-events:none}
+  #toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);
+         background:var(--ink);color:#faf8f2;padding:11px 22px;border-radius:4px;font-size:12px;
+         opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:20}
+  #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* 我的书架统计（首页角标） */
+  #mine{position:absolute;top:40px;right:46px;font-size:11px;color:var(--ink-2);
+        display:flex;align-items:center;gap:6px;cursor:default}
+  #mine b{color:var(--ink);font-weight:600}
+
+  /* ── 顶层导航（左上角，其余内容避让）── */
+  #nav{position:fixed;top:20px;left:26px;z-index:50;display:flex;gap:3px;
+       background:rgba(250,248,242,.9);backdrop-filter:blur(8px);
+       border:1px solid var(--rule);border-radius:7px;padding:3px}
+  #nav button{border:0;background:none;cursor:pointer;font:inherit;font-size:12px;
+              padding:6px 13px;border-radius:5px;color:var(--ink-2);
+              display:flex;align-items:center;gap:6px;transition:all .2s;letter-spacing:.02em}
+  #nav button .ic{font-size:13px;line-height:1}
+  #nav button:hover{color:var(--ink);background:#0000000a}
+  #nav button.on{background:var(--ink);color:#faf8f2}
+
+  /* ── 独立页（图书馆 / 社区）── */
+  .page{position:fixed;inset:0;z-index:20;background:var(--paper);overflow-y:auto}
+  .page .pwrap{max-width:960px;margin:0 auto;padding:78px 40px 60px}
+  .page .phead{border-bottom:1px solid var(--ink);padding-bottom:18px;margin-bottom:22px}
+  .page .ptitle{font-size:30px;font-weight:600;letter-spacing:-.02em}
+  .page .psub{color:var(--ink-2);font-size:12.5px;margin-top:7px}
+
+  /* 图书馆 */
+  .lsearch{margin-top:18px;display:flex;gap:8px}
+  .lsearch input{flex:1;border:1px solid var(--ink);border-radius:4px;padding:11px 14px;
+                 font:inherit;font-size:13px;background:#faf8f2;outline:none;color:var(--ink)}
+  .lsearch button{border:1px solid var(--ink);background:var(--ink);color:#faf8f2;
+                  padding:0 20px;cursor:pointer;font:inherit;font-size:12.5px;border-radius:4px}
+  .lsearch #libClear{background:#faf8f2;color:var(--ink)}
+  .lfilters{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+  .lfilters button{border:1px solid var(--rule);background:#faf8f2;cursor:pointer;
+                   font:inherit;font-size:11px;padding:5px 12px;border-radius:20px;
+                   color:var(--ink-2);transition:all .18s}
+  .lfilters button:hover{border-color:var(--ink-3);color:var(--ink)}
+  .lfilters button.on{background:var(--ink);color:#faf8f2;border-color:var(--ink)}
+  .lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+  .lgrp{grid-column:1/-1;font-size:9.5px;letter-spacing:.2em;color:var(--ink-3);
+        text-transform:uppercase;margin:14px 0 2px;padding-bottom:6px;border-bottom:1px solid var(--rule)}
+  .card{border:1px solid var(--rule);border-radius:6px;padding:14px;cursor:pointer;
+        background:#faf8f2;transition:all .2s;position:relative;overflow:hidden}
+  .card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--cc)}
+  .card:hover{border-color:var(--ink-3);transform:translateY(-2px);
+              box-shadow:0 6px 18px -12px rgba(27,34,51,.4)}
+  .card .ct{font-size:13px;font-weight:600;line-height:1.35;margin-bottom:5px}
+  .card .cm{font-size:10.5px;color:var(--ink-3);line-height:1.5}
+  .card .ctags{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+  .card .ctags span{font-size:9px;padding:2px 7px;border:1px solid var(--rule);
+                    border-radius:3px;color:var(--ink-2)}
+  .card .cadd{margin-top:10px;width:100%;padding:6px 0;font:inherit;font-size:10.5px;
+              cursor:pointer;border:1px solid var(--ink);background:#faf8f2;color:var(--ink);
+              border-radius:3px;transition:all .18s}
+  .card .cadd:hover{background:var(--ink);color:#faf8f2}
+  .card .cadd.added{background:var(--q-app);color:#faf8f2;border-color:var(--q-app);cursor:default}
+  .lempty{grid-column:1/-1;color:var(--ink-3);font-size:12.5px;text-align:center;padding:50px 0}
+
+  /* 社区 */
+  .csort{margin-top:16px;display:flex;gap:4px}
+  .csort button{border:1px solid var(--rule);background:#faf8f2;cursor:pointer;font:inherit;
+                font-size:11.5px;padding:6px 15px;border-radius:20px;color:var(--ink-2);transition:all .18s}
+  .csort button.on{background:var(--ink);color:#faf8f2;border-color:var(--ink)}
+  .cfeed{display:flex;flex-direction:column;gap:0}
+  .citem{padding:16px 0;border-bottom:1px solid var(--rule);cursor:pointer;transition:background .18s}
+  .citem:hover{background:#00000005}
+  .citem .cbook{font-size:12px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:7px}
+  .citem .cbook .dot{width:7px;height:7px;border-radius:50%;background:var(--cc);flex:none}
+  .citem .ctxt{font-size:12.5px;line-height:1.7;color:var(--ink-2);margin:7px 0}
+  .citem .cfoot{display:flex;justify-content:space-between;align-items:center}
+  .citem .cwho{font-size:9.5px;color:var(--ink-3);font-family:"SF Mono",monospace}
+  .citem .cup{font-size:10px;color:var(--ink-2);border:1px solid var(--rule);border-radius:20px;padding:2px 10px}
+  .cempty{color:var(--ink-3);font-size:12.5px;text-align:center;padding:60px 0}
+
+  /* ── L3 社区书评 ── */
+  #book .reviews{margin-top:16px}
+  #book .reviews .add{display:flex;gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:10px}
+  #book .reviews .add textarea{flex:1;border:0;padding:9px 11px;font:inherit;font-size:11.5px;
+                               resize:none;outline:none;background:#faf8f2;color:var(--ink);height:34px;line-height:1.4}
+  #book .reviews .add button{border:0;border-left:1px solid var(--rule);background:var(--rc);
+                             color:#faf8f2;padding:0 14px;cursor:pointer;font:inherit;font-size:11px}
+  #book .reviews .locked{font-size:10.5px;color:var(--ink-3);padding:8px 11px;
+                         background:var(--paper-2);border-radius:3px;margin-bottom:10px}
+  #book .rv{padding:9px 0;border-bottom:1px solid var(--rule)}
+  #book .rv .txt{font-size:11.5px;line-height:1.6;color:var(--ink)}
+  #book .rv .foot{display:flex;justify-content:space-between;align-items:center;margin-top:5px}
+  #book .rv .foot .who{font-size:9.5px;color:var(--ink-3);font-family:"SF Mono",monospace}
+  #book .rv .up{font-size:10px;color:var(--ink-2);cursor:pointer;border:1px solid var(--rule);
+                border-radius:20px;padding:2px 9px;transition:all .18s;background:#faf8f2}
+  #book .rv .up:hover{border-color:var(--ink-3);color:var(--ink)}
+  #book .rv .up.voted{background:var(--rc);color:#faf8f2;border-color:var(--rc)}
+
+  #path{position:absolute;bottom:34px;right:46px;width:326px;
+        border-top:1px solid var(--ink);padding-top:11px;
+        opacity:0;transform:translateY(8px);transition:all .5s ease;transition-delay:.3s}
+  #radar.on #path{opacity:1;transform:translateY(0)}
+  #path .hd{font-size:9.5px;letter-spacing:.2em;color:var(--ink-3);
+            text-transform:uppercase;margin-bottom:8px;
+            display:flex;justify-content:space-between;align-items:center}
+  #path .hd::before{content:'';width:16px;height:1px;background:var(--ink-3);margin-right:8px}
+  #path ol{list-style:none;counter-reset:p}
+  #path li{counter-increment:p;font-size:11.5px;color:var(--ink-2);
+           padding:8px 0 8px 28px;position:relative;cursor:pointer;
+           border-bottom:1px solid var(--rule);transition:all .25s cubic-bezier(.4,0,.2,1);
+           border-radius:2px}
+  #path li:last-child{border-bottom:0}
+  #path li:hover{color:var(--ink);padding-left:32px;background:var(--ink)04;transform:translateY(-1px)}
+  #path li:active{transform:translateY(0)}
+  #path li::before{content:counter(p,decimal-leading-zero);position:absolute;left:0;
+                   font-family:"SF Mono",ui-monospace,monospace;font-size:9.5px;
+                   color:var(--ink-3);top:9px;transition:all .25s ease}
+  #path li:hover::before{color:var(--ink);font-weight:600}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="toast"></div>
+
+<!-- 顶层导航（左上角）：三个平级空间 -->
+<nav id="nav">
+  <button data-space="radar" class="on"><span class="ic">◎</span>雷达</button>
+  <button data-space="library"><span class="ic">▤</span>图书馆</button>
+  <button data-space="community"><span class="ic">✎</span>社区</button>
+</nav>
+
+<!-- 图书馆：全量书目，可搜、可浏览、可加进雷达 -->
+<div class="layer page" id="library">
+  <div class="pwrap">
+    <div class="phead">
+      <div class="ptitle">图书馆</div>
+      <div class="psub">全量书目 · 策展 89 本（有观点）+ 你从外部大库加进来的书</div>
+      <div class="lsearch">
+        <input id="libInput" placeholder="搜书名或作者，含外部大库…" autocomplete="off">
+        <button id="libGo">搜索</button>
+        <button id="libClear" style="display:none">清除</button>
+      </div>
+      <div class="lfilters" id="libFilters"></div>
+    </div>
+    <div class="lgrid" id="libGrid"></div>
+  </div>
+</div>
+
+<!-- 社区：全站书评流 -->
+<div class="layer page" id="community">
+  <div class="pwrap">
+    <div class="phead">
+      <div class="ptitle">社区</div>
+      <div class="psub">读过的人写下的书评 · 评价资格绑定阅读，没读过不能评</div>
+      <div class="csort">
+        <button data-sort="recent" class="on">最新</button>
+        <button data-sort="top">最有用</button>
+      </div>
+    </div>
+    <div class="cfeed" id="comFeed"></div>
+  </div>
+</div>
+
+<div class="layer on" id="intro">
+  <div class="masthead">
+    <div>
+      <h1>AI 读书雷达</h1>
+      <div class="claim">环表达立场，不是难度 —— 因人而异的下一本 AI 好书</div>
+    </div>
+    <div class="tally">
+      <div class="n mono"><span id="nTot">—</span></div>
+      <div class="l">在册</div>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="cue">选一个角色 · 拉近属于你的那片星云</div>
+    <div class="roles" id="roles"></div>
+  </div>
+</div>
+
+<div class="layer" id="radar">
+  <div id="hud">
+    <div class="eyebrow">Reading Radar</div>
+    <div class="who" id="who"></div>
+    <div class="goal" id="goal"></div>
+    <button id="back">← 回到星系</button>
+  </div>
+
+  <div id="share">
+    <button id="shareImg">⇩ 存我的雷达</button>
+    <button id="shareLink">⇗ 复制链接</button>
+  </div>
+
+  <div id="key">
+    <div class="hd">图注 · Key</div>
+    <dl>
+      <dt>轨道</dt><dd>内→外：现在就读 · 值得投入 · 知道即可</dd>
+      <dt>直径</dt><dd>难度 —— 是属性，不是环</dd>
+      <dt>材质</dt><dd>气态 = 思想（理论/叙事）· 岩石 = 工具（工程/实操）</dd>
+      <dt>星环</dt><dd>经典 · 常读常新</dd>
+      <dt>暖光</dt><dd>当下正热的范式（LLM / agent）</dd>
+      <dt>色</dt><dd>
+        <span class="sw" style="background:var(--q-found)"></span>基础
+        <span class="sw" style="background:var(--q-model)"></span>模型
+        <span class="sw" style="background:var(--q-sys)"></span>工程
+        <span class="sw" style="background:var(--q-app)"></span>应用
+      </dd>
+    </dl>
+  </div>
+
+  <div id="book"></div>
+
+  <div id="path">
+    <div class="hd"><span>阅读路径</span><span>由浅入深</span></div>
+    <ol id="pathlist"></ol>
+  </div>
+</div>
+
+<script>
+const C=document.getElementById('c'),X=C.getContext('2d');
+let W,H,CX,CY,R,DPR=Math.min(devicePixelRatio||1,2);
+let grain=null;
+
+function resize(){
+  W=C.width=innerWidth*DPR; H=C.height=innerHeight*DPR;
+  C.style.width=innerWidth+'px'; C.style.height=innerHeight+'px';
+  // 构图：雷达要同时避开左下的图注和右边的面板列，
+  // 而象限标签在 1.14R 处 —— 半径必须按标签的外沿算，不是按圆的外沿算。
+  CX=W*0.455; CY=H*0.52;
+  R=Math.min(W*0.39, H*0.395);
+  grain=makeGrain();
+}
+addEventListener('resize',resize);
+
+// 纸张颗粒 —— 一次性烘到离屏 canvas，别每帧算
+function makeGrain(){
+  const g=document.createElement('canvas'); g.width=200; g.height=200;
+  const gx=g.getContext('2d'), d=gx.createImageData(200,200);
+  for(let i=0;i<d.data.length;i+=4){
+    const v=Math.random()*255;
+    d.data[i]=d.data[i+1]=d.data[i+2]=v;
+    d.data[i+3]=Math.random()*11;
+  }
+  gx.putImageData(d,0,0); return g;
+}
+
+// ── 状态 ──
+let scene='galaxy', zoom=.60, zoomTo=.60, mix=0, mixTo=0;
+let roles=[],galaxy=[],radar=null,bodies=[],hovered=null,active=null;
+let roleColor='#2f3f96', t=0, curRole=null;
+
+// ── 书架（本地存储，零注册）──
+// 每本书一条记录：state 想读/在读/读过；读过后补 finished + useful。
+// 这份数据将来会异步打到后端做飞轮燃料，现在先本地跑通个人体验。
+const SHELF_KEY='radar_shelf_v1';
+let shelf = JSON.parse(localStorage.getItem(SHELF_KEY) || '{}');
+function saveShelf(){ localStorage.setItem(SHELF_KEY, JSON.stringify(shelf)); }
+function shelfOf(isbn){ return shelf[isbn] || null; }
+function setShelf(isbn, patch){
+  shelf[isbn] = {...(shelf[isbn]||{}), ...patch, ts: Date.now()};
+  saveShelf(); syncShelf(isbn);
+}
+function readISBNs(){ return Object.keys(shelf).filter(i=>shelf[i].state==='read'); }
+
+// ── 后端对接：匿名账号 + 书架双写 + 事件打点（飞轮燃料）──
+// 本地 localStorage 即时反馈，后端持久化 + 汇总。离线也不影响个人体验。
+let actor = localStorage.getItem('radar_actor') || null;
+async function initActor(){
+  try{
+    const r = await fetch('/api/user/anon',{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({id:actor})}).then(r=>r.json());
+    actor = r.id; localStorage.setItem('radar_actor', actor);
+    Object.keys(shelf).forEach(syncShelf);   // 首次把已有本地书架同步上去
+  }catch(e){}
+}
+function syncShelf(isbn){
+  if(!actor) return;
+  const s = shelf[isbn];
+  const body = s
+    ? {actor,isbn,state:s.state||null,finished:s.finished||null,useful:s.useful||null,
+       curated:s.curated!==undefined?s.curated:1,meta:s.meta||null}
+    : {actor,isbn,state:null,finished:null,useful:null};   // 无记录 = 已删除
+  fetch('/api/shelf',{method:'PUT',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body)}).catch(()=>{});
+}
+function logEvent(action,isbn,context,value){
+  if(!actor) return;
+  fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({actor,action,isbn:isbn||null,context:context||null,value:value||null})}).catch(()=>{});
+}
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('on');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('on'), 1900);
+}
+
+// 轨道往外推：行星要画得够大才有性格，内圈太挤会撞在一起。
+const BANDS={adopt:[.24,.44],trial:[.52,.70],assess:[.78,.96]};
+const RING_ORDER=['adopt','trial','assess'];
+const RING_N={adopt:'ADOPT　现在就读',trial:'TRIAL　值得投入',
+              assess:'ASSESS　知道即可',hold:'HOLD　这本已经死了'};
+const INK_DEAD='#8f4030';
+
+const QUAD={
+  foundations:{a0:-Math.PI,   a1:-Math.PI/2, name:'基础与理论', ink:'#2f3f96'},
+  models:     {a0:-Math.PI/2, a1:0,          name:'模型与算法', ink:'#a83252'},
+  applied:    {a0:0,          a1:Math.PI/2,  name:'产品与应用', ink:'#b0761c'},
+  systems:    {a0:Math.PI/2,  a1:Math.PI,    name:'工程与系统', ink:'#1d6b58'},
+};
+// 够大才画得出行星。5px 的球画不出任何东西 —— 细节只会变成噪点。
+const SIZE={entry:7.6,intermediate:10.2,hardcore:13.2};
+const DIFF_N={entry:'入门',intermediate:'进阶',hardcore:'硬核'};
+
+const lerp=(a,b,k)=>a+(b-a)*k;
+function mixHex(a,b,k){
+  const pa=[1,3,5].map(i=>parseInt(a.substr(i,2),16));
+  const pb=[1,3,5].map(i=>parseInt(b.substr(i,2),16));
+  return '#'+pa.map((v,i)=>Math.round(v+(pb[i]-v)*k).toString(16).padStart(2,'0')).join('');
+}
+// 确定性随机：同一颗星每帧都长一样，但每颗星互不相同
+function rng(seed){ let s=seed>>>0||1; return()=>{s=(s*1664525+1013904223)>>>0; return s/4294967296;}; }
+
+// 思想书 = 气态巨行星（弥漫、抽象）；工具书 = 岩石行星（坚实、具体）
+const MATERIAL = ct => (ct==='theory'||ct==='narrative') ? 'gas' : 'rock';
+
+// ── 数据 ──
+async function boot(){
+  [roles,galaxy]=await Promise.all([
+    fetch('/api/roles').then(r=>r.json()),
+    fetch('/api/galaxy').then(r=>r.json()),
+  ]);
+  // 不展示已死书籍。衰变引擎照常判死（死书仍不进推荐），只是不再渲染。
+  galaxy=galaxy.filter(b=>!b.dead);
+  document.getElementById('nTot').textContent=galaxy.length;
+
+  document.getElementById('roles').innerHTML=roles.map(r=>{
+    const ink={'applied-llm-dev':'#1d6b58','ml-engineer':'#2f3f96','researcher':'#a83252',
+               'ai-pm':'#b0761c','data-scientist':'#6b4b8f'}[r.key]||'#16181d';
+    return `<div class="role" style="--c:${ink}" data-k="${r.key}" data-ink="${ink}">
+      <div class="row"><span class="glyph"></span><span class="nm">${r.label}</span></div>
+      <div class="tg">${r.tagline}</div></div>`;
+  }).join('');
+  document.querySelectorAll('.role').forEach(el=>
+    el.onclick=()=>fly(el.dataset.k, el.dataset.ink));
+
+  buildGalaxy(); resize();
+  initActor();   // 登记匿名账号 + 同步本地书架到后端
+
+  // 分享链接直达：?role=xxx 自动拉近该角色的雷达
+  const urlRole=new URLSearchParams(location.search).get('role');
+  if(urlRole && roles.find(r=>r.key===urlRole)){
+    const el=document.querySelector(`.role[data-k="${urlRole}"]`);
+    if(el){ setTimeout(()=>fly(urlRole, el.dataset.ink), 400); }
+  }
+}
+
+function buildGalaxy(){
+  bodies=galaxy.map((b,i)=>{
+    const q=QUAD[b.quadrant];
+    const g=i*2.39996;
+    const rr=.30+.70*Math.sqrt(((i*13)%19)/19);
+    const ang=q.a0+(q.a1-q.a0)*(.5+.44*Math.sin(g*1.7));
+    return {b,ring:null,data:null,
+      gx:Math.cos(ang)*rr, gy:Math.sin(ang)*rr,
+      rx:0,ry:0,x:0,y:0,
+      size:SIZE[b.difficulty], seed:(i*7919+11)>>>0,
+      material:MATERIAL(b.content_type),
+      hot:(b.paradigm==='llm'||b.paradigm==='agentic')};   // 当下正热的范式，发暖光
+  });
+}
+
+async function fly(key,ink){
+  roleColor=ink; curRole=key;
+  logEvent('role_select', null, {role:key});   // 飞轮信号：角色分布
+  radar=await (await fetch('/api/radar/'+key)).json();
+  const all=[...radar.rings.adopt,...radar.rings.trial,...radar.rings.assess];  // 不含 hold
+  const byIsbn={}; all.forEach(b=>byIsbn[b.isbn]=b);
+
+  const groups={};
+  all.forEach(b=>{const k=b.ring+'|'+b.quadrant;(groups[k]||=[]).push(b);});
+  const pos={};
+  Object.entries(groups).forEach(([k,list])=>{
+    const [ring,quad]=k.split('|'); const q=QUAD[quad],band=BANDS[ring];
+    const n=list.length, rows=n>4?2:1;
+    list.forEach((b,i)=>{
+      const row=i%rows, ir=Math.floor(i/rows), nr=Math.ceil((n-row)/rows);
+      const pad=.17;
+      const f=nr===1?.5:pad+(ir/(nr-1))*(1-2*pad);
+      const st=row*(.5/Math.max(nr,2))*(1-2*pad);
+      const ang=q.a0+(f+st)*(q.a1-q.a0);
+      const rf=rows===1?band[0]+(band[1]-band[0])*.5
+                       :band[0]+(band[1]-band[0])*(row===0?.28:.75);
+      pos[b.isbn]={ang,rf,ring};
+    });
+  });
+
+  bodies.forEach(bd=>{
+    const p=pos[bd.b.isbn];
+    bd.ring=p.ring; bd.data=byIsbn[bd.b.isbn];
+    bd.ang=p.ang; bd.rf=p.rf;
+  });
+
+  relax();
+  bodies.forEach(bd=>{
+    bd.rx=Math.cos(bd.ang)*bd.rf;
+    bd.ry=Math.sin(bd.ang)*bd.rf;
+  });
+  appendExternalBodies();   // 追加个人图层：用户从图书馆加的书，最外圈
+
+  document.getElementById('intro').classList.remove('on');
+  document.getElementById('who').textContent=radar.profile.label;
+  document.getElementById('goal').textContent=radar.profile.goal;
+  renderPath();
+  scene='flying'; zoomTo=1.0; mixTo=1.0;
+  setTimeout(()=>{scene='radar';document.getElementById('radar').classList.add('on');},1450);
+}
+
+/* 碰撞松弛。
+ *
+ * 行星一放大就会撞在一起 —— 研究员的 7 本 adopt 书全在同一象限，
+ * 挤在一条窄弧上必然重叠。手调间距是治标；正确做法是让它们互相排斥，
+ * 同时约束在自己的环带和象限扇区里（环和象限是语义，不能动；角度和半径可以）。
+ */
+function relax(){
+  const ITER=140;
+  // 归一化半径下的「碰撞半径」（含星环的宽度 + 留白）
+  const rad = bd => (bd.size*2.55 + 3) / (R || 1);
+
+  for(let it=0; it<ITER; it++){
+    for(let i=0;i<bodies.length;i++){
+      for(let j=i+1;j<bodies.length;j++){
+        const a=bodies[i], b=bodies[j];
+        const ax=Math.cos(a.ang)*a.rf, ay=Math.sin(a.ang)*a.rf;
+        const bx=Math.cos(b.ang)*b.rf, by=Math.sin(b.ang)*b.rf;
+        let dx=bx-ax, dy=by-ay;
+        let d=Math.hypot(dx,dy);
+        const need=rad(a)+rad(b);
+        if(d>=need || d<1e-6) continue;
+
+        const push=(need-d)/2*0.55;
+        dx/=d; dy/=d;
+        move(a, -dx*push, -dy*push);
+        move(b,  dx*push,  dy*push);
+      }
+    }
+  }
+
+  function move(bd,dx,dy){
+    const x=Math.cos(bd.ang)*bd.rf+dx, y=Math.sin(bd.ang)*bd.rf+dy;
+    let ang=Math.atan2(y,x), rf=Math.hypot(x,y);
+
+    // 约束回自己的环带（半径 = 环 = 立场，不能越界）
+    const [r0,r1]=BANDS[bd.ring];
+    const pad=(r1-r0)*0.08;
+    bd.rf=Math.min(r1-pad, Math.max(r0+pad, rf));
+
+    // 约束回自己的象限扇区（角度 = 象限，也不能越界）
+    const q=QUAD[bd.b.quadrant];
+    let a0=q.a0, a1=q.a1;
+    const apad=(a1-a0)*0.07;
+    // 把角度折算到与扇区同一圈上，避免 ±π 处跳变
+    while(ang < a0-Math.PI) ang+=6.28318;
+    while(ang > a1+Math.PI) ang-=6.28318;
+    bd.ang=Math.min(a1-apad, Math.max(a0+apad, ang));
+  }
+}
+
+function recompute(){
+  // 第一屏：整片星系极缓自转，让它像活的星云。
+  // 拉近后（mix→1）自转淡出，星星归位到静止的轨道上。
+  const spin = scene==='galaxy' ? t*0.00004 : 0;
+  const cs=Math.cos(spin), sn=Math.sin(spin);
+  bodies.forEach(b=>{
+    const gx=b.gx*cs-b.gy*sn, gy=b.gx*sn+b.gy*cs;
+    b.x=CX+lerp(gx,b.rx,mix)*R*zoom;
+    b.y=CY+lerp(gy,b.ry,mix)*R*zoom;
+  });
+}
+
+// ── 绘制 ──
+function drawPaper(){
+  X.fillStyle='#f0ede4'; X.fillRect(0,0,W,H);
+  // 极淡的四象限底色晕染（像图版上的水彩淡彩，不是发光星云）
+  X.globalCompositeOperation='multiply';
+  Object.values(QUAD).forEach(q=>{
+    const mid=(q.a0+q.a1)/2, rr=R*zoom*.72;
+    const px=CX+Math.cos(mid)*rr*.55, py=CY+Math.sin(mid)*rr*.55;
+    const g=X.createRadialGradient(px,py,0,px,py,R*zoom*.85);
+    g.addColorStop(0,q.ink+'14'); g.addColorStop(1,q.ink+'00');
+    X.fillStyle=g; X.fillRect(0,0,W,H);
+  });
+  X.globalCompositeOperation='source-over';
+  // 纸张颗粒
+  if(grain){
+    const p=X.createPattern(grain,'repeat');
+    X.globalAlpha=.55; X.fillStyle=p; X.fillRect(0,0,W,H); X.globalAlpha=1;
+  }
+}
+
+function drawChart(){
+  const k=mix; if(k<.02) return;
+  const rz=R*zoom;
+
+  // 轨道「带」：内核（ADOPT）用角色色晕染，一眼看出「现在就读」的核心。
+  const band=(r0,r1,col,a)=>{
+    const g=X.createRadialGradient(CX,CY,r0*rz, CX,CY,r1*rz);
+    g.addColorStop(0,col+'00'); g.addColorStop(.5,col+a); g.addColorStop(1,col+'00');
+    X.fillStyle=g;
+    X.beginPath(); X.arc(CX,CY,r1*rz,0,6.28);
+    X.arc(CX,CY,r0*rz,0,6.28,true); X.fill();
+  };
+  X.globalAlpha=k;
+  band(0, BANDS.adopt[1], roleColor, '14');           // 内核晕染
+  X.globalAlpha=1;
+
+  // 轨道：清晰的实线，环是主角
+  RING_ORDER.forEach(r=>{
+    const [i0,i1]=BANDS[r], rad=(i0+i1)/2*rz;
+    X.strokeStyle = r==='hold' ? INK_DEAD : '#16181d';
+    X.globalAlpha = k*(r==='hold'?.5:.28);
+    X.lineWidth=(r==='adopt'?1.4:1)*DPR;
+    X.setLineDash(r==='hold'?[6*DPR,5*DPR]:[]);
+    X.beginPath(); X.arc(CX,CY,rad,0,6.28); X.stroke();
+    X.setLineDash([]);
+  });
+
+  // 环名：印在图上（12 点方向），像真正的图版标注
+  X.globalAlpha=k;
+  X.font=`600 ${9.5*DPR}px "SF Mono",ui-monospace,monospace`;
+  X.textAlign='center'; X.textBaseline='middle';
+  RING_ORDER.forEach(r=>{
+    const [i0,i1]=BANDS[r], rad=(i0+i1)/2*rz;
+    const label=RING_N[r].split('　')[0];
+    const w=X.measureText(label).width+10*DPR;
+    X.fillStyle='#f0ede4'; X.globalAlpha=k*.92;
+    X.fillRect(CX-w/2, CY-rad-6.5*DPR, w, 13*DPR);
+    X.globalAlpha=k;
+    X.fillStyle = r==='hold'?INK_DEAD:'#16181d';
+    X.fillText(label, CX, CY-rad);
+  });
+
+  // 外圈刻度（图版的仪器感）
+  X.globalAlpha=k*.35; X.strokeStyle='#16181d'; X.lineWidth=1*DPR;
+  for(let i=0;i<72;i++){
+    const a=i/72*6.28, len=(i%9===0?7:3.5)*DPR, r0=rz*1.045;
+    X.beginPath();
+    X.moveTo(CX+Math.cos(a)*r0, CY+Math.sin(a)*r0);
+    X.lineTo(CX+Math.cos(a)*(r0+len), CY+Math.sin(a)*(r0+len));
+    X.stroke();
+  }
+
+  // 象限分割 + 名字
+  X.globalAlpha=k;
+  Object.values(QUAD).forEach(q=>{
+    X.globalAlpha=k*.16; X.strokeStyle='#16181d'; X.lineWidth=1*DPR;
+    X.beginPath(); X.moveTo(CX,CY);
+    X.lineTo(CX+Math.cos(q.a0)*rz*1.04, CY+Math.sin(q.a0)*rz*1.04); X.stroke();
+
+    const mid=(q.a0+q.a1)/2;
+    X.globalAlpha=k;
+    X.font=`600 ${11.5*DPR}px "PingFang SC",sans-serif`;
+    X.fillStyle=q.ink;
+    X.fillText(q.name, CX+Math.cos(mid)*rz*1.14, CY+Math.sin(mid)*rz*1.14);
+  });
+
+  // 圆心 = 你所在的位置。带十字准星和标注，是整张雷达的锚点。
+  X.globalAlpha=k;
+  X.strokeStyle=roleColor; X.lineWidth=1*DPR;
+  X.globalAlpha=k*.5;
+  [7,12].forEach(rr=>{ X.beginPath(); X.arc(CX,CY,rr*DPR,0,6.28); X.stroke(); });
+  const tk=16*DPR;
+  X.beginPath();
+  X.moveTo(CX-tk,CY); X.lineTo(CX-9*DPR,CY);
+  X.moveTo(CX+9*DPR,CY); X.lineTo(CX+tk,CY);
+  X.moveTo(CX,CY-tk); X.lineTo(CX,CY-9*DPR);
+  X.moveTo(CX,CY+9*DPR); X.lineTo(CX,CY+tk);
+  X.stroke();
+  X.globalAlpha=k;
+  X.fillStyle=roleColor;
+  X.beginPath(); X.arc(CX,CY,2.6*DPR,0,6.28); X.fill();
+  X.font=`600 ${8.5*DPR}px "SF Mono",ui-monospace,monospace`;
+  X.textAlign='left'; X.textBaseline='middle';
+  X.fillStyle=roleColor; X.globalAlpha=k*.75;
+  X.fillText('你在这里', CX+20*DPR, CY);
+  X.globalAlpha=1;
+}
+
+/* 行星。
+ *
+ * 关键：**不要画高光点**。那个白色的小亮斑正是「塑料珠」的元凶。
+ * 真实的行星是 limb darkening —— 中心亮、边缘暗，光从整个视面漫射过来。
+ * 再加上表面条带（像木星），小尺寸下这一条最能建立「这是个行星」的感觉。
+ */
+function drawPlanet(bd){
+  const b=bd.b, q=QUAD[b.quadrant];
+  const on = bd===hovered||bd===active;
+  const s = bd.size*DPR*zoom*(on?1.28:1);
+  const x=bd.x, y=bd.y;
+  if(s < 1.2) return;
+
+  // 个人图层：用户从图书馆加的书 —— 空心星 + 虚线环 + 用户色，明确「未策展」
+  if(bd.external){
+    if(mix<.2) return;                       // 只在雷达（非星系）出现
+    X.globalAlpha=mix;
+    X.strokeStyle=q.ink; X.lineWidth=1.4*DPR;
+    X.beginPath(); X.arc(x,y,s,0,6.28); X.stroke();       // 空心圆（无填充）
+    X.fillStyle=q.ink; X.globalAlpha=mix*.18;
+    X.beginPath(); X.arc(x,y,s,0,6.28); X.fill();         // 极淡填充
+    X.globalAlpha=mix*.6; X.setLineDash([2*DPR,2.5*DPR]);
+    X.beginPath(); X.arc(x,y,s+3.5*DPR,0,6.28); X.stroke();
+    X.setLineDash([]); X.globalAlpha=1;
+    if(on){
+      X.font=`600 ${11.5*DPR}px "PingFang SC",sans-serif`;
+      X.textAlign='center'; X.textBaseline='bottom';
+      const label=(b.title.length>30?b.title.slice(0,29)+'…':b.title)+' · 我加的';
+      X.fillStyle='#16181d'; X.fillText(label, x, y-s-9*DPR);
+    }
+    return;
+  }
+
+  const dead = bd.ring==='hold';
+  const ink = dead ? '#7d7168' : q.ink;
+  // 每颗星的自转倾角略有不同 —— 全都一个角度会显得机械
+  const tilt = -0.30 - ((bd.seed%100)/100)*0.26;
+
+  // 选中：外圈定位环（像图版上的标记圈）
+  if(on){
+    X.strokeStyle=dead?INK_DEAD:q.ink; X.globalAlpha=.85; X.lineWidth=1*DPR;
+    X.beginPath(); X.arc(x,y,s*2.3,0,6.28); X.stroke();
+    X.globalAlpha=.22; X.setLineDash([2*DPR,3*DPR]);
+    X.beginPath(); X.arc(x,y,s*3.1,0,6.28); X.stroke();
+    X.setLineDash([]); X.globalAlpha=1;
+  }
+
+  const ringed = b.kind==='classic';
+  const RI=1.55, RO=2.30;                // 环的内/外半径（留出与球体的间隙）
+  const FLAT=0.30;                       // 环面的透视压扁
+  const R2=rng(bd.seed);                 // 每颗星专属的随机序列
+  const gas = bd.material==='gas';
+
+  // ⓪ 「当下正热」的范式：一层极淡暖光（llm / agentic）
+  if(bd.hot && !dead && mix>.3){
+    X.globalAlpha=(.22+.10*Math.sin(t*.0018+bd.seed))*mix;
+    const gg=X.createRadialGradient(x,y,s*.9,x,y,s*2.4);
+    gg.addColorStop(0,'#e8a13a'); gg.addColorStop(1,'#e8a13a00');
+    X.fillStyle=gg; X.beginPath(); X.arc(x,y,s*2.4,0,6.28); X.fill();
+    X.globalAlpha=1;
+  }
+
+  // ① 环 · 后半（被行星挡住的那半，先画）
+  if(ringed){
+    X.save(); X.translate(x,y); X.rotate(tilt);
+    X.globalAlpha=dead?.28:.42;
+    X.strokeStyle=ink; X.lineWidth=Math.max(1.1*DPR, s*.16);
+    X.beginPath(); X.ellipse(0,0,s*((RI+RO)/2), s*((RI+RO)/2)*FLAT, 0, Math.PI, 6.28);
+    X.stroke();
+    X.restore(); X.globalAlpha=1;
+  }
+
+  // ② 球体
+  X.save();
+  X.beginPath(); X.arc(x,y,s,0,6.28); X.clip();
+
+  // 底：limb darkening（中心亮 → 边缘暗，没有高光点）
+  const g=X.createRadialGradient(x-s*.16, y-s*.18, s*.04, x, y, s*1.03);
+  g.addColorStop(0,   mixHex(ink,'#ffffff', dead?.14:(gas?.34:.24)));
+  g.addColorStop(.55, ink);
+  g.addColorStop(1,   mixHex(ink,'#0d0f14', dead?.30:.44));
+  X.fillStyle=g; X.fillRect(x-s,y-s,s*2,s*2);
+
+  if(!dead && s>2.4*DPR){
+    X.save(); X.translate(x,y); X.rotate(tilt);
+    const LT=mixHex(ink,'#ffffff',.72), DK=mixHex(ink,'#0b0d12',.55);
+    if(gas){
+      // 气态巨行星 = 木星。粗的、高对比的水平条带，一眼认出。
+      // 用矩形条（边缘清晰，像真正的云带），不用柔和椭圆。
+      const nb=4+Math.floor(R2()*3);
+      let cy=-1.05;
+      for(let i=0; i<nb && cy<1.05; i++){
+        const h=.14+R2()*.20, light=i%2===0;
+        X.globalAlpha=light? .40 : .34;
+        X.fillStyle= light? LT : DK;
+        X.fillRect(-s*1.05, cy*s, s*2.1, h*s);
+        cy += h + .015;
+      }
+      // 大红斑：多数气态星有一个醒目的涡旋
+      if(R2()>.35){
+        const sx=(R2()-.5)*1.0, sy=(R2()-.35)*.7;
+        X.globalAlpha=.62;
+        X.fillStyle=mixHex(ink,'#e0592e',.62);
+        X.beginPath(); X.ellipse(sx*s, sy*s, s*(.20+R2()*.12), s*(.13+R2()*.07), 0, 0, 6.28); X.fill();
+        X.globalAlpha=.35; X.fillStyle=mixHex(ink,'#0b0d12',.4);
+        X.beginPath(); X.ellipse(sx*s, sy*s, s*(.20+R2()*.12)*.55, s*(.13)*.55, 0, 0, 6.28); X.fill();
+      }
+    } else {
+      // 岩石行星 = 月球。清晰的陨石坑（深心 + 亮环缘），一眼认出。
+      const np=3+Math.floor(R2()*3);
+      for(let i=0;i<np;i++){
+        const a=R2()*6.28, rr=.15+R2()*.62, dx=Math.cos(a)*rr, dy=Math.sin(a)*rr;
+        const cs=s*(.15+R2()*.16);
+        // 坑：深心
+        X.globalAlpha=.42; X.fillStyle=DK;
+        X.beginPath(); X.arc(dx*s,dy*s,cs,0,6.28); X.fill();
+        // 坑缘：受光的亮环（光从左上来 → 环的左上半亮）
+        X.globalAlpha=.5; X.strokeStyle=LT; X.lineWidth=Math.max(1,cs*.30);
+        X.beginPath(); X.arc(dx*s,dy*s,cs*.92, Math.PI*1.05, Math.PI*2.05); X.stroke();
+      }
+      X.globalAlpha=1;
+    }
+    X.globalAlpha=1; X.restore();
+  }
+
+  // 凹坑 —— 已死的星球，被时间撞穿了
+  if(dead && s>3*DPR){
+    const cr=[[-.36,-.18,.30],[.30,.10,.24],[-.06,.42,.19],[.18,-.44,.16],[-.50,.26,.14],[.46,-.12,.12]];
+    cr.forEach(([dx,dy,rr],i)=>{
+      if((bd.seed+i*17)%6===0) return;
+      const cx=x+dx*s, cy=y+dy*s, cs=rr*s;
+      X.globalAlpha=.34; X.fillStyle='#2e251f';
+      X.beginPath(); X.arc(cx,cy,cs,0,6.28); X.fill();
+      X.globalAlpha=.18; X.fillStyle='#e8e0d2';
+      X.beginPath(); X.arc(cx+cs*.20, cy+cs*.20, cs*.66, 0, 6.28); X.fill();
+    });
+    X.globalAlpha=1;
+  }
+
+  // 晨昏线：一道柔和的暗部压在右下，强化球体感（所有星都有）
+  const term=X.createRadialGradient(x-s*.35,y-s*.4,s*.1, x-s*.35,y-s*.4,s*1.5);
+  term.addColorStop(0,'#0d0f1400'); term.addColorStop(1,'#0d0f14'+(dead?'22':'30'));
+  X.fillStyle=term; X.fillRect(x-s,y-s,s*2,s*2);
+  X.restore();
+
+  // ③ 边缘线 —— 铜版画的关键：每个天体都有一道细边
+  X.strokeStyle = dead ? '#4e4139' : mixHex(ink,'#0d0f14',.55);
+  X.globalAlpha = .5; X.lineWidth=1*DPR;
+  X.beginPath(); X.arc(x,y,s,0,6.28); X.stroke();
+  X.globalAlpha=1;
+
+  // ④ 环 · 前半 + 环缝（双环，像真正的土星）
+  if(ringed){
+    X.save(); X.translate(x,y); X.rotate(tilt);
+    X.lineCap='butt';
+    X.globalAlpha=dead?.5:.9;
+    X.strokeStyle=ink; X.lineWidth=Math.max(1.1*DPR, s*.15);
+    X.beginPath(); X.ellipse(0,0, s*1.72, s*1.72*FLAT, 0, 0, Math.PI); X.stroke();
+    X.globalAlpha=dead?.3:.55;
+    X.lineWidth=Math.max(.9*DPR, s*.09);
+    X.beginPath(); X.ellipse(0,0, s*2.12, s*2.12*FLAT, 0, 0, Math.PI); X.stroke();
+    X.restore(); X.globalAlpha=1;
+  }
+
+  // ⑤ 已死：划掉
+  if(dead && mix>.35){
+    X.globalAlpha=.92*mix; X.strokeStyle=INK_DEAD; X.lineWidth=1.6*DPR;
+    const k=s*1.30;
+    X.beginPath();
+    X.moveTo(x-k,y-k); X.lineTo(x+k,y+k);
+    X.moveTo(x+k,y-k); X.lineTo(x-k,y+k);
+    X.stroke(); X.globalAlpha=1;
+  }
+
+  // ⑥ 已读：金环 + 右上对勾徽章（你的阅读足迹）
+  const sh = shelfOf(b.isbn);
+  if(sh && sh.state==='read' && mix>.3){
+    X.globalAlpha=mix;
+    X.strokeStyle='#b0761c'; X.lineWidth=1.6*DPR;
+    X.beginPath(); X.arc(x,y,s+3*DPR,0,6.28); X.stroke();
+    const bx=x+s*0.72, by=y-s*0.72, br=4.2*DPR;
+    X.fillStyle='#b0761c';
+    X.beginPath(); X.arc(bx,by,br,0,6.28); X.fill();
+    X.strokeStyle='#faf8f2'; X.lineWidth=1.3*DPR; X.lineCap='round';
+    X.beginPath();
+    X.moveTo(bx-br*.45,by); X.lineTo(bx-br*.05,by+br*.4); X.lineTo(bx+br*.5,by-br*.4);
+    X.stroke(); X.lineCap='butt';
+    X.globalAlpha=1;
+  } else if(sh && (sh.state==='want'||sh.state==='reading') && mix>.3){
+    // 想读/在读：一圈虚线环，比已读弱
+    X.globalAlpha=.7*mix;
+    X.strokeStyle=sh.state==='reading'?'#1d6b58':'#8a8f9c'; X.lineWidth=1.2*DPR;
+    X.setLineDash([2*DPR,2.5*DPR]);
+    X.beginPath(); X.arc(x,y,s+3*DPR,0,6.28); X.stroke();
+    X.setLineDash([]); X.globalAlpha=1;
+  }
+
+  // 悬停标签：引线 + 描白圆角标签牌。
+  // 始终往「远离圆心」的方向引出 —— 那一侧一定是空的，绝不会压到别的星或环名；
+  // 再把标签牌夹进画布内。
+  if(on){
+    const label=b.title.length>42?b.title.slice(0,41)+'…':b.title;
+    X.font=`600 ${12*DPR}px "PingFang SC","Avenir Next",sans-serif`;
+    const w=X.measureText(label).width, pad=8*DPR, bh=22*DPR;
+
+    // 沿半径方向往外
+    const ux=(x-CX), uy=(y-CY), ul=Math.hypot(ux,uy)||1;
+    const nx=ux/ul, ny=uy/ul;
+    let ax=x+nx*(s+16*DPR), ay=y+ny*(s+16*DPR);
+
+    // 标签牌朝右还是朝左，取决于往外后落在画布哪半边
+    const right = ax < W*0.62;
+    let bx = right ? ax : ax-w-pad*2;
+    // 夹进画布
+    bx=Math.max(8*DPR, Math.min(W-w-pad*2-8*DPR, bx));
+    ay=Math.max(bh/2+8*DPR, Math.min(H-bh/2-8*DPR, ay));
+
+    // 引线
+    X.strokeStyle=dead?INK_DEAD:q.ink; X.globalAlpha=.55; X.lineWidth=1*DPR;
+    X.beginPath(); X.moveTo(x+nx*s, y+ny*s);
+    X.lineTo(ax, ay); X.stroke(); X.globalAlpha=1;
+
+    // 标签牌
+    const tx=bx, ty=ay-bh/2;
+    X.fillStyle='#faf8f2';
+    X.strokeStyle=dead?INK_DEAD:q.ink; X.lineWidth=1*DPR;
+    if(X.roundRect){ X.beginPath(); X.roundRect(tx,ty,w+pad*2,bh,3*DPR); X.fill(); X.stroke(); }
+    else { X.fillRect(tx,ty,w+pad*2,bh); X.strokeRect(tx,ty,w+pad*2,bh); }
+    X.fillStyle='#16181d'; X.textAlign='left'; X.textBaseline='middle';
+    X.fillText(label, tx+pad, ay);
+  }
+}
+
+function loop(now){
+  t=now; requestAnimationFrame(loop);
+  if(!W||!bodies.length) return;
+  zoom+=(zoomTo-zoom)*.055;
+  mix +=(mixTo -mix )*.048;
+  recompute();
+  drawPaper();
+  if(scene!=='galaxy') drawChart();
+  bodies.slice()
+    .sort((a,b)=>(a===hovered||a===active?1:0)-(b===hovered||b===active?1:0))
+    .forEach(drawPlanet);
+}
+
+// ── 交互 ──
+C.addEventListener('mousemove',e=>{
+  const mx=e.clientX*DPR,my=e.clientY*DPR;
+  let best=null,bd=1e9;
+  bodies.forEach(b=>{
+    const d=Math.hypot(b.x-mx,b.y-my);
+    const hit=Math.max(17*DPR, b.size*DPR*zoom*1.7);
+    if(d<hit && d<bd){bd=d;best=b;}
+  });
+  hovered=best; C.style.cursor=best?'pointer':'default';
+});
+C.addEventListener('click',()=>{
+  if(scene!=='radar')return;
+  if(hovered){active=hovered;logEvent('open',hovered.b.isbn,{role:curRole,ring:hovered.ring});showBook(hovered);}
+  else{active=null;document.getElementById('book').classList.remove('on');}
+});
+
+function showBook(bd){
+  const b=bd.data||bd.b, q=QUAD[b.quadrant];
+  const el=document.getElementById('book');
+
+  // 个人图层书：未策展，无环立场，无社区 —— 只有你自己的收藏
+  if(bd.external){
+    el.style.setProperty('--rc', q.ink);
+    const s=shelfOf(b.isbn)||{};
+    const btns=[['want','想读'],['reading','在读'],['read','读过']]
+      .map(([k,n])=>`<button data-shelf="${k}" class="${s.state===k?'on':''}">${n}</button>`).join('');
+    el.innerHTML=`
+      <div class="bar" style="background:${q.ink}">个人图层 · 未策展</div>
+      <div class="body">
+        <h3>${b.title}</h3>
+        <div class="facts"><span>${b.authors[0]||'未知'}</span>
+          <span class="mono">${b.published||''}</span>
+          <span style="color:${q.ink};border-color:${q.ink}55">${q.name}</span></div>
+        <div class="h">关于这本书</div>
+        <p>你从图书馆加进来的书，未经策展 —— 没有环的立场判断，是你自己的待读。</p>
+        <div class="shelf">${btns}</div>
+        <div class="go">
+          <a href="https://openlibrary.org/isbn/${b.isbn}" target="_blank" rel="noopener">Open Library ↗</a>
+          <a href="https://search.douban.com/book/subject_search?search_text=${encodeURIComponent(b.title)}" target="_blank" rel="noopener">豆瓣搜索 ↗</a>
+        </div>
+        <div class="isbn mono">ISBN ${b.isbn} · 个人收藏 · <span id="rmExt" style="cursor:pointer;text-decoration:underline">从雷达移除</span></div>
+      </div>`;
+    el.querySelectorAll('[data-shelf]').forEach(btn=>btn.onclick=()=>{
+      const k=btn.dataset.shelf, cur=shelfOf(b.isbn);
+      if(!(cur&&cur.state===k)) setShelf(b.isbn,{state:k});
+      showBook(bd);
+    });
+    el.querySelector('#rmExt').onclick=()=>{
+      delete shelf[b.isbn]; saveShelf(); syncShelf(b.isbn);
+      appendExternalBodies(); el.classList.remove('on'); active=null;
+      toast('已从雷达移除');
+    };
+    el.classList.add('on');
+    return;
+  }
+
+  const col = q.ink;
+  el.style.setProperty('--rc',col);
+  const s = shelfOf(b.isbn) || {};
+
+  const shelfBtns = [['want','想读'],['reading','在读'],['read','读过']]
+    .map(([k,n])=>`<button data-shelf="${k}" class="${s.state===k?'on':''}">${n}</button>`).join('');
+
+  // 只有标了「读过」才问反馈 —— 完读才有资格评价（防刷，也是最诚实的信号）
+  let rateBlock = '';
+  if(s.state==='read'){
+    const fin=[['yes','读完了'],['partial','读了部分'],['dropped','弃了']]
+      .map(([k,n])=>`<button data-fin="${k}" class="${s.finished===k?'on':''}">${n}</button>`).join('');
+    const use=[['high','很有用'],['some','一般'],['none','没用']]
+      .map(([k,n])=>`<button data-use="${k}" class="${s.useful===k?'on':''}">${n}</button>`).join('');
+    rateBlock = `<div class="rate">
+      <div class="q">你读完了吗？</div><div class="opts">${fin}</div>
+      <div class="q">对你当前的目标有帮助吗？</div><div class="opts">${use}</div>
+    </div>`;
+    if(s.finished && s.useful) rateBlock += `<div class="done">✓ 已记录 · 感谢你喂给雷达的信号</div>`;
+  }
+
+  el.innerHTML=`
+    <div class="bar" style="background:${col}">${RING_N[b.ring]}</div>
+    <div class="body">
+      <h3>${b.title}</h3>
+      <div class="facts">
+        <span>${b.authors[0]}</span>
+        <span class="mono">${b.published}</span>
+        <span style="color:${q.ink};border-color:${q.ink}55">${q.name}</span>
+        <span>${DIFF_N[b.difficulty]}</span>
+        <span>${b.kind==='classic'?'经典 · 有星环':'时效'}</span>
+      </div>
+      <div class="h">这本书是什么</div>
+      <p>${b.note}</p>
+      <div class="h">为什么在这个环</div>
+      <p class="why">${b.reason}</p>
+      <div class="shelf">${shelfBtns}</div>
+      ${rateBlock}
+      <div class="h">社区书评</div>
+      <div class="reviews" id="rvBox"><div style="font-size:11px;color:var(--ink-3)">加载中…</div></div>
+      <div class="go">
+        <a href="${b.link_openlibrary}" target="_blank" rel="noopener">Open Library ↗</a>
+        <a href="${b.link_douban}" target="_blank" rel="noopener">豆瓣搜索 ↗</a>
+      </div>
+      <div class="isbn mono">ISBN ${b.isbn} · 已对 Open Library 逐条核实</div>
+    </div>`;
+
+  // 书架状态
+  el.querySelectorAll('[data-shelf]').forEach(btn=>btn.onclick=()=>{
+    const k=btn.dataset.shelf;
+    const cur=shelfOf(b.isbn);
+    if(cur && cur.state===k){ delete shelf[b.isbn]; saveShelf(); syncShelf(b.isbn); }  // 再点取消
+    else setShelf(b.isbn,{state:k});
+    showBook(bd); updateMine();
+    if(radar) renderPath();   // 已读的书从阅读路径里划掉
+  });
+  // 读完反馈
+  el.querySelectorAll('[data-fin]').forEach(btn=>btn.onclick=()=>{
+    setShelf(b.isbn,{finished:btn.dataset.fin}); showBook(bd);
+  });
+  el.querySelectorAll('[data-use]').forEach(btn=>btn.onclick=()=>{
+    setShelf(b.isbn,{useful:btn.dataset.use}); showBook(bd);
+  });
+
+  el.classList.add('on');
+  loadReviews(b.isbn, bd);   // L3 社区书评（异步）
+}
+
+// ── L3 社区书评 ──
+async function loadReviews(isbn, bd){
+  const box=document.getElementById('rvBox');
+  if(!box) return;
+  let list=[];
+  try{ list=await fetch(`/api/reviews?isbn=${isbn}&actor=${actor||''}`).then(r=>r.json()); }catch{}
+  const canReview = shelfOf(isbn)?.state==='read';   // 防刷：读过才能评
+  let html='';
+  if(canReview){
+    html+=`<div class="add"><textarea id="rvText" maxlength="2000" placeholder="读完后，你会对同行说什么？"></textarea><button id="rvPost">发布</button></div>`;
+  }else{
+    html+=`<div class="locked">标记「读过」后才能写书评 —— 评价资格绑定阅读</div>`;
+  }
+  if(list.length){
+    html+=list.map(r=>`<div class="rv"><div class="txt">${esc(r.text)}</div>
+      <div class="foot"><span class="who">${r.actor.slice(0,11)}…</span>
+      <span class="up ${r.mine?'voted':''}" data-rid="${r.id}">👍 有用 ${r.up||0}</span></div></div>`).join('');
+  }else if(canReview){
+    html+=`<div style="font-size:11px;color:var(--ink-3);padding:6px 0">还没有书评 · 你可以写第一条</div>`;
+  }
+  box.innerHTML=html;
+  const postBtn=box.querySelector('#rvPost');
+  if(postBtn) postBtn.onclick=async()=>{
+    const text=box.querySelector('#rvText').value.trim();
+    if(text.length<2){ toast('书评太短了'); return; }
+    const r=await fetch('/api/reviews',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({actor,isbn,text})}).then(x=>x.json()).catch(()=>({}));
+    if(r.ok){ toast('书评已发布'); loadReviews(isbn,bd); } else toast(r.detail||'发布失败');
+  };
+  box.querySelectorAll('.up').forEach(el=>el.onclick=async()=>{
+    const rid=el.dataset.rid;
+    await fetch(`/api/reviews/${rid}/vote`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({actor,useful:!el.classList.contains('voted')})}).catch(()=>{});
+    loadReviews(isbn,bd);
+  });
+}
+function esc(s){ return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function updateMine(){
+  const n=readISBNs().length;
+  const el=document.getElementById('mine');
+  if(el) el.innerHTML = n ? `已读 <b>${n}</b> 本 · 点星球标记` : '点开任意星球，标记你的阅读';
+}
+
+function renderPath(){
+  const lib={};
+  [...radar.rings.adopt,...radar.rings.trial,...radar.rings.assess]
+    .forEach(b=>lib[b.isbn]=b);
+  const ol=document.getElementById('pathlist');
+  const read=new Set(readISBNs());
+  const remaining=radar.path.filter(i=>!read.has(i));   // 读过的从路径里划掉
+  ol.innerHTML=remaining.map(i=>{
+    const b=lib[i];
+    return `<li data-i="${i}">${b.title.length>34?b.title.slice(0,33)+'…':b.title}</li>`;
+  }).join('') || `<li style="cursor:default;color:var(--ink-3)">这条路径你已读完 ✓</li>`;
+  ol.querySelectorAll('li[data-i]').forEach(li=>li.onclick=()=>{
+    const bd=bodies.find(x=>x.b.isbn===li.dataset.i);
+    if(bd){active=bd;logEvent('open',bd.b.isbn,{role:curRole,ring:bd.ring});showBook(bd);}
+  });
+}
+
+document.getElementById('back').onclick=()=>{
+  document.getElementById('radar').classList.remove('on');
+  document.getElementById('book').classList.remove('on');
+  active=hovered=null; curRole=null;
+  scene='galaxy'; zoomTo=.60; mixTo=0;
+  bodies.forEach(b=>b.ring=null);
+  history.replaceState(null,'',location.pathname);
+  setTimeout(()=>document.getElementById('intro').classList.add('on'),300);
+};
+
+// ── 分享 ──
+document.getElementById('shareLink').onclick=async()=>{
+  const url = location.origin+location.pathname+'?role='+curRole;
+  try{ await navigator.clipboard.writeText(url); toast('链接已复制 · 发给同行看你的雷达'); }
+  catch{ toast(url); }
+};
+document.getElementById('shareImg').onclick=()=>{
+  // 导出当前雷达画布。临时把 UI 覆盖层排除 —— canvas 本就只画星云，不含 DOM。
+  const a=document.createElement('a');
+  const label = radar ? radar.profile.label : 'radar';
+  a.download = `AI读书雷达-${label}.png`;
+  a.href = C.toDataURL('image/png');
+  a.click();
+  toast('已保存「'+label+'」的雷达图');
+};
+
+// ── 三空间导航 ──
+let space='radar';
+function showSpace(name){
+  space=name;
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.space===name));
+  document.getElementById('library').classList.toggle('on', name==='library');
+  document.getElementById('community').classList.toggle('on', name==='community');
+  if(name==='library') renderLibrary();
+  if(name==='community') loadCommunity();
+}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>showSpace(b.dataset.space));
+
+// ── 图书馆（独立页：全量浏览 + 搜索 + 筛选）──
+let libFilter=null;
+function cardHTML(b, curated, external){
+  const q=QUAD[b.quadrant]||QUAD.applied, added=shelfOf(b.isbn);
+  const tags = curated
+    ? `<span>${q.name}</span><span>${DIFF_N[b.difficulty]||''}</span><span>${b.kind==='classic'?'经典':'时效'}</span>`
+    : `<span>${q.name}</span><span style="color:var(--q-app)">未策展</span>`;
+  const btn = external
+    ? `<button class="cadd ${added?'added':''}" data-add="${encodeURIComponent(JSON.stringify({isbn:b.isbn,title:b.title,authors:b.authors,published:b.published}))}">${added?'已加入':'加进雷达'}</button>`
+    : `<button class="cadd" data-locate="${b.isbn}">在雷达上看 ↗</button>`;
+  return `<div class="card" style="--cc:${q.ink}">
+    <div class="ct">${b.title}</div>
+    <div class="cm">${(b.authors||[])[0]||''} · ${b.published||''}</div>
+    <div class="ctags">${tags}</div>${btn}</div>`;
+}
+function bindCards(box){
+  box.querySelectorAll('[data-locate]').forEach(btn=>btn.onclick=e=>{
+    e.stopPropagation();
+    const isbn=btn.dataset.locate;
+    showSpace('radar');
+    if(!curRole){ toast('先选一个角色进入雷达，就能看到这本书'); return; }
+    const bd=bodies.find(x=>x.b.isbn===isbn);
+    if(bd){ active=bd; logEvent('open',isbn,{role:curRole,src:'library'}); showBook(bd); }
+  });
+  box.querySelectorAll('[data-add]').forEach(btn=>btn.onclick=e=>{
+    e.stopPropagation();
+    if(btn.classList.contains('added')) return;
+    addExternalBook(JSON.parse(decodeURIComponent(btn.dataset.add)));
+    btn.classList.add('added'); btn.textContent='已加入';
+  });
+}
+async function renderLibrary(q){
+  const grid=document.getElementById('libGrid');
+  document.getElementById('libClear').style.display = q?'':'none';
+  if(q && q.length>=2){
+    grid.innerHTML='<div class="lempty">搜索中…</div>';
+    let r; try{ r=await fetch(`/api/search?q=${encodeURIComponent(q)}&actor=${actor||''}`).then(x=>x.json()); }
+    catch{ grid.innerHTML='<div class="lempty">搜索失败</div>'; return; }
+    let html='';
+    if(r.curated.length){ html+='<div class="lgrp">雷达内 · 已策展（有观点）</div>'; r.curated.forEach(b=>html+=cardHTML(b,true,false)); }
+    if(r.external.length){ html+='<div class="lgrp">外部大库 · 可加进个人图层</div>'; r.external.forEach(b=>html+=cardHTML(b,false,true)); }
+    grid.innerHTML=html || '<div class="lempty">没找到 · 换个关键词试试</div>';
+  } else {
+    let books; try{ books=await fetch(`/api/books?actor=${actor||''}`).then(x=>x.json()); }
+    catch{ grid.innerHTML='<div class="lempty">加载失败</div>'; return; }
+    if(libFilter) books=books.filter(b=>b.quadrant===libFilter);
+    grid.innerHTML=books.map(b=>cardHTML(b, b.curated===1, b.curated===0)).join('') || '<div class="lempty">空</div>';
+  }
+  bindCards(grid);
+}
+function initLibFilters(){
+  const box=document.getElementById('libFilters');
+  const opts=[['','全部'],['foundations','基础与理论'],['models','模型与算法'],['systems','工程与系统'],['applied','产品与应用']];
+  box.innerHTML=opts.map(([k,n])=>`<button data-q="${k}" class="${k===(libFilter||'')?'on':''}">${n}</button>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    libFilter=b.dataset.q||null;
+    box.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+    document.getElementById('libInput').value='';
+    renderLibrary();
+  });
+}
+document.getElementById('libGo').onclick=()=>renderLibrary(document.getElementById('libInput').value.trim());
+document.getElementById('libInput').onkeydown=e=>{ if(e.key==='Enter') renderLibrary(e.target.value.trim()); };
+document.getElementById('libClear').onclick=()=>{ document.getElementById('libInput').value=''; renderLibrary(); };
+
+// ── 社区（独立页：全站书评流）──
+let comSort='recent';
+async function loadCommunity(){
+  const feed=document.getElementById('comFeed');
+  feed.innerHTML='<div class="cempty">加载中…</div>';
+  let list; try{ list=await fetch(`/api/community?sort=${comSort}`).then(r=>r.json()); }
+  catch{ feed.innerHTML='<div class="cempty">加载失败</div>'; return; }
+  if(!list.length){ feed.innerHTML='<div class="cempty">还没有书评 · 去雷达上标记「读过」，写下第一条</div>'; return; }
+  feed.innerHTML=list.map(r=>{
+    const q=QUAD[r.quadrant]||QUAD.applied;
+    return `<div class="citem" data-isbn="${r.isbn}">
+      <div class="cbook"><span class="dot" style="background:${q.ink}"></span>${r.book_title}</div>
+      <div class="ctxt">${esc(r.text)}</div>
+      <div class="cfoot"><span class="cwho">${r.actor.slice(0,11)}…</span><span class="cup">👍 有用 ${r.up||0}</span></div>
+    </div>`;
+  }).join('');
+  feed.querySelectorAll('.citem').forEach(el=>el.onclick=()=>{
+    showSpace('radar');
+    if(!curRole){ toast('先选一个角色进入雷达，看这本书'); return; }
+    const bd=bodies.find(x=>x.b.isbn===el.dataset.isbn);
+    if(bd){ active=bd; showBook(bd); }
+  });
+}
+document.querySelectorAll('.csort button').forEach(b=>b.onclick=()=>{
+  comSort=b.dataset.sort;
+  document.querySelectorAll('.csort button').forEach(x=>x.classList.toggle('on',x===b));
+  loadCommunity();
+});
+initLibFilters();
+
+async function addExternalBook(b){
+  const quadrant='applied';   // 外部书默认象限，个人图层语义中性
+  shelf[b.isbn]={state:'want',curated:0,
+    meta:{title:b.title,authors:b.authors||[],published:b.published,quadrant},ts:Date.now()};
+  saveShelf(); updateMine();
+  try{ await fetch('/api/library/add',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({actor,isbn:b.isbn,title:b.title,authors:b.authors||[],published:b.published,quadrant})});}catch{}
+  toast('已加进你的雷达 ·「'+b.title.slice(0,18)+'」');
+  if(scene==='radar'){ appendExternalBodies(); recompute(); }
+}
+
+// 外部书（个人图层）：放各象限最外圈，作为「我的待读」弧带
+function makeExternalBody(isbn, meta, idxInQuad, nInQuad){
+  const quad=meta.quadrant||'applied', q=QUAD[quad];
+  const pad=.16, f=nInQuad<=1?.5:pad+(idxInQuad/(nInQuad-1))*(1-2*pad);
+  const ang=q.a0+f*(q.a1-q.a0), rf=1.02;   // assess(.96) 之外，最外缘
+  return {
+    b:{isbn,title:meta.title,authors:meta.authors||[],published:meta.published,
+       quadrant:quad,difficulty:'intermediate',kind:'timely',
+       content_type:'narrative',paradigm:'llm'},
+    external:true, ring:'mine', data:null,
+    ang, rf, rx:Math.cos(ang)*rf, ry:Math.sin(ang)*rf,
+    gx:0,gy:0,x:0,y:0, size:SIZE.intermediate*0.85,
+    material:'gas', hot:false, seed:(isbn.length*131)>>>0,
+  };
+}
+function appendExternalBodies(){
+  bodies=bodies.filter(b=>!b.external);   // 先清旧的外部书，避免重复
+  const ext=Object.entries(shelf).filter(([,s])=>s.curated===0 && s.meta);
+  const byQuad={};
+  ext.forEach(([isbn,s])=>{ (byQuad[s.meta.quadrant||'applied'] ||= []).push([isbn,s]); });
+  Object.values(byQuad).forEach(list=>{
+    list.forEach(([isbn,s],i)=> bodies.push(makeExternalBody(isbn,s.meta,i,list.length)));
+  });
+}
+
+boot();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

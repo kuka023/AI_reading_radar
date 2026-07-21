@@ -1,0 +1,21 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# 运行时数据库（由 db.init_db 自动生成，不入库）
+data/radar.db
+data/radar.db-wal
+data/radar.db-shm
+
+# 备份文件
+data/*.bak
+data/*.bak.json
+*.bak
+
+# 系统
+.DS_Store
+
+# 误建的空目录占位
+gitignore/

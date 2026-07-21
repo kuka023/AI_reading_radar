@@ -1,0 +1,29 @@
+{
+  "_comment": "用户画像。刻意做小 —— 填写成本越高，冷启动越难。goal 是自由文本，是最强的个性化信号；read 比任何自评都准。",
+  "profiles": {
+    "llm-app-dev": {
+      "label": "LLM 应用开发者",
+      "role": "applied-llm-dev",
+      "goal": "六个月内能独立设计并上线一个生产级 agent 系统，包括评估和可观测性",
+      "math_tolerance": "medium",
+      "read": ["9781098107963"],
+      "time_budget": "2h/week"
+    },
+    "researcher": {
+      "label": "研究员 / 想转研究",
+      "role": "researcher",
+      "goal": "读懂并复现 arXiv 上的新论文，最终能自己提出方法",
+      "math_tolerance": "high",
+      "read": [],
+      "time_budget": "8h/week"
+    },
+    "career-switcher": {
+      "label": "从后端转 AI 的工程师",
+      "role": "ml-engineer",
+      "goal": "从后端工程转到 ML 工程岗，先补上模型和数据的地基",
+      "math_tolerance": "low",
+      "read": ["9781449373320"],
+      "time_budget": "5h/week"
+    }
+  }
+}
