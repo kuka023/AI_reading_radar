@@ -28,10 +28,14 @@
     font:14px/1.6 "PingFang SC","Avenir Next","Helvetica Neue",sans-serif;
     -webkit-font-smoothing:antialiased;
   }
-  canvas{position:fixed;inset:0;display:block}
+  #c{position:fixed;inset:0;display:block}   /* 主星空画布固定铺满；#pc 个人雷达画布走正常文档流 */
 
   .layer{position:fixed;inset:0;pointer-events:none;opacity:0;transition:all .65s cubic-bezier(.4,0,.2,1);transform:scale(1.02) translateY(8px)}
   .layer.on{opacity:1;pointer-events:auto;transform:scale(1) translateY(0)}
+  /* 雷达屏：覆盖层要让指针事件穿透到 canvas（星球的 hover/点击在 canvas 上），
+     只有它的交互控件恢复可点。否则整块 #radar 会吃掉所有点击 = 点不动星球。 */
+  #radar.on{pointer-events:none}
+  #radar.on #hud, #radar.on #share, #radar.on #key, #radar.on #path{pointer-events:auto}
 
   .mono{font-family:"SF Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
 
@@ -50,7 +54,7 @@
   .foot{}
   .cue{font-size:10px;letter-spacing:.2em;color:var(--ink-3);
        text-transform:uppercase;margin-bottom:13px;text-align:center}
-  .roles{display:grid;grid-template-columns:repeat(5,1fr);gap:0;
+  .roles{display:grid;grid-template-columns:repeat(4,1fr);gap:0;
          border-top:1px solid var(--rule);border-left:1px solid var(--rule)}
   .role{
     padding:16px 15px 17px; cursor:pointer;
@@ -109,9 +113,9 @@
            margin-right:3px;vertical-align:-1px;transition:transform .2s ease}
   #key dt:hover .sw{transform:scale(1.5)}
 
-  /* 详情：实心卡片，无毛玻璃 */
+  /* 详情：全局浮层卡片，可覆盖任意空间 */
   #book{
-    position:absolute;top:38px;right:46px;width:326px;
+    position:fixed;top:38px;right:46px;width:326px;z-index:65;
     background:#faf8f2;border:1px solid var(--ink);
     box-shadow:7px 7px 0 #16181d0d, 0 0 0 0 var(--rc)00;
     opacity:0;transform:translate(9px,-4px) scale(.96);pointer-events:none;
@@ -125,6 +129,22 @@
              background:var(--rc)}
   #book .body{padding:18px}
   #book h3{font-size:17px;line-height:1.35;letter-spacing:-.01em;margin-bottom:8px}
+  /* 封面 + 标题 + 评分 的头部 */
+  #book .chead{display:flex;gap:13px;margin-bottom:14px}
+  #book .cover{width:84px;height:118px;flex:none;border-radius:3px;overflow:hidden;
+    background:var(--rc)12;border:1px solid var(--rc)44;position:relative;
+    display:flex;align-items:center;justify-content:center;color:var(--rc);font-size:30px}
+  #book .cover img{width:100%;height:100%;object-fit:cover;display:block}
+  #book .cover .lbl{position:absolute;bottom:0;left:0;right:0;font-size:8px;letter-spacing:.1em;
+    text-align:center;padding:2px 0;background:var(--rc)22;color:var(--ink-2)}
+  #book .cmeta{flex:1;min-width:0}
+  #book .chead h3{margin-bottom:5px}
+  #book .cauth{font-size:11px;color:var(--ink-3);line-height:1.5;margin-bottom:8px}
+  #book .rating{font-size:11.5px;color:var(--ink-2);line-height:1.5}
+  #book .rating .stars{color:#b0761c;letter-spacing:1px;font-size:13px}
+  #book .rating .big{font-weight:600;color:var(--ink);font-size:15px;margin-right:3px}
+  #book .rating .none{color:var(--ink-3);font-size:10.5px}
+  #book .cextra{font-size:10px;color:var(--ink-3);margin-top:6px;letter-spacing:.02em}
   #book .facts{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px}
   #book .facts span{font-size:10px;letter-spacing:.04em;padding:3px 8px;
                     border:1px solid var(--rule);color:var(--ink-2);
@@ -180,7 +200,7 @@
                 border-radius:3px;transition:all .22s;display:flex;align-items:center;gap:6px}
   #share button:hover{background:var(--ink);color:#faf8f2;transform:translateY(-1px)}
   /* 详情打开时，右下的阅读路径让位，避免重叠 */
-  #book.on ~ #path{opacity:0 !important;pointer-events:none}
+  body.bookopen #path{opacity:0 !important;pointer-events:none}
   #toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);
          background:var(--ink);color:#faf8f2;padding:11px 22px;border-radius:4px;font-size:12px;
          opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:20}
@@ -296,17 +316,141 @@
                    font-family:"SF Mono",ui-monospace,monospace;font-size:9.5px;
                    color:var(--ink-3);top:9px;transition:all .25s ease}
   #path li:hover::before{color:var(--ink);font-weight:600}
+
+  /* ── 个人空间 ── */
+  #personal .pebar{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+  #personal .pebar button{border:1px solid var(--ink);background:#faf8f2;cursor:pointer;font:inherit;
+    font-size:11px;padding:7px 13px;border-radius:3px;color:var(--ink);transition:all .18s}
+  #personal .pebar button:hover{background:var(--ink);color:#faf8f2}
+  .pmain{display:flex;gap:22px;align-items:stretch}
+  .pshelf{width:236px;flex:none;display:flex;flex-direction:column}
+  .ptabs{display:flex;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:12px}
+  .ptabs button{flex:1;border:0;background:#faf8f2;cursor:pointer;font:inherit;font-size:11.5px;
+    padding:8px 0;color:var(--ink-2);transition:all .18s}
+  .ptabs button+button{border-left:1px solid var(--rule)}
+  .ptabs button.on{background:var(--ink);color:#faf8f2}
+  .pshelflist{display:flex;flex-direction:column;gap:8px;max-height:560px;overflow-y:auto;padding-right:2px}
+  .pitem{border:1px solid var(--rule);border-radius:4px;padding:10px 11px;background:#faf8f2;
+    cursor:grab;transition:all .18s;border-left:3px solid var(--cc,#ccc)}
+  .pitem:hover{border-color:var(--ink-3);transform:translateY(-1px);box-shadow:2px 2px 0 #16181d0d}
+  .pitem:active{cursor:grabbing}
+  .pitem .pt{font-size:12px;font-weight:600;line-height:1.35;color:var(--ink)}
+  .pitem .pm{font-size:10px;color:var(--ink-3);margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .pitem .placed{color:var(--cc);border:1px solid var(--cc);border-radius:10px;padding:1px 7px;cursor:pointer}
+  .pitem .placed:hover{background:var(--cc);color:#faf8f2}
+  .pshelf .pempty{font-size:11px;color:var(--ink-3);padding:24px 8px;text-align:center;line-height:1.6}
+  .pradar{flex:1;position:relative;min-height:560px;border:1px solid var(--rule);border-radius:6px;
+    background:#f4f1e8;overflow:hidden}
+  .pradar.drag{border-color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)22}
+  #pc{display:block;width:100%;height:100%}
+  .pdrophint{position:absolute;top:12px;left:14px;font-size:11px;color:var(--ink-3);pointer-events:none;
+    background:#faf8f2cc;padding:3px 9px;border-radius:10px}
+  .precs{margin-top:26px}
+  .prec{border-bottom:1px solid var(--rule);padding:12px 0;cursor:pointer;transition:background .18s}
+  .prec:hover{background:#00000005}
+  .prec .pb{font-size:12.5px;font-weight:600;color:var(--ink)}
+  .prec .ps{color:#b0761c;font-size:12px;letter-spacing:1px;margin-left:6px}
+  .prec .ptx{font-size:12px;color:var(--ink-2);margin-top:5px;line-height:1.6}
+  .precs .pempty{font-size:11.5px;color:var(--ink-3);padding:10px 0}
+
+  /* 书评打分星选择器 + 书评里的分数 */
+  #book .starspick{display:flex;gap:3px;margin:2px 0 8px}
+  #book .starspick span{cursor:pointer;font-size:18px;color:var(--ink-3);transition:color .12s,transform .12s}
+  #book .starspick span:hover{transform:scale(1.15)}
+  #book .starspick span.on{color:#b0761c}
+  #book .rv .score{color:#b0761c;font-size:11px;letter-spacing:1px;margin-left:6px}
+
+  /* ── 社区：成长路径 ── */
+  .csec{font-size:11px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;
+        margin:6px 0 14px;display:flex;align-items:center;justify-content:space-between}
+  .csec .csort{margin:0}
+  .cpaths{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:14px;margin-bottom:30px}
+  .cpath{border:1px solid var(--rule);border-left:3px solid var(--pc);border-radius:5px;
+         padding:15px 16px;cursor:pointer;background:#faf8f2;transition:all .2s cubic-bezier(.4,0,.2,1)}
+  .cpath:hover{transform:translateY(-2px);box-shadow:3px 3px 0 #16181d0d;border-color:var(--ink-3)}
+  .cpath .pth{font-size:14.5px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .cpath .ptag{font-size:9.5px;padding:2px 8px;border-radius:10px;color:#faf8f2;background:var(--pc)}
+  .cpath .plv{font-size:9.5px;color:var(--ink-3);border:1px solid var(--rule);border-radius:10px;padding:2px 8px}
+  .cpath .pgoal{font-size:12px;color:var(--ink-2);line-height:1.65;margin-top:9px}
+  .cpath .pmeta{font-size:10px;color:var(--ink-3);margin-top:11px;display:flex;justify-content:space-between;align-items:center}
+  .cpath .draft{color:#b0761c}
+
+  /* 路径详情弹层 */
+  #pathModal{position:fixed;inset:0;z-index:60;background:#16181dcc;display:none;
+             align-items:center;justify-content:center;padding:30px}
+  #pathModal.on{display:flex}
+  .pmcard{background:#faf8f2;border:1px solid var(--ink);border-radius:6px;width:min(560px,100%);
+          max-height:86vh;overflow-y:auto;box-shadow:9px 9px 0 #00000022}
+  .pmcard .pmbar{padding:16px 20px;border-bottom:1px solid var(--ink);color:#faf8f2;background:var(--pc);
+                 display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .pmcard .pmbar .x{cursor:pointer;font-size:18px;line-height:1;opacity:.85}
+  .pmcard .pmbar .x:hover{opacity:1}
+  .pmcard .pmtitle{font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .pmcard .pmtags{font-size:10px;margin-top:6px;opacity:.9}
+  .pmcard .pmbody{padding:18px 20px}
+  .pmcard .pmgoal{font-size:12.5px;color:var(--ink-2);line-height:1.7;margin-bottom:6px}
+  .pmcard .pmnote{font-size:10.5px;color:#b0761c;margin-bottom:16px}
+  .pmstep{display:flex;gap:13px;padding:13px 0;border-top:1px solid var(--rule);cursor:pointer;transition:all .18s}
+  .pmstep:hover{background:#00000004;padding-left:5px}
+  .pmstep .n{flex:none;width:22px;height:22px;border-radius:50%;border:1px solid var(--pc);color:var(--pc);
+             font-family:"SF Mono",ui-monospace,monospace;font-size:10px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .pmstep .st{font-size:13px;font-weight:600;color:var(--ink);line-height:1.4}
+  .pmstep .sw{font-size:11.5px;color:var(--ink-2);line-height:1.6;margin-top:4px}
+  .pmstep .sm{font-size:9.5px;color:var(--ink-3);margin-top:4px}
+
+  /* ── Phase 3：个性化规划器 ── */
+  .pplan{margin-bottom:24px;border:1px solid var(--rule);border-radius:6px;padding:16px 18px;background:#faf8f2}
+  .ppq{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .ppl{font-size:12.5px;font-weight:600;color:var(--ink)}
+  .pplan select{font:inherit;font-size:12px;padding:7px 10px;border:1px solid var(--rule);border-radius:4px;background:#fff;color:var(--ink);cursor:pointer}
+  .ppdays{display:flex;border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+  .ppdays button{border:0;background:#fff;font:inherit;font-size:11px;padding:7px 11px;cursor:pointer;color:var(--ink-2)}
+  .ppdays button+button{border-left:1px solid var(--rule)}
+  .ppdays button.on{background:var(--ink);color:#faf8f2}
+  #ppGo{border:1px solid var(--ink);background:var(--ink);color:#faf8f2;font:inherit;font-size:11.5px;padding:8px 15px;border-radius:4px;cursor:pointer;transition:opacity .18s}
+  #ppGo:hover{opacity:.85}
+  .ppresult{margin-top:6px}
+  .ppr-head{font-size:12px;color:var(--ink-2);margin:14px 0 4px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .ppr-add{border:1px solid var(--rc);background:none;color:var(--rc);font:inherit;font-size:11px;padding:6px 12px;border-radius:4px;cursor:pointer;transition:all .18s}
+  .ppr-add:hover{background:var(--rc);color:#faf8f2}
+  .ppstep{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--rule);cursor:pointer;transition:all .18s}
+  .ppstep:hover{background:#00000004;padding-left:4px}
+  .ppstep .n{flex:none;width:20px;height:20px;border-radius:50%;border:1px solid var(--rc);color:var(--rc);font-family:"SF Mono",ui-monospace,monospace;font-size:9.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .ppstep .st{font-size:12.5px;font-weight:600;color:var(--ink)}
+  .ppstep .sw{font-size:11px;color:var(--ink-2);margin-top:3px;line-height:1.55}
+  .ppstep .sm{font-size:9.5px;color:var(--ink-3);margin-top:3px}
+
+  /* ── Phase 2：飞轮评审台 ── */
+  .fwlink{font-size:10.5px;color:var(--ink-3);cursor:pointer;letter-spacing:0;text-transform:none}
+  .fwlink:hover{color:var(--ink)}
+  .fwbanner{font-size:11px;color:#b0761c;background:#b0761c14;border:1px solid #b0761c44;border-radius:4px;padding:8px 12px;margin-bottom:20px}
+  .fwth{display:flex;gap:22px;flex-wrap:wrap;font-size:11px;color:var(--ink-2);margin-bottom:24px}
+  .fwth b{color:var(--ink)}
+  .fwsec{font-size:11px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;margin:24px 0 12px;border-bottom:1px solid var(--rule);padding-bottom:8px}
+  .fwrow{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--rule)}
+  .fwrow .fwt{flex:1;min-width:0}
+  .fwrow .fwname{font-size:13px;font-weight:600;color:var(--ink)}
+  .fwrow .fwm{font-size:10.5px;color:var(--ink-3);margin-top:4px;font-family:"SF Mono",ui-monospace,monospace}
+  .fwrow .fwv{flex:none;font-size:11px;padding:5px 11px;border-radius:4px;font-weight:600;white-space:nowrap}
+  .fwv.pass{background:#0b845714;color:#0b8457;border:1px solid #0b845744}
+  .fwv.hold{background:#00000008;color:var(--ink-3);border:1px solid var(--rule)}
+  .fwv.demote{background:#c92a2a14;color:#c92a2a;border:1px solid #c92a2a44}
+  .fwrow .fwfail{font-size:10px;color:#c92a2a;margin-top:3px}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <div id="toast"></div>
 
-<!-- 顶层导航（左上角）：三个平级空间 -->
+<!-- 成长路径详情弹层 -->
+<div id="pathModal"><div class="pmcard" id="pmCard"></div></div>
+
+<!-- 顶层导航（左上角）：四个平级空间 -->
 <nav id="nav">
   <button data-space="radar" class="on"><span class="ic">◎</span>雷达</button>
   <button data-space="library"><span class="ic">▤</span>图书馆</button>
   <button data-space="community"><span class="ic">✎</span>社区</button>
+  <button data-space="personal"><span class="ic">★</span>我的</button>
 </nav>
 
 <!-- 图书馆：全量书目，可搜、可浏览、可加进雷达 -->
@@ -314,9 +458,9 @@
   <div class="pwrap">
     <div class="phead">
       <div class="ptitle">图书馆</div>
-      <div class="psub">全量书目 · 策展 89 本（有观点）+ 你从外部大库加进来的书</div>
+      <div class="psub">业务共建资料库 · 书 / 课程 / 文档 / 文章（有观点）+ 你从外部大库加进来的书</div>
       <div class="lsearch">
-        <input id="libInput" placeholder="搜书名或作者，含外部大库…" autocomplete="off">
+        <input id="libInput" placeholder="搜名称或作者，含外部大库…" autocomplete="off">
         <button id="libGo">搜索</button>
         <button id="libClear" style="display:none">清除</button>
       </div>
@@ -326,18 +470,82 @@
   </div>
 </div>
 
-<!-- 社区：全站书评流 -->
+<!-- 社区：成长路径 + 讨论/推荐流 -->
 <div class="layer page" id="community">
   <div class="pwrap">
     <div class="phead">
       <div class="ptitle">社区</div>
-      <div class="psub">读过的人写下的书评 · 评价资格绑定阅读，没读过不能评</div>
-      <div class="csort">
+      <div class="psub">按目标走的成长路径 · 读过的人写下的推荐（打分 + 理由），没读过不能评</div>
+    </div>
+    <div class="csec">成长路径 · 按目标看该读哪些
+      <span class="fwlink" id="fwOpen">▸ 飞轮评审台（内部）</span>
+    </div>
+    <div class="cpaths" id="comPaths"></div>
+    <div class="csec">讨论 · 推荐流
+      <span class="csort">
         <button data-sort="recent" class="on">最新</button>
         <button data-sort="top">最有用</button>
-      </div>
+      </span>
     </div>
     <div class="cfeed" id="comFeed"></div>
+  </div>
+</div>
+
+<!-- 我的：个人雷达（拖书上去）+ 书架 + 推荐 -->
+<div class="layer page" id="personal">
+  <div class="pwrap">
+    <div class="phead">
+      <div class="ptitle" id="peTitle">我的雷达</div>
+      <div class="psub" id="peSub">把书从书架拖到雷达 · 环 = 你自己的立场 · 分享给同行</div>
+      <div class="pebar">
+        <button id="peShareLink">⇗ 复制我的雷达链接</button>
+        <button id="peShareImg">⇩ 存我的雷达图</button>
+        <button id="peExit" style="display:none">← 回到我的雷达</button>
+      </div>
+    </div>
+    <div class="pplan" id="pePlan">
+      <div class="ppq">
+        <span class="ppl">✦ 为我规划</span>
+        <select id="ppGoal"></select>
+        <span class="ppdays" id="ppDays">
+          <button data-d="30" class="on">30 天</button>
+          <button data-d="60">60 天</button>
+          <button data-d="90">90 天</button>
+        </span>
+        <button id="ppGo">生成学习路径</button>
+      </div>
+      <div class="ppresult" id="ppResult"></div>
+    </div>
+    <div class="pmain">
+      <aside class="pshelf">
+        <div class="ptabs" id="peTabs">
+          <button data-st="want" class="on">未读</button>
+          <button data-st="reading">在读</button>
+          <button data-st="read">已读</button>
+        </div>
+        <div class="pshelflist" id="peShelf"></div>
+      </aside>
+      <div class="pradar">
+        <canvas id="pc"></canvas>
+        <div class="pdrophint" id="peHint">把左侧的书拖到某个环上 →</div>
+      </div>
+    </div>
+    <div class="precs">
+      <div class="h">我的推荐</div>
+      <div id="peRecs"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 飞轮评审台（内部/专家）：准入 + 降级队列，现阶段模拟信号 -->
+<div class="layer page" id="flywheel">
+  <div class="pwrap">
+    <div class="phead">
+      <div class="ptitle">飞轮 · 评审台</div>
+      <div class="psub" id="fwSub">高分书经专家评审后入雷达 · 低分/过时书进降级队列 —— 人工闸门不可省</div>
+      <div class="pebar"><button id="fwBack">← 回到社区</button></div>
+    </div>
+    <div id="fwBody"></div>
   </div>
 </div>
 
@@ -345,11 +553,11 @@
   <div class="masthead">
     <div>
       <h1>AI 读书雷达</h1>
-      <div class="claim">环表达立场，不是难度 —— 因人而异的下一本 AI 好书</div>
+      <div class="claim">环表达立场，不是难度 —— 按能力族拉近属于你的那片资料星云</div>
     </div>
     <div class="tally">
       <div class="n mono"><span id="nTot">—</span></div>
-      <div class="l">在册</div>
+      <div class="l">项资料</div>
     </div>
   </div>
   <div class="foot">
@@ -375,26 +583,23 @@
     <div class="hd">图注 · Key</div>
     <dl>
       <dt>轨道</dt><dd>内→外：现在就读 · 值得投入 · 知道即可</dd>
+      <dt>行星</dt><dd>书籍 —— 气态=思想书 · 岩石=工具书</dd>
+      <dt>星环</dt><dd>在线课程 —— 有结构的学习路径</dd>
+      <dt>方片</dt><dd>官方文档 —— 参考资料</dd>
+      <dt>彗星</dt><dd>文章 —— 快读与指路</dd>
       <dt>直径</dt><dd>难度 —— 是属性，不是环</dd>
-      <dt>材质</dt><dd>气态 = 思想（理论/叙事）· 岩石 = 工具（工程/实操）</dd>
-      <dt>星环</dt><dd>经典 · 常读常新</dd>
-      <dt>暖光</dt><dd>当下正热的范式（LLM / agent）</dd>
-      <dt>色</dt><dd>
-        <span class="sw" style="background:var(--q-found)"></span>基础
-        <span class="sw" style="background:var(--q-model)"></span>模型
-        <span class="sw" style="background:var(--q-sys)"></span>工程
-        <span class="sw" style="background:var(--q-app)"></span>应用
-      </dd>
+      <dt>暖光</dt><dd>业务强推（★★★★）</dd>
     </dl>
   </div>
-
-  <div id="book"></div>
 
   <div id="path">
     <div class="hd"><span>阅读路径</span><span>由浅入深</span></div>
     <ol id="pathlist"></ol>
   </div>
 </div>
+
+<!-- 详情面板：全局浮层，可从雷达 / 我的 / 图书馆等任意空间弹出 -->
+<div id="book"></div>
 
 <script>
 const C=document.getElementById('c'),X=C.getContext('2d');
@@ -458,8 +663,8 @@ function syncShelf(isbn){
   const s = shelf[isbn];
   const body = s
     ? {actor,isbn,state:s.state||null,finished:s.finished||null,useful:s.useful||null,
-       curated:s.curated!==undefined?s.curated:1,meta:s.meta||null}
-    : {actor,isbn,state:null,finished:null,useful:null};   // 无记录 = 已删除
+       curated:s.curated!==undefined?s.curated:1,meta:s.meta||null,stance:s.stance||''}
+    : {actor,isbn,state:null,finished:null,useful:null,stance:''};   // 无记录 = 已删除
   fetch('/api/shelf',{method:'PUT',headers:{'Content-Type':'application/json'},
     body:JSON.stringify(body)}).catch(()=>{});
 }
@@ -474,22 +679,19 @@ function toast(msg){
   clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('on'), 1900);
 }
 
-// 轨道往外推：行星要画得够大才有性格，内圈太挤会撞在一起。
-const BANDS={adopt:[.24,.44],trial:[.52,.70],assess:[.78,.96]};
-const RING_ORDER=['adopt','trial','assess'];
-const RING_N={adopt:'ADOPT　现在就读',trial:'TRIAL　值得投入',
-              assess:'ASSESS　知道即可',hold:'HOLD　这本已经死了'};
-const INK_DEAD='#8f4030';
+// 轨道往外推：天体要画得够大才有性格，内圈太挤会撞在一起。
+// 环 = 立场（策展观点）：内→外 = 现在就读 / 值得投入 / 知道即可。
+const BANDS={now:[.24,.46],invest:[.54,.72],know:[.80,.98]};
+const STANCE_ORDER=['now','invest','know'];
+const STANCE_N={now:'现在就读',invest:'值得投入',know:'知道即可'};
+const STANCE_EN={now:'NOW',invest:'INVEST',know:'KNOW'};
+const RTYPE_N={book:'书籍',course:'在线课程',doc:'官方文档',article:'文章'};
 
-const QUAD={
-  foundations:{a0:-Math.PI,   a1:-Math.PI/2, name:'基础与理论', ink:'#2f3f96'},
-  models:     {a0:-Math.PI/2, a1:0,          name:'模型与算法', ink:'#a83252'},
-  applied:    {a0:0,          a1:Math.PI/2,  name:'产品与应用', ink:'#b0761c'},
-  systems:    {a0:Math.PI/2,  a1:Math.PI,    name:'工程与系统', ink:'#1d6b58'},
-};
-// 够大才画得出行星。5px 的球画不出任何东西 —— 细节只会变成噪点。
-const SIZE={entry:7.6,intermediate:10.2,hardcore:13.2};
-const DIFF_N={entry:'入门',intermediate:'进阶',hardcore:'硬核'};
+// 能力族的色由后端 roles 给，boot 时填。
+let FAMILY_COLOR={};
+
+// 直径 = 难度（1–5）。够大才画得出细节，5px 的球只会变成噪点。
+const sizeOf = d => 6.4 + (Math.max(1,Math.min(5,d||3))-1)*1.9;   // d1≈6.4 … d5≈14
 
 const lerp=(a,b,k)=>a+(b-a)*k;
 function mixHex(a,b,k){
@@ -500,8 +702,8 @@ function mixHex(a,b,k){
 // 确定性随机：同一颗星每帧都长一样，但每颗星互不相同
 function rng(seed){ let s=seed>>>0||1; return()=>{s=(s*1664525+1013904223)>>>0; return s/4294967296;}; }
 
-// 思想书 = 气态巨行星（弥漫、抽象）；工具书 = 岩石行星（坚实、具体）
-const MATERIAL = ct => (ct==='theory'||ct==='narrative') ? 'gas' : 'rock';
+// 书籍材质：思想书 = 气态巨行星（弥漫、抽象）；工具书 = 岩石行星（坚实、具体）
+const MATERIAL = ct => (ct==='idea') ? 'gas' : 'rock';
 
 // ── 数据 ──
 async function boot(){
@@ -509,13 +711,11 @@ async function boot(){
     fetch('/api/roles').then(r=>r.json()),
     fetch('/api/galaxy').then(r=>r.json()),
   ]);
-  // 不展示已死书籍。衰变引擎照常判死（死书仍不进推荐），只是不再渲染。
-  galaxy=galaxy.filter(b=>!b.dead);
+  roles.forEach(r=>{ FAMILY_COLOR[r.family]=r.color; });
   document.getElementById('nTot').textContent=galaxy.length;
 
   document.getElementById('roles').innerHTML=roles.map(r=>{
-    const ink={'applied-llm-dev':'#1d6b58','ml-engineer':'#2f3f96','researcher':'#a83252',
-               'ai-pm':'#b0761c','data-scientist':'#6b4b8f'}[r.key]||'#16181d';
+    const ink=r.color;
     return `<div class="role" style="--c:${ink}" data-k="${r.key}" data-ink="${ink}">
       <div class="row"><span class="glyph"></span><span class="nm">${r.label}</span></div>
       <div class="tg">${r.tagline}</div></div>`;
@@ -526,70 +726,95 @@ async function boot(){
   buildGalaxy(); resize();
   initActor();   // 登记匿名账号 + 同步本地书架到后端
 
+  galaxy.forEach(g=>galaxyById[g.id]=g);
+
+  const params=new URLSearchParams(location.search);
   // 分享链接直达：?role=xxx 自动拉近该角色的雷达
-  const urlRole=new URLSearchParams(location.search).get('role');
+  const urlRole=params.get('role');
   if(urlRole && roles.find(r=>r.key===urlRole)){
     const el=document.querySelector(`.role[data-k="${urlRole}"]`);
     if(el){ setTimeout(()=>fly(urlRole, el.dataset.ink), 400); }
   }
+  // 分享链接：?me=<actor> 打开别人的个人雷达（只读）
+  const urlMe=params.get('me');
+  if(urlMe){ peViewActor=urlMe; showSpace('personal'); }
+  // 内部：?flywheel=1 直达飞轮评审台
+  if(params.get('flywheel')){ showSpace('flywheel'); }
 }
 
+// 星系全景：8 个能力族各占一个扇区，同族的资料聚在一起。
+const FAM_ORDER=['全员通用','技术·应用','技术·数据','技术·平台','产品','测试','项目管理','FDE'];
+function famAngle(fam, salt){
+  const i=Math.max(0,FAM_ORDER.indexOf(fam));
+  const a0=-Math.PI/2 + i/FAM_ORDER.length*6.28318;         // 从顶部起，顺时针
+  const span=6.28318/FAM_ORDER.length;
+  return a0 + span*(.5 + .42*Math.sin(salt*1.7));
+}
 function buildGalaxy(){
   bodies=galaxy.map((b,i)=>{
-    const q=QUAD[b.quadrant];
     const g=i*2.39996;
     const rr=.30+.70*Math.sqrt(((i*13)%19)/19);
-    const ang=q.a0+(q.a1-q.a0)*(.5+.44*Math.sin(g*1.7));
+    const ang=famAngle(b.family, g);
     return {b,ring:null,data:null,
+      color:FAMILY_COLOR[b.family]||'#16181d',
       gx:Math.cos(ang)*rr, gy:Math.sin(ang)*rr,
       rx:0,ry:0,x:0,y:0,
-      size:SIZE[b.difficulty], seed:(i*7919+11)>>>0,
+      size:sizeOf(b.difficulty), seed:(i*7919+11)>>>0,
       material:MATERIAL(b.content_type),
-      hot:(b.paradigm==='llm'||b.paradigm==='agentic')};   // 当下正热的范式，发暖光
+      hot:(b.rec>=4)};   // 业务强推（★★★★）发暖光
   });
 }
 
+let radarTopics=[];
 async function fly(key,ink){
   roleColor=ink; curRole=key;
   logEvent('role_select', null, {role:key});   // 飞轮信号：角色分布
   radar=await (await fetch('/api/radar/'+key)).json();
-  const all=[...radar.rings.adopt,...radar.rings.trial,...radar.rings.assess];  // 不含 hold
-  const byIsbn={}; all.forEach(b=>byIsbn[b.isbn]=b);
+  roleColor=radar.color||ink;
+  radarTopics=radar.topics||[];
+  const nT=radarTopics.length||1;
 
+  const all=[];
+  radar.rings.forEach(r=>r.items.forEach(it=>{it._stance=r.stance; all.push(it);}));
+  const byId={}; all.forEach(it=>byId[it.id]=it);
+
+  // 主题扇区（角向）× 立场环（径向）。同族里按主题聚类，同主题的挤在一个扇区。
   const groups={};
-  all.forEach(b=>{const k=b.ring+'|'+b.quadrant;(groups[k]||=[]).push(b);});
+  all.forEach(it=>{const k=it._stance+'|'+(it.topic||'');(groups[k]||=[]).push(it);});
   const pos={};
   Object.entries(groups).forEach(([k,list])=>{
-    const [ring,quad]=k.split('|'); const q=QUAD[quad],band=BANDS[ring];
+    const stance=k.split('|')[0], topic=k.split('|').slice(1).join('|');
+    const band=BANDS[stance];
+    let ti=radarTopics.indexOf(topic); if(ti<0) ti=0;
+    const a0=-Math.PI/2 + ti/nT*6.28318, span=6.28318/nT;
     const n=list.length, rows=n>4?2:1;
-    list.forEach((b,i)=>{
+    list.forEach((it,i)=>{
       const row=i%rows, ir=Math.floor(i/rows), nr=Math.ceil((n-row)/rows);
-      const pad=.17;
+      const pad=.16;
       const f=nr===1?.5:pad+(ir/(nr-1))*(1-2*pad);
-      const st=row*(.5/Math.max(nr,2))*(1-2*pad);
-      const ang=q.a0+(f+st)*(q.a1-q.a0);
+      const ang=a0+span*(0.10+0.80*f);
       const rf=rows===1?band[0]+(band[1]-band[0])*.5
-                       :band[0]+(band[1]-band[0])*(row===0?.28:.75);
-      pos[b.isbn]={ang,rf,ring};
+                       :band[0]+(band[1]-band[0])*(row===0?.30:.74);
+      pos[it.id]={ang,rf,stance,topic};
     });
   });
 
   bodies.forEach(bd=>{
-    const p=pos[bd.b.isbn];
-    bd.ring=p.ring; bd.data=byIsbn[bd.b.isbn];
-    bd.ang=p.ang; bd.rf=p.rf;
+    const p=pos[bd.b.id];
+    if(p){ bd.ring=p.stance; bd.data=byId[bd.b.id]; bd.ang=p.ang; bd.rf=p.rf; }
+    else { bd.ring=null; bd.data=null; }     // 非本族 —— 拉近时淡出
   });
 
   relax();
   bodies.forEach(bd=>{
-    bd.rx=Math.cos(bd.ang)*bd.rf;
-    bd.ry=Math.sin(bd.ang)*bd.rf;
+    if(bd.data){ bd.rx=Math.cos(bd.ang)*bd.rf; bd.ry=Math.sin(bd.ang)*bd.rf; }
+    else { bd.rx=bd.gx; bd.ry=bd.gy; }        // 非本族：留在原地淡出
   });
   appendExternalBodies();   // 追加个人图层：用户从图书馆加的书，最外圈
 
   document.getElementById('intro').classList.remove('on');
-  document.getElementById('who').textContent=radar.profile.label;
-  document.getElementById('goal').textContent=radar.profile.goal;
+  document.getElementById('who').textContent=radar.label;
+  document.getElementById('goal').textContent=radar.goal;
   renderPath();
   scene='flying'; zoomTo=1.0; mixTo=1.0;
   setTimeout(()=>{scene='radar';document.getElementById('radar').classList.add('on');},1450);
@@ -603,13 +828,15 @@ async function fly(key,ink){
  */
 function relax(){
   const ITER=140;
-  // 归一化半径下的「碰撞半径」（含星环的宽度 + 留白）
-  const rad = bd => (bd.size*2.55 + 3) / (R || 1);
+  const members=bodies.filter(b=>b.data);
+  const nT=radarTopics.length||1;
+  // 归一化半径下的「碰撞半径」（含留白）
+  const rad = bd => (bd.size*2.3 + 3) / (R || 1);
 
   for(let it=0; it<ITER; it++){
-    for(let i=0;i<bodies.length;i++){
-      for(let j=i+1;j<bodies.length;j++){
-        const a=bodies[i], b=bodies[j];
+    for(let i=0;i<members.length;i++){
+      for(let j=i+1;j<members.length;j++){
+        const a=members[i], b=members[j];
         const ax=Math.cos(a.ang)*a.rf, ay=Math.sin(a.ang)*a.rf;
         const bx=Math.cos(b.ang)*b.rf, by=Math.sin(b.ang)*b.rf;
         let dx=bx-ax, dy=by-ay;
@@ -629,16 +856,15 @@ function relax(){
     const x=Math.cos(bd.ang)*bd.rf+dx, y=Math.sin(bd.ang)*bd.rf+dy;
     let ang=Math.atan2(y,x), rf=Math.hypot(x,y);
 
-    // 约束回自己的环带（半径 = 环 = 立场，不能越界）
+    // 约束回自己的立场环带（半径 = 环 = 立场，不能越界）
     const [r0,r1]=BANDS[bd.ring];
     const pad=(r1-r0)*0.08;
     bd.rf=Math.min(r1-pad, Math.max(r0+pad, rf));
 
-    // 约束回自己的象限扇区（角度 = 象限，也不能越界）
-    const q=QUAD[bd.b.quadrant];
-    let a0=q.a0, a1=q.a1;
+    // 约束回自己的主题扇区（角度 = 主题，也不能越界）
+    let ti=radarTopics.indexOf(bd.b.topic); if(ti<0) ti=0;
+    const a0=-Math.PI/2 + ti/nT*6.28318, a1=a0+6.28318/nT;
     const apad=(a1-a0)*0.07;
-    // 把角度折算到与扇区同一圈上，避免 ±π 处跳变
     while(ang < a0-Math.PI) ang+=6.28318;
     while(ang > a1+Math.PI) ang-=6.28318;
     bd.ang=Math.min(a1-apad, Math.max(a0+apad, ang));
@@ -660,16 +886,15 @@ function recompute(){
 // ── 绘制 ──
 function drawPaper(){
   X.fillStyle='#f0ede4'; X.fillRect(0,0,W,H);
-  // 极淡的四象限底色晕染（像图版上的水彩淡彩，不是发光星云）
-  X.globalCompositeOperation='multiply';
-  Object.values(QUAD).forEach(q=>{
-    const mid=(q.a0+q.a1)/2, rr=R*zoom*.72;
-    const px=CX+Math.cos(mid)*rr*.55, py=CY+Math.sin(mid)*rr*.55;
-    const g=X.createRadialGradient(px,py,0,px,py,R*zoom*.85);
-    g.addColorStop(0,q.ink+'14'); g.addColorStop(1,q.ink+'00');
+  // 拉近后：以角色色做一层极淡的中心水彩晕染（像图版上的淡彩）
+  if(mix>.05){
+    X.globalCompositeOperation='multiply';
+    const g=X.createRadialGradient(CX,CY,0,CX,CY,R*zoom*1.0);
+    g.addColorStop(0,roleColor+Math.round(mix*22).toString(16).padStart(2,'0'));
+    g.addColorStop(1,roleColor+'00');
     X.fillStyle=g; X.fillRect(0,0,W,H);
-  });
-  X.globalCompositeOperation='source-over';
+    X.globalCompositeOperation='source-over';
+  }
   // 纸张颗粒
   if(grain){
     const p=X.createPattern(grain,'repeat');
@@ -690,32 +915,30 @@ function drawChart(){
     X.arc(CX,CY,r0*rz,0,6.28,true); X.fill();
   };
   X.globalAlpha=k;
-  band(0, BANDS.adopt[1], roleColor, '14');           // 内核晕染
+  band(0, BANDS.now[1], roleColor, '16');              // 内核晕染（现在就读）
   X.globalAlpha=1;
 
   // 轨道：清晰的实线，环是主角
-  RING_ORDER.forEach(r=>{
+  STANCE_ORDER.forEach(r=>{
     const [i0,i1]=BANDS[r], rad=(i0+i1)/2*rz;
-    X.strokeStyle = r==='hold' ? INK_DEAD : '#16181d';
-    X.globalAlpha = k*(r==='hold'?.5:.28);
-    X.lineWidth=(r==='adopt'?1.4:1)*DPR;
-    X.setLineDash(r==='hold'?[6*DPR,5*DPR]:[]);
+    X.strokeStyle='#16181d';
+    X.globalAlpha = k*.28;
+    X.lineWidth=(r==='now'?1.4:1)*DPR;
     X.beginPath(); X.arc(CX,CY,rad,0,6.28); X.stroke();
-    X.setLineDash([]);
   });
 
   // 环名：印在图上（12 点方向），像真正的图版标注
   X.globalAlpha=k;
   X.font=`600 ${9.5*DPR}px "SF Mono",ui-monospace,monospace`;
   X.textAlign='center'; X.textBaseline='middle';
-  RING_ORDER.forEach(r=>{
+  STANCE_ORDER.forEach(r=>{
     const [i0,i1]=BANDS[r], rad=(i0+i1)/2*rz;
-    const label=RING_N[r].split('　')[0];
+    const label=STANCE_EN[r]+'　'+STANCE_N[r];
     const w=X.measureText(label).width+10*DPR;
     X.fillStyle='#f0ede4'; X.globalAlpha=k*.92;
     X.fillRect(CX-w/2, CY-rad-6.5*DPR, w, 13*DPR);
     X.globalAlpha=k;
-    X.fillStyle = r==='hold'?INK_DEAD:'#16181d';
+    X.fillStyle='#16181d';
     X.fillText(label, CX, CY-rad);
   });
 
@@ -729,18 +952,22 @@ function drawChart(){
     X.stroke();
   }
 
-  // 象限分割 + 名字
-  X.globalAlpha=k;
-  Object.values(QUAD).forEach(q=>{
+  // 主题扇区分割 + 名字（角向 = 能力主题）
+  const nT=radarTopics.length||1;
+  X.textAlign='center'; X.textBaseline='middle';
+  radarTopics.forEach((topic,ti)=>{
+    const a0=-Math.PI/2 + ti/nT*6.28318, mid=a0+6.28318/nT/2;
     X.globalAlpha=k*.16; X.strokeStyle='#16181d'; X.lineWidth=1*DPR;
     X.beginPath(); X.moveTo(CX,CY);
-    X.lineTo(CX+Math.cos(q.a0)*rz*1.04, CY+Math.sin(q.a0)*rz*1.04); X.stroke();
+    X.lineTo(CX+Math.cos(a0)*rz*1.04, CY+Math.sin(a0)*rz*1.04); X.stroke();
 
-    const mid=(q.a0+q.a1)/2;
-    X.globalAlpha=k;
-    X.font=`600 ${11.5*DPR}px "PingFang SC",sans-serif`;
-    X.fillStyle=q.ink;
-    X.fillText(q.name, CX+Math.cos(mid)*rz*1.14, CY+Math.sin(mid)*rz*1.14);
+    // 主题名较长，截断显示
+    const short = topic.length>10 ? topic.slice(0,9)+'…' : topic;
+    X.globalAlpha=k*.82;
+    X.font=`600 ${10*DPR}px "PingFang SC",sans-serif`;
+    X.fillStyle=roleColor;
+    const lx=CX+Math.cos(mid)*rz*1.16, ly=CY+Math.sin(mid)*rz*1.16;
+    X.fillText(short, lx, ly);
   });
 
   // 圆心 = 你所在的位置。带十字准星和标注，是整张雷达的锚点。
@@ -772,19 +999,25 @@ function drawChart(){
  * 再加上表面条带（像木星），小尺寸下这一条最能建立「这是个行星」的感觉。
  */
 function drawPlanet(bd){
-  const b=bd.b, q=QUAD[b.quadrant];
+  const b=bd.b;
   const on = bd===hovered||bd===active;
   const s = bd.size*DPR*zoom*(on?1.28:1);
   const x=bd.x, y=bd.y;
   if(s < 1.2) return;
+  // 星系里用天体的主族色；拉近到某族雷达后（mix>0.5），成员统一用该族色，画面才协调。
+  const ink = (bd.data && radar && mix>0.5) ? radar.color : (bd.color || '#16181d');
+
+  // 非本族天体：拉近时淡出（第一屏星系里 mix≈0，所有天体照常全画）
+  let A = 1;
+  if(!bd.data && !bd.external){ A = 1-mix; if(A < .04) return; }
 
   // 个人图层：用户从图书馆加的书 —— 空心星 + 虚线环 + 用户色，明确「未策展」
   if(bd.external){
     if(mix<.2) return;                       // 只在雷达（非星系）出现
     X.globalAlpha=mix;
-    X.strokeStyle=q.ink; X.lineWidth=1.4*DPR;
+    X.strokeStyle=ink; X.lineWidth=1.4*DPR;
     X.beginPath(); X.arc(x,y,s,0,6.28); X.stroke();       // 空心圆（无填充）
-    X.fillStyle=q.ink; X.globalAlpha=mix*.18;
+    X.fillStyle=ink; X.globalAlpha=mix*.18;
     X.beginPath(); X.arc(x,y,s,0,6.28); X.fill();         // 极淡填充
     X.globalAlpha=mix*.6; X.setLineDash([2*DPR,2.5*DPR]);
     X.beginPath(); X.arc(x,y,s+3.5*DPR,0,6.28); X.stroke();
@@ -798,39 +1031,79 @@ function drawPlanet(bd){
     return;
   }
 
-  const dead = bd.ring==='hold';
-  const ink = dead ? '#7d7168' : q.ink;
-  // 每颗星的自转倾角略有不同 —— 全都一个角度会显得机械
+  const rtype = b.rtype || 'book';
   const tilt = -0.30 - ((bd.seed%100)/100)*0.26;
+  const R2=rng(bd.seed);
+  const gas = bd.material==='gas';
+  const RI=1.55, RO=2.30, FLAT=0.30;
 
-  // 选中：外圈定位环（像图版上的标记圈）
+  // 选中：外圈定位环
   if(on){
-    X.strokeStyle=dead?INK_DEAD:q.ink; X.globalAlpha=.85; X.lineWidth=1*DPR;
+    X.strokeStyle=ink; X.globalAlpha=.85*A; X.lineWidth=1*DPR;
     X.beginPath(); X.arc(x,y,s*2.3,0,6.28); X.stroke();
-    X.globalAlpha=.22; X.setLineDash([2*DPR,3*DPR]);
+    X.globalAlpha=.22*A; X.setLineDash([2*DPR,3*DPR]);
     X.beginPath(); X.arc(x,y,s*3.1,0,6.28); X.stroke();
     X.setLineDash([]); X.globalAlpha=1;
   }
 
-  const ringed = b.kind==='classic';
-  const RI=1.55, RO=2.30;                // 环的内/外半径（留出与球体的间隙）
-  const FLAT=0.30;                       // 环面的透视压扁
-  const R2=rng(bd.seed);                 // 每颗星专属的随机序列
-  const gas = bd.material==='gas';
-
-  // ⓪ 「当下正热」的范式：一层极淡暖光（llm / agentic）
-  if(bd.hot && !dead && mix>.3){
-    X.globalAlpha=(.22+.10*Math.sin(t*.0018+bd.seed))*mix;
+  // ⓪ 业务强推（★★★★）：一层极淡暖光
+  if(bd.hot && mix>.3){
+    X.globalAlpha=(.22+.10*Math.sin(t*.0018+bd.seed))*mix*A;
     const gg=X.createRadialGradient(x,y,s*.9,x,y,s*2.4);
     gg.addColorStop(0,'#e8a13a'); gg.addColorStop(1,'#e8a13a00');
     X.fillStyle=gg; X.beginPath(); X.arc(x,y,s*2.4,0,6.28); X.fill();
     X.globalAlpha=1;
   }
 
-  // ① 环 · 后半（被行星挡住的那半，先画）
+  // ── 文章 = 彗星（核 + 尾）。形态一眼就不是行星。
+  if(rtype==='article'){
+    const dir=Math.atan2(y-CY,x-CX);                 // 尾巴背向圆心（像被太阳风吹开）
+    X.save(); X.translate(x,y); X.rotate(dir);
+    const tl=s*4.2;
+    const tg=X.createLinearGradient(0,0,tl,0);
+    tg.addColorStop(0, ink); tg.addColorStop(1, ink+'00');
+    X.globalAlpha=.5*A; X.fillStyle=tg;
+    X.beginPath(); X.moveTo(0,-s*.62); X.lineTo(tl,0); X.lineTo(0,s*.62); X.closePath(); X.fill();
+    X.restore();
+    // 核
+    const cg=X.createRadialGradient(x-s*.2,y-s*.2,s*.05,x,y,s);
+    cg.addColorStop(0,mixHex(ink,'#ffffff',.55)); cg.addColorStop(1,ink);
+    X.globalAlpha=A; X.fillStyle=cg;
+    X.beginPath(); X.arc(x,y,s*.78,0,6.28); X.fill();
+    X.globalAlpha=.6*A; X.strokeStyle=mixHex(ink,'#0d0f14',.5); X.lineWidth=1*DPR;
+    X.beginPath(); X.arc(x,y,s*.78,0,6.28); X.stroke();
+    X.globalAlpha=1;
+    drawBadges(bd,x,y,s,ink); drawHoverLabel(bd,on,x,y,s,ink,A); return;
+  }
+
+  // ── 官方文档 = 方片（一页文档）。方形剪影，和圆形行星立刻区分。
+  if(rtype==='doc'){
+    const r=s*0.92, rad=r*.28;
+    const g=X.createLinearGradient(x-r,y-r,x+r,y+r);
+    g.addColorStop(0,mixHex(ink,'#ffffff',.30)); g.addColorStop(1,mixHex(ink,'#0d0f14',.28));
+    X.globalAlpha=A; X.fillStyle=g;
+    roundRectPath(x-r,y-r,r*2,r*2,rad); X.fill();
+    // 折角
+    X.globalAlpha=.5*A; X.fillStyle=mixHex(ink,'#0d0f14',.4);
+    X.beginPath(); X.moveTo(x+r-r*.6,y-r); X.lineTo(x+r,y-r+r*.6); X.lineTo(x+r,y-r); X.closePath(); X.fill();
+    // 文字行
+    if(s>3*DPR){
+      X.globalAlpha=.5*A; X.strokeStyle=mixHex(ink,'#ffffff',.55); X.lineWidth=1*DPR;
+      for(let i=0;i<3;i++){ const yy=y-r*.35+i*r*.42;
+        X.beginPath(); X.moveTo(x-r*.55,yy); X.lineTo(x+r*(i===2?.15:.5),yy); X.stroke(); }
+    }
+    X.globalAlpha=.6*A; X.strokeStyle=mixHex(ink,'#0d0f14',.5); X.lineWidth=1*DPR;
+    roundRectPath(x-r,y-r,r*2,r*2,rad); X.stroke(); X.globalAlpha=1;
+    drawBadges(bd,x,y,s,ink); drawHoverLabel(bd,on,x,y,s,ink,A); return;
+  }
+
+  // ── 在线课程 = 星环行星（有结构的学习路径）；书籍 = 行星（无环）。
+  const ringed = (rtype==='course');
+
+  // ① 环 · 后半
   if(ringed){
     X.save(); X.translate(x,y); X.rotate(tilt);
-    X.globalAlpha=dead?.28:.42;
+    X.globalAlpha=.42*A;
     X.strokeStyle=ink; X.lineWidth=Math.max(1.1*DPR, s*.16);
     X.beginPath(); X.ellipse(0,0,s*((RI+RO)/2), s*((RI+RO)/2)*FLAT, 0, Math.PI, 6.28);
     X.stroke();
@@ -840,107 +1113,86 @@ function drawPlanet(bd){
   // ② 球体
   X.save();
   X.beginPath(); X.arc(x,y,s,0,6.28); X.clip();
-
-  // 底：limb darkening（中心亮 → 边缘暗，没有高光点）
   const g=X.createRadialGradient(x-s*.16, y-s*.18, s*.04, x, y, s*1.03);
-  g.addColorStop(0,   mixHex(ink,'#ffffff', dead?.14:(gas?.34:.24)));
+  g.addColorStop(0,   mixHex(ink,'#ffffff', gas?.34:.24));
   g.addColorStop(.55, ink);
-  g.addColorStop(1,   mixHex(ink,'#0d0f14', dead?.30:.44));
-  X.fillStyle=g; X.fillRect(x-s,y-s,s*2,s*2);
+  g.addColorStop(1,   mixHex(ink,'#0d0f14', .44));
+  X.globalAlpha=A; X.fillStyle=g; X.fillRect(x-s,y-s,s*2,s*2);
 
-  if(!dead && s>2.4*DPR){
+  if(s>2.4*DPR){
     X.save(); X.translate(x,y); X.rotate(tilt);
     const LT=mixHex(ink,'#ffffff',.72), DK=mixHex(ink,'#0b0d12',.55);
     if(gas){
-      // 气态巨行星 = 木星。粗的、高对比的水平条带，一眼认出。
-      // 用矩形条（边缘清晰，像真正的云带），不用柔和椭圆。
       const nb=4+Math.floor(R2()*3);
       let cy=-1.05;
       for(let i=0; i<nb && cy<1.05; i++){
         const h=.14+R2()*.20, light=i%2===0;
-        X.globalAlpha=light? .40 : .34;
+        X.globalAlpha=(light?.40:.34)*A;
         X.fillStyle= light? LT : DK;
         X.fillRect(-s*1.05, cy*s, s*2.1, h*s);
         cy += h + .015;
       }
-      // 大红斑：多数气态星有一个醒目的涡旋
       if(R2()>.35){
         const sx=(R2()-.5)*1.0, sy=(R2()-.35)*.7;
-        X.globalAlpha=.62;
+        X.globalAlpha=.62*A;
         X.fillStyle=mixHex(ink,'#e0592e',.62);
         X.beginPath(); X.ellipse(sx*s, sy*s, s*(.20+R2()*.12), s*(.13+R2()*.07), 0, 0, 6.28); X.fill();
-        X.globalAlpha=.35; X.fillStyle=mixHex(ink,'#0b0d12',.4);
+        X.globalAlpha=.35*A; X.fillStyle=mixHex(ink,'#0b0d12',.4);
         X.beginPath(); X.ellipse(sx*s, sy*s, s*(.20+R2()*.12)*.55, s*(.13)*.55, 0, 0, 6.28); X.fill();
       }
     } else {
-      // 岩石行星 = 月球。清晰的陨石坑（深心 + 亮环缘），一眼认出。
       const np=3+Math.floor(R2()*3);
       for(let i=0;i<np;i++){
         const a=R2()*6.28, rr=.15+R2()*.62, dx=Math.cos(a)*rr, dy=Math.sin(a)*rr;
         const cs=s*(.15+R2()*.16);
-        // 坑：深心
-        X.globalAlpha=.42; X.fillStyle=DK;
+        X.globalAlpha=.42*A; X.fillStyle=DK;
         X.beginPath(); X.arc(dx*s,dy*s,cs,0,6.28); X.fill();
-        // 坑缘：受光的亮环（光从左上来 → 环的左上半亮）
-        X.globalAlpha=.5; X.strokeStyle=LT; X.lineWidth=Math.max(1,cs*.30);
+        X.globalAlpha=.5*A; X.strokeStyle=LT; X.lineWidth=Math.max(1,cs*.30);
         X.beginPath(); X.arc(dx*s,dy*s,cs*.92, Math.PI*1.05, Math.PI*2.05); X.stroke();
       }
-      X.globalAlpha=1;
     }
     X.globalAlpha=1; X.restore();
   }
 
-  // 凹坑 —— 已死的星球，被时间撞穿了
-  if(dead && s>3*DPR){
-    const cr=[[-.36,-.18,.30],[.30,.10,.24],[-.06,.42,.19],[.18,-.44,.16],[-.50,.26,.14],[.46,-.12,.12]];
-    cr.forEach(([dx,dy,rr],i)=>{
-      if((bd.seed+i*17)%6===0) return;
-      const cx=x+dx*s, cy=y+dy*s, cs=rr*s;
-      X.globalAlpha=.34; X.fillStyle='#2e251f';
-      X.beginPath(); X.arc(cx,cy,cs,0,6.28); X.fill();
-      X.globalAlpha=.18; X.fillStyle='#e8e0d2';
-      X.beginPath(); X.arc(cx+cs*.20, cy+cs*.20, cs*.66, 0, 6.28); X.fill();
-    });
-    X.globalAlpha=1;
-  }
-
-  // 晨昏线：一道柔和的暗部压在右下，强化球体感（所有星都有）
+  // 晨昏线
   const term=X.createRadialGradient(x-s*.35,y-s*.4,s*.1, x-s*.35,y-s*.4,s*1.5);
-  term.addColorStop(0,'#0d0f1400'); term.addColorStop(1,'#0d0f14'+(dead?'22':'30'));
-  X.fillStyle=term; X.fillRect(x-s,y-s,s*2,s*2);
+  term.addColorStop(0,'#0d0f1400'); term.addColorStop(1,'#0d0f1430');
+  X.globalAlpha=A; X.fillStyle=term; X.fillRect(x-s,y-s,s*2,s*2);
   X.restore();
 
-  // ③ 边缘线 —— 铜版画的关键：每个天体都有一道细边
-  X.strokeStyle = dead ? '#4e4139' : mixHex(ink,'#0d0f14',.55);
-  X.globalAlpha = .5; X.lineWidth=1*DPR;
+  // ③ 边缘线
+  X.strokeStyle = mixHex(ink,'#0d0f14',.55);
+  X.globalAlpha = .5*A; X.lineWidth=1*DPR;
   X.beginPath(); X.arc(x,y,s,0,6.28); X.stroke();
   X.globalAlpha=1;
 
-  // ④ 环 · 前半 + 环缝（双环，像真正的土星）
+  // ④ 环 · 前半 + 环缝（课程）
   if(ringed){
     X.save(); X.translate(x,y); X.rotate(tilt);
     X.lineCap='butt';
-    X.globalAlpha=dead?.5:.9;
+    X.globalAlpha=.9*A;
     X.strokeStyle=ink; X.lineWidth=Math.max(1.1*DPR, s*.15);
     X.beginPath(); X.ellipse(0,0, s*1.72, s*1.72*FLAT, 0, 0, Math.PI); X.stroke();
-    X.globalAlpha=dead?.3:.55;
+    X.globalAlpha=.55*A;
     X.lineWidth=Math.max(.9*DPR, s*.09);
     X.beginPath(); X.ellipse(0,0, s*2.12, s*2.12*FLAT, 0, 0, Math.PI); X.stroke();
     X.restore(); X.globalAlpha=1;
   }
 
-  // ⑤ 已死：划掉
-  if(dead && mix>.35){
-    X.globalAlpha=.92*mix; X.strokeStyle=INK_DEAD; X.lineWidth=1.6*DPR;
-    const k=s*1.30;
-    X.beginPath();
-    X.moveTo(x-k,y-k); X.lineTo(x+k,y+k);
-    X.moveTo(x+k,y-k); X.lineTo(x-k,y+k);
-    X.stroke(); X.globalAlpha=1;
-  }
+  drawBadges(bd,x,y,s,ink);
+  drawHoverLabel(bd,on,x,y,s,ink,A);
+}
 
-  // ⑥ 已读：金环 + 右上对勾徽章（你的阅读足迹）
-  const sh = shelfOf(b.isbn);
+function roundRectPath(x,y,w,h,r){
+  if(X.roundRect){ X.beginPath(); X.roundRect(x,y,w,h,r); return; }
+  X.beginPath();
+  X.moveTo(x+r,y); X.arcTo(x+w,y,x+w,y+h,r); X.arcTo(x+w,y+h,x,y+h,r);
+  X.arcTo(x,y+h,x,y,r); X.arcTo(x,y,x+w,y,r); X.closePath();
+}
+
+// 已读金环 + 想读/在读虚线环
+function drawBadges(bd,x,y,s,ink){
+  const sh = shelfOf(bd.b.id);
   if(sh && sh.state==='read' && mix>.3){
     X.globalAlpha=mix;
     X.strokeStyle='#b0761c'; X.lineWidth=1.6*DPR;
@@ -951,51 +1203,38 @@ function drawPlanet(bd){
     X.strokeStyle='#faf8f2'; X.lineWidth=1.3*DPR; X.lineCap='round';
     X.beginPath();
     X.moveTo(bx-br*.45,by); X.lineTo(bx-br*.05,by+br*.4); X.lineTo(bx+br*.5,by-br*.4);
-    X.stroke(); X.lineCap='butt';
-    X.globalAlpha=1;
+    X.stroke(); X.lineCap='butt'; X.globalAlpha=1;
   } else if(sh && (sh.state==='want'||sh.state==='reading') && mix>.3){
-    // 想读/在读：一圈虚线环，比已读弱
     X.globalAlpha=.7*mix;
     X.strokeStyle=sh.state==='reading'?'#1d6b58':'#8a8f9c'; X.lineWidth=1.2*DPR;
     X.setLineDash([2*DPR,2.5*DPR]);
     X.beginPath(); X.arc(x,y,s+3*DPR,0,6.28); X.stroke();
     X.setLineDash([]); X.globalAlpha=1;
   }
+}
 
-  // 悬停标签：引线 + 描白圆角标签牌。
-  // 始终往「远离圆心」的方向引出 —— 那一侧一定是空的，绝不会压到别的星或环名；
-  // 再把标签牌夹进画布内。
-  if(on){
-    const label=b.title.length>42?b.title.slice(0,41)+'…':b.title;
-    X.font=`600 ${12*DPR}px "PingFang SC","Avenir Next",sans-serif`;
-    const w=X.measureText(label).width, pad=8*DPR, bh=22*DPR;
-
-    // 沿半径方向往外
-    const ux=(x-CX), uy=(y-CY), ul=Math.hypot(ux,uy)||1;
-    const nx=ux/ul, ny=uy/ul;
-    let ax=x+nx*(s+16*DPR), ay=y+ny*(s+16*DPR);
-
-    // 标签牌朝右还是朝左，取决于往外后落在画布哪半边
-    const right = ax < W*0.62;
-    let bx = right ? ax : ax-w-pad*2;
-    // 夹进画布
-    bx=Math.max(8*DPR, Math.min(W-w-pad*2-8*DPR, bx));
-    ay=Math.max(bh/2+8*DPR, Math.min(H-bh/2-8*DPR, ay));
-
-    // 引线
-    X.strokeStyle=dead?INK_DEAD:q.ink; X.globalAlpha=.55; X.lineWidth=1*DPR;
-    X.beginPath(); X.moveTo(x+nx*s, y+ny*s);
-    X.lineTo(ax, ay); X.stroke(); X.globalAlpha=1;
-
-    // 标签牌
-    const tx=bx, ty=ay-bh/2;
-    X.fillStyle='#faf8f2';
-    X.strokeStyle=dead?INK_DEAD:q.ink; X.lineWidth=1*DPR;
-    if(X.roundRect){ X.beginPath(); X.roundRect(tx,ty,w+pad*2,bh,3*DPR); X.fill(); X.stroke(); }
-    else { X.fillRect(tx,ty,w+pad*2,bh); X.strokeRect(tx,ty,w+pad*2,bh); }
-    X.fillStyle='#16181d'; X.textAlign='left'; X.textBaseline='middle';
-    X.fillText(label, tx+pad, ay);
-  }
+// 悬停标签：引线 + 描白圆角标签牌，始终往远离圆心的方向引出
+function drawHoverLabel(bd,on,x,y,s,ink,A){
+  if(!on) return;
+  const b=bd.b;
+  const label=b.title.length>42?b.title.slice(0,41)+'…':b.title;
+  X.font=`600 ${12*DPR}px "PingFang SC","Avenir Next",sans-serif`;
+  const w=X.measureText(label).width, pad=8*DPR, bh=22*DPR;
+  const ux=(x-CX), uy=(y-CY), ul=Math.hypot(ux,uy)||1;
+  const nx=ux/ul, ny=uy/ul;
+  let ax=x+nx*(s+16*DPR), ay=y+ny*(s+16*DPR);
+  const right = ax < W*0.62;
+  let bx = right ? ax : ax-w-pad*2;
+  bx=Math.max(8*DPR, Math.min(W-w-pad*2-8*DPR, bx));
+  ay=Math.max(bh/2+8*DPR, Math.min(H-bh/2-8*DPR, ay));
+  X.strokeStyle=ink; X.globalAlpha=.55; X.lineWidth=1*DPR;
+  X.beginPath(); X.moveTo(x+nx*s, y+ny*s); X.lineTo(ax, ay); X.stroke(); X.globalAlpha=1;
+  const tx=bx, ty=ay-bh/2;
+  X.fillStyle='#faf8f2'; X.strokeStyle=ink; X.lineWidth=1*DPR;
+  if(X.roundRect){ X.beginPath(); X.roundRect(tx,ty,w+pad*2,bh,3*DPR); X.fill(); X.stroke(); }
+  else { X.fillRect(tx,ty,w+pad*2,bh); X.strokeRect(tx,ty,w+pad*2,bh); }
+  X.fillStyle='#16181d'; X.textAlign='left'; X.textBaseline='middle';
+  X.fillText(label, tx+pad, ay);
 }
 
 function loop(now){
@@ -1014,8 +1253,10 @@ function loop(now){
 // ── 交互 ──
 C.addEventListener('mousemove',e=>{
   const mx=e.clientX*DPR,my=e.clientY*DPR;
+  const inRadar = scene!=='galaxy';
   let best=null,bd=1e9;
   bodies.forEach(b=>{
+    if(inRadar && !b.data && !b.external) return;   // 雷达里只可点本族/个人图层
     const d=Math.hypot(b.x-mx,b.y-my);
     const hit=Math.max(17*DPR, b.size*DPR*zoom*1.7);
     if(d<hit && d<bd){bd=d;best=b;}
@@ -1024,43 +1265,51 @@ C.addEventListener('mousemove',e=>{
 });
 C.addEventListener('click',()=>{
   if(scene!=='radar')return;
-  if(hovered){active=hovered;logEvent('open',hovered.b.isbn,{role:curRole,ring:hovered.ring});showBook(hovered);}
-  else{active=null;document.getElementById('book').classList.remove('on');}
+  if(hovered){active=hovered;logEvent('open',hovered.b.id,{role:curRole,ring:hovered.ring});showBook(hovered);}
+  else{closeDetail();}
 });
 
+const DIFF_LABEL=['','入门','入门','进阶','硬核','硬核'];
+function primaryLink(b){
+  if(b.rtype!=='book' && b.link) return b.link;
+  if(b.isbn) return 'https://openlibrary.org/isbn/'+b.isbn;
+  return 'https://openlibrary.org/search?q='+encodeURIComponent(b.title);
+}
 function showBook(bd){
-  const b=bd.data||bd.b, q=QUAD[b.quadrant];
+  const b=bd.data||bd.b;
+  // 在雷达空间里成员统一用当前族色；其它空间用书自身的族色。
+  const col = (bd.data && radar && space==='radar') ? radar.color
+            : (bd.color || FAMILY_COLOR[b.family] || '#16181d');
   const el=document.getElementById('book');
 
   // 个人图层书：未策展，无环立场，无社区 —— 只有你自己的收藏
   if(bd.external){
-    el.style.setProperty('--rc', q.ink);
-    const s=shelfOf(b.isbn)||{};
+    el.style.setProperty('--rc', col);
+    const s=shelfOf(b.id)||{};
     const btns=[['want','想读'],['reading','在读'],['read','读过']]
       .map(([k,n])=>`<button data-shelf="${k}" class="${s.state===k?'on':''}">${n}</button>`).join('');
     el.innerHTML=`
-      <div class="bar" style="background:${q.ink}">个人图层 · 未策展</div>
+      <div class="bar" style="background:${col}">个人图层 · 未策展</div>
       <div class="body">
-        <h3>${b.title}</h3>
-        <div class="facts"><span>${b.authors[0]||'未知'}</span>
-          <span class="mono">${b.published||''}</span>
-          <span style="color:${q.ink};border-color:${q.ink}55">${q.name}</span></div>
+        <h3>${esc(b.title)}</h3>
+        <div class="facts"><span>${esc(b.authors[0]||'未知')}</span>
+          <span class="mono">${b.published||''}</span></div>
         <div class="h">关于这本书</div>
         <p>你从图书馆加进来的书，未经策展 —— 没有环的立场判断，是你自己的待读。</p>
         <div class="shelf">${btns}</div>
         <div class="go">
-          <a href="https://openlibrary.org/isbn/${b.isbn}" target="_blank" rel="noopener">Open Library ↗</a>
+          <a href="https://openlibrary.org/isbn/${b.id}" target="_blank" rel="noopener">Open Library ↗</a>
           <a href="https://search.douban.com/book/subject_search?search_text=${encodeURIComponent(b.title)}" target="_blank" rel="noopener">豆瓣搜索 ↗</a>
         </div>
-        <div class="isbn mono">ISBN ${b.isbn} · 个人收藏 · <span id="rmExt" style="cursor:pointer;text-decoration:underline">从雷达移除</span></div>
+        <div class="isbn mono">ISBN ${b.id} · 个人收藏 · <span id="rmExt" style="cursor:pointer;text-decoration:underline">从雷达移除</span></div>
       </div>`;
     el.querySelectorAll('[data-shelf]').forEach(btn=>btn.onclick=()=>{
-      const k=btn.dataset.shelf, cur=shelfOf(b.isbn);
-      if(!(cur&&cur.state===k)) setShelf(b.isbn,{state:k});
+      const k=btn.dataset.shelf, cur=shelfOf(b.id);
+      if(!(cur&&cur.state===k)) setShelf(b.id,{state:k});
       showBook(bd);
     });
     el.querySelector('#rmExt').onclick=()=>{
-      delete shelf[b.isbn]; saveShelf(); syncShelf(b.isbn);
+      delete shelf[b.id]; saveShelf(); syncShelf(b.id);
       appendExternalBodies(); el.classList.remove('on'); active=null;
       toast('已从雷达移除');
     };
@@ -1068,9 +1317,8 @@ function showBook(bd){
     return;
   }
 
-  const col = q.ink;
   el.style.setProperty('--rc',col);
-  const s = shelfOf(b.isbn) || {};
+  const s = shelfOf(b.id) || {};
 
   const shelfBtns = [['want','想读'],['reading','在读'],['read','读过']]
     .map(([k,n])=>`<button data-shelf="${k}" class="${s.state===k?'on':''}">${n}</button>`).join('');
@@ -1083,57 +1331,151 @@ function showBook(bd){
     const use=[['high','很有用'],['some','一般'],['none','没用']]
       .map(([k,n])=>`<button data-use="${k}" class="${s.useful===k?'on':''}">${n}</button>`).join('');
     rateBlock = `<div class="rate">
-      <div class="q">你读完了吗？</div><div class="opts">${fin}</div>
+      <div class="q">你读完/学完了吗？</div><div class="opts">${fin}</div>
       <div class="q">对你当前的目标有帮助吗？</div><div class="opts">${use}</div>
     </div>`;
     if(s.finished && s.useful) rateBlock += `<div class="done">✓ 已记录 · 感谢你喂给雷达的信号</div>`;
   }
 
+  const isBook = b.rtype==='book';
+  const facts = [];
+  if(b.authors && b.authors[0]) facts.push(`<span>${esc(b.authors[0])}</span>`);
+  facts.push(`<span style="color:${col};border-color:${col}55">${RTYPE_N[b.rtype]||b.rtype}</span>`);
+  facts.push(`<span>${esc(b.family)}</span>`);
+  if(isBook) facts.push(`<span>${DIFF_LABEL[b.difficulty]||'进阶'}</span>`);
+  facts.push(`<span title="业务推荐程度">${'★'.repeat(b.rec||3)}</span>`);
+
+  const compBlock = (b.companions&&b.companions.length)
+    ? `<div class="h">配套链接</div><div class="go">` +
+      b.companions.filter(c=>c.link).map(c=>`<a href="${esc(c.link)}" target="_blank" rel="noopener">${esc(c.name.length>22?c.name.slice(0,21)+'…':c.name)} ↗</a>`).join('') +
+      `</div>` : '';
+
+  const pending = (isBook && b.meta_pending)
+    ? `<div class="isbn mono">元数据待补 · 业务清单收录，Open Library 暂无此版</div>`
+    : (b.isbn ? `<div class="isbn mono">ISBN ${b.isbn} · 已对 Open Library 核实</div>` : '');
+
+  const glyph = {book:'📖',course:'◍',doc:'▤',article:'✦'}[b.rtype]||'📖';
+  const auth = [ (b.authors&&b.authors[0])?esc(b.authors[0]):'', b.published||'' ].filter(Boolean).join(' · ');
+
   el.innerHTML=`
-    <div class="bar" style="background:${col}">${RING_N[b.ring]}</div>
+    <div class="bar" style="background:${col}">${STANCE_N[b.stance]||''}　·　${esc(b.topic||'')}</div>
     <div class="body">
-      <h3>${b.title}</h3>
-      <div class="facts">
-        <span>${b.authors[0]}</span>
-        <span class="mono">${b.published}</span>
-        <span style="color:${q.ink};border-color:${q.ink}55">${q.name}</span>
-        <span>${DIFF_N[b.difficulty]}</span>
-        <span>${b.kind==='classic'?'经典 · 有星环':'时效'}</span>
+      <div class="chead">
+        <div class="cover" id="bkCover"><span>${glyph}</span><span class="lbl">${RTYPE_N[b.rtype]||''}</span></div>
+        <div class="cmeta">
+          <h3>${esc(b.title)}</h3>
+          <div class="cauth">${auth||'&nbsp;'}</div>
+          <div class="rating" id="bkRating"><span class="none">评分加载中…</span></div>
+          <div class="cextra" id="bkExtra"></div>
+        </div>
       </div>
-      <div class="h">这本书是什么</div>
-      <p>${b.note}</p>
-      <div class="h">为什么在这个环</div>
-      <p class="why">${b.reason}</p>
+      <div class="facts">${facts.join('')}</div>
+      <div class="h">内容简介</div>
+      <p id="bkDesc" style="color:var(--ink-3)">加载中…</p>
+      <div class="h">为什么推荐</div>
+      <p class="why">${esc(b.reason||'业务共建资料库推荐。')}</p>
       <div class="shelf">${shelfBtns}</div>
       ${rateBlock}
-      <div class="h">社区书评</div>
+      ${compBlock}
+      <div class="h">社区讨论</div>
       <div class="reviews" id="rvBox"><div style="font-size:11px;color:var(--ink-3)">加载中…</div></div>
       <div class="go">
-        <a href="${b.link_openlibrary}" target="_blank" rel="noopener">Open Library ↗</a>
-        <a href="${b.link_douban}" target="_blank" rel="noopener">豆瓣搜索 ↗</a>
+        <a href="${esc(primaryLink(b))}" target="_blank" rel="noopener">${isBook?'查看这本书':'打开资料'} ↗</a>
       </div>
-      <div class="isbn mono">ISBN ${b.isbn} · 已对 Open Library 逐条核实</div>
+      ${pending}
     </div>`;
 
   // 书架状态
   el.querySelectorAll('[data-shelf]').forEach(btn=>btn.onclick=()=>{
     const k=btn.dataset.shelf;
-    const cur=shelfOf(b.isbn);
-    if(cur && cur.state===k){ delete shelf[b.isbn]; saveShelf(); syncShelf(b.isbn); }  // 再点取消
-    else setShelf(b.isbn,{state:k});
+    const cur=shelfOf(b.id);
+    if(cur && cur.state===k){ delete shelf[b.id]; saveShelf(); syncShelf(b.id); }  // 再点取消
+    else setShelf(b.id,{state:k});
     showBook(bd); updateMine();
-    if(radar) renderPath();   // 已读的书从阅读路径里划掉
+    if(radar) renderPath();
   });
-  // 读完反馈
   el.querySelectorAll('[data-fin]').forEach(btn=>btn.onclick=()=>{
-    setShelf(b.isbn,{finished:btn.dataset.fin}); showBook(bd);
+    setShelf(b.id,{finished:btn.dataset.fin}); showBook(bd);
   });
   el.querySelectorAll('[data-use]').forEach(btn=>btn.onclick=()=>{
-    setShelf(b.isbn,{useful:btn.dataset.use}); showBook(bd);
+    setShelf(b.id,{useful:btn.dataset.use}); showBook(bd);
   });
 
   el.classList.add('on');
-  loadReviews(b.isbn, bd);   // L3 社区书评（异步）
+  document.body.classList.add('bookopen');
+  loadReviews(b.id, bd);   // L3 社区讨论（异步）
+  loadDetail(b);           // 封面 / 简介 / 评分（异步，按需拉 Open Library）
+}
+
+function closeDetail(){
+  document.getElementById('book').classList.remove('on');
+  document.body.classList.remove('bookopen');
+  active=null;
+}
+// 从任意空间按 id 打开书籍详情（策展书用星系数据，外部书用书架 meta）
+function openDetailFor(id){
+  const g=galaxyById[id];
+  if(g){ active={b:g,data:g,color:FAMILY_COLOR[g.family]||'#16181d'}; showBook(active); return; }
+  const s=shelf[id];
+  if(s&&s.meta){
+    const m=s.meta;
+    active={external:true,color:FAMILY_COLOR[m.quadrant]||'#8a8f9c',
+      b:{id,title:m.title,authors:m.authors||[],published:m.published,
+         family:m.quadrant||'全员通用',rtype:'book'}};
+    showBook(active);
+  }
+}
+
+// ── 星球详情增强：真实封面 + 简介 + 聚合评分 ──
+async function loadDetail(b){
+  let d; try{ d=await fetch('/api/detail?id='+encodeURIComponent(b.id)).then(r=>r.json()); }catch{ return; }
+  const cur=active&&active.b; if(cur && cur.id!==b.id) return;   // 已切到别的星球，丢弃
+
+  // 封面：加载成功才替换占位字形（失败保留字形）
+  if(d.cover_url){
+    const cov=document.getElementById('bkCover');
+    if(cov){
+      const img=new Image();
+      img.alt=b.title;
+      img.onload=()=>{ cov.innerHTML=''; cov.appendChild(img); };
+      img.src=d.cover_url;
+    }
+  }
+  // 内容简介：真实数据，来自 Open Library —— 没有就不硬凑
+  const desc=document.getElementById('bkDesc');
+  if(desc){
+    if(d.description){
+      const t=d.description.replace(/\r?\n\r?\n[\s\S]*$/,'').trim();   // 只留第一段
+      desc.textContent=t.length>440?t.slice(0,439)+'…':t;
+      desc.style.color='';
+    } else {
+      desc.textContent = b.rtype==='book'
+        ? 'Open Library 暂无简介 —— 见下方「为什么推荐」'
+        : '这类资料以官方页面为准，点下方「打开资料」查看。';
+    }
+  }
+  // 评分：用飞轮的真实信号（有用度），不做假五星
+  const rt=document.getElementById('bkRating');
+  if(rt){
+    const g=d.rating||{};
+    if(g.score!=null){
+      const f=Math.round(g.score);
+      rt.innerHTML=`<span class="big">${g.score.toFixed(1)}</span>`+
+        `<span class="stars">${'★'.repeat(f)}${'☆'.repeat(5-f)}</span>　`+
+        `<span style="color:var(--ink-3);font-size:10.5px">${g.n} 人评有用 · ${g.reviews} 条书评</span>`;
+    } else {
+      rt.innerHTML=`<span class="none">还没有评分 · 标记「读过」并反馈「有用吗」，你就是第一个</span>`;
+    }
+  }
+  // 有用信息：页数 / 预计时长 / 出版
+  const ex=document.getElementById('bkExtra');
+  if(ex){
+    const bits=[];
+    if(d.pages) bits.push('📖 '+d.pages+' 页');
+    if(d.read_hours) bits.push('约 '+d.read_hours+' 小时读完');
+    if(d.publisher) bits.push(esc(d.publisher));
+    ex.innerHTML=bits.join('　·　');
+  }
 }
 
 // ── L3 社区书评 ──
@@ -1145,25 +1487,38 @@ async function loadReviews(isbn, bd){
   const canReview = shelfOf(isbn)?.state==='read';   // 防刷：读过才能评
   let html='';
   if(canReview){
-    html+=`<div class="add"><textarea id="rvText" maxlength="2000" placeholder="读完后，你会对同行说什么？"></textarea><button id="rvPost">发布</button></div>`;
+    html+=`<div style="font-size:10.5px;color:var(--ink-3);margin-bottom:4px">推荐打分（可选）</div>
+      <div class="starspick" id="rvStars">${[1,2,3,4,5].map(n=>`<span data-s="${n}">☆</span>`).join('')}</div>
+      <div class="add"><textarea id="rvText" maxlength="2000" placeholder="推荐理由：读完后你会对同行说什么？"></textarea><button id="rvPost">发布推荐</button></div>`;
   }else{
-    html+=`<div class="locked">标记「读过」后才能写书评 —— 评价资格绑定阅读</div>`;
+    html+=`<div class="locked">标记「读过」后才能写推荐 —— 评价资格绑定阅读</div>`;
   }
   if(list.length){
-    html+=list.map(r=>`<div class="rv"><div class="txt">${esc(r.text)}</div>
+    html+=list.map(r=>{
+      const sc=r.score?`<span class="score">${'★'.repeat(r.score)}${'☆'.repeat(5-r.score)}</span>`:'';
+      return `<div class="rv"><div class="txt">${esc(r.text)}${sc}</div>
       <div class="foot"><span class="who">${r.actor.slice(0,11)}…</span>
-      <span class="up ${r.mine?'voted':''}" data-rid="${r.id}">👍 有用 ${r.up||0}</span></div></div>`).join('');
+      <span class="up ${r.mine?'voted':''}" data-rid="${r.id}">👍 有用 ${r.up||0}</span></div></div>`;
+    }).join('');
   }else if(canReview){
-    html+=`<div style="font-size:11px;color:var(--ink-3);padding:6px 0">还没有书评 · 你可以写第一条</div>`;
+    html+=`<div style="font-size:11px;color:var(--ink-3);padding:6px 0">还没有推荐 · 你可以写第一条</div>`;
   }
   box.innerHTML=html;
+  // 打分星选择
+  let rvScore=0;
+  const starEls=box.querySelectorAll('#rvStars span');
+  starEls.forEach(st=>st.onclick=()=>{
+    rvScore=+st.dataset.s;
+    starEls.forEach(x=>{ const on=+x.dataset.s<=rvScore; x.textContent=on?'★':'☆'; x.classList.toggle('on',on); });
+  });
   const postBtn=box.querySelector('#rvPost');
   if(postBtn) postBtn.onclick=async()=>{
     const text=box.querySelector('#rvText').value.trim();
-    if(text.length<2){ toast('书评太短了'); return; }
+    if(text.length<2){ toast('推荐理由太短了'); return; }
+    const body={actor,isbn,text}; if(rvScore) body.score=rvScore;
     const r=await fetch('/api/reviews',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({actor,isbn,text})}).then(x=>x.json()).catch(()=>({}));
-    if(r.ok){ toast('书评已发布'); loadReviews(isbn,bd); } else toast(r.detail||'发布失败');
+      body:JSON.stringify(body)}).then(x=>x.json()).catch(()=>({}));
+    if(r.ok){ toast('推荐已发布'); loadReviews(isbn,bd); } else toast(r.detail||'发布失败');
   };
   box.querySelectorAll('.up').forEach(el=>el.onclick=async()=>{
     const rid=el.dataset.rid;
@@ -1177,30 +1532,34 @@ function esc(s){ return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt
 function updateMine(){
   const n=readISBNs().length;
   const el=document.getElementById('mine');
-  if(el) el.innerHTML = n ? `已读 <b>${n}</b> 本 · 点星球标记` : '点开任意星球，标记你的阅读';
+  if(el) el.innerHTML = n ? `已读 <b>${n}</b> 项 · 点星球标记` : '点开任意星球，标记你的阅读';
 }
 
 function renderPath(){
-  const lib={};
-  [...radar.rings.adopt,...radar.rings.trial,...radar.rings.assess]
-    .forEach(b=>lib[b.isbn]=b);
+  // 阅读路径 = 现在就读 → 值得投入（由浅入深），书籍优先，取前 6 项
+  const seq=[];
+  radar.rings.forEach(r=>{
+    if(r.stance==='know') return;
+    r.items.slice().sort((a,b)=>(a.rtype==='book'?0:1)-(b.rtype==='book'?0:1) || a.difficulty-b.difficulty)
+      .forEach(it=>seq.push(it));
+  });
+  const lib={}; seq.forEach(it=>lib[it.id]=it);
   const ol=document.getElementById('pathlist');
   const read=new Set(readISBNs());
-  const remaining=radar.path.filter(i=>!read.has(i));   // 读过的从路径里划掉
-  ol.innerHTML=remaining.map(i=>{
-    const b=lib[i];
-    return `<li data-i="${i}">${b.title.length>34?b.title.slice(0,33)+'…':b.title}</li>`;
-  }).join('') || `<li style="cursor:default;color:var(--ink-3)">这条路径你已读完 ✓</li>`;
+  const remaining=seq.filter(it=>!read.has(it.id)).slice(0,6);
+  ol.innerHTML=remaining.map(it=>
+    `<li data-i="${it.id}">${esc(it.title.length>34?it.title.slice(0,33)+'…':it.title)}</li>`
+  ).join('') || `<li style="cursor:default;color:var(--ink-3)">这条路径你已读完 ✓</li>`;
   ol.querySelectorAll('li[data-i]').forEach(li=>li.onclick=()=>{
-    const bd=bodies.find(x=>x.b.isbn===li.dataset.i);
-    if(bd){active=bd;logEvent('open',bd.b.isbn,{role:curRole,ring:bd.ring});showBook(bd);}
+    const bd=bodies.find(x=>x.b.id===li.dataset.i);
+    if(bd){active=bd;logEvent('open',bd.b.id,{role:curRole,ring:bd.ring});showBook(bd);}
   });
 }
 
 document.getElementById('back').onclick=()=>{
   document.getElementById('radar').classList.remove('on');
-  document.getElementById('book').classList.remove('on');
-  active=hovered=null; curRole=null;
+  closeDetail();
+  hovered=null; curRole=null;
   scene='galaxy'; zoomTo=.60; mixTo=0;
   bodies.forEach(b=>b.ring=null);
   history.replaceState(null,'',location.pathname);
@@ -1216,7 +1575,7 @@ document.getElementById('shareLink').onclick=async()=>{
 document.getElementById('shareImg').onclick=()=>{
   // 导出当前雷达画布。临时把 UI 覆盖层排除 —— canvas 本就只画星云，不含 DOM。
   const a=document.createElement('a');
-  const label = radar ? radar.profile.label : 'radar';
+  const label = radar ? radar.label : 'radar';
   a.download = `AI读书雷达-${label}.png`;
   a.href = C.toDataURL('image/png');
   a.click();
@@ -1227,37 +1586,44 @@ document.getElementById('shareImg').onclick=()=>{
 let space='radar';
 function showSpace(name){
   space=name;
+  if(name!=='radar') closeDetail();   // 切走时收起详情浮层
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.space===name));
   document.getElementById('library').classList.toggle('on', name==='library');
   document.getElementById('community').classList.toggle('on', name==='community');
+  document.getElementById('personal').classList.toggle('on', name==='personal');
+  document.getElementById('flywheel').classList.toggle('on', name==='flywheel');
   if(name==='library') renderLibrary();
   if(name==='community') loadCommunity();
+  if(name==='personal') renderPersonal();
+  if(name==='flywheel') loadFlywheel();
 }
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>showSpace(b.dataset.space));
 
 // ── 图书馆（独立页：全量浏览 + 搜索 + 筛选）──
 let libFilter=null;
 function cardHTML(b, curated, external){
-  const q=QUAD[b.quadrant]||QUAD.applied, added=shelfOf(b.isbn);
+  const col=FAMILY_COLOR[b.quadrant]||FAMILY_COLOR[b.family]||'#16181d', added=shelfOf(b.isbn||b.id);
+  const rtypeName=RTYPE_N[b.rtype]||'书籍';
   const tags = curated
-    ? `<span>${q.name}</span><span>${DIFF_N[b.difficulty]||''}</span><span>${b.kind==='classic'?'经典':'时效'}</span>`
-    : `<span>${q.name}</span><span style="color:var(--q-app)">未策展</span>`;
+    ? `<span>${b.quadrant||b.family||''}</span><span>${rtypeName}</span><span>${'★'.repeat(b.rec||3)}</span>`
+    : `<span style="color:${col}">外部 · 未策展</span>`;
   const btn = external
     ? `<button class="cadd ${added?'added':''}" data-add="${encodeURIComponent(JSON.stringify({isbn:b.isbn,title:b.title,authors:b.authors,published:b.published}))}">${added?'已加入':'加进雷达'}</button>`
-    : `<button class="cadd" data-locate="${b.isbn}">在雷达上看 ↗</button>`;
-  return `<div class="card" style="--cc:${q.ink}">
-    <div class="ct">${b.title}</div>
-    <div class="cm">${(b.authors||[])[0]||''} · ${b.published||''}</div>
+    : `<button class="cadd" data-locate="${b.isbn||b.id}">在雷达上看 ↗</button>`;
+  return `<div class="card" style="--cc:${col}">
+    <div class="ct">${esc(b.title)}</div>
+    <div class="cm">${esc((b.authors||[])[0]||'')}${b.published?' · '+b.published:''}</div>
     <div class="ctags">${tags}</div>${btn}</div>`;
 }
 function bindCards(box){
   box.querySelectorAll('[data-locate]').forEach(btn=>btn.onclick=e=>{
     e.stopPropagation();
-    const isbn=btn.dataset.locate;
+    const id=btn.dataset.locate;
     showSpace('radar');
-    if(!curRole){ toast('先选一个角色进入雷达，就能看到这本书'); return; }
-    const bd=bodies.find(x=>x.b.isbn===isbn);
-    if(bd){ active=bd; logEvent('open',isbn,{role:curRole,src:'library'}); showBook(bd); }
+    if(!curRole){ toast('先选一个能力族进入雷达，就能看到它'); return; }
+    const bd=bodies.find(x=>x.b.id===id);
+    if(bd && bd.data){ active=bd; logEvent('open',id,{role:curRole,src:'library'}); showBook(bd); }
+    else toast('这项不属于当前能力族 · 切到它所在的族再看');
   });
   box.querySelectorAll('[data-add]').forEach(btn=>btn.onclick=e=>{
     e.stopPropagation();
@@ -1287,7 +1653,7 @@ async function renderLibrary(q){
 }
 function initLibFilters(){
   const box=document.getElementById('libFilters');
-  const opts=[['','全部'],['foundations','基础与理论'],['models','模型与算法'],['systems','工程与系统'],['applied','产品与应用']];
+  const opts=[['','全部'],...FAM_ORDER.map(f=>[f,f])];
   box.innerHTML=opts.map(([k,n])=>`<button data-q="${k}" class="${k===(libFilter||'')?'on':''}">${n}</button>`).join('');
   box.querySelectorAll('button').forEach(b=>b.onclick=()=>{
     libFilter=b.dataset.q||null;
@@ -1300,27 +1666,78 @@ document.getElementById('libGo').onclick=()=>renderLibrary(document.getElementBy
 document.getElementById('libInput').onkeydown=e=>{ if(e.key==='Enter') renderLibrary(e.target.value.trim()); };
 document.getElementById('libClear').onclick=()=>{ document.getElementById('libInput').value=''; renderLibrary(); };
 
-// ── 社区（独立页：全站书评流）──
+// ── 社区：成长路径 ──
+async function loadPaths(){
+  const box=document.getElementById('comPaths');
+  let list; try{ list=await fetch('/api/paths').then(r=>r.json()); }catch{ box.innerHTML=''; return; }
+  if(!list.length){ box.innerHTML='<div style="font-size:11.5px;color:var(--ink-3)">还没有路径</div>'; return; }
+  box.innerHTML=list.map((p,i)=>`
+    <div class="cpath" data-i="${i}" style="--pc:${p.color}">
+      <div class="pth">${esc(p.title)}<span class="ptag">${esc(p.role_label)}</span><span class="plv">${esc(p.level)}</span></div>
+      <div class="pgoal">${esc(p.goal)}</div>
+      <div class="pmeta"><span>${p.steps.length} 步</span><span class="${p.status==='draft'?'draft':''}">${p.status==='draft'?'草稿 · 待定稿':''} 查看 →</span></div>
+    </div>`).join('');
+  box.querySelectorAll('.cpath').forEach(el=>el.onclick=()=>openPathModal(list[+el.dataset.i]));
+}
+function openPathModal(p){
+  const card=document.getElementById('pmCard');
+  card.style.setProperty('--pc',p.color);
+  card.innerHTML=`
+    <div class="pmbar" style="background:${p.color}">
+      <div><div class="pmtitle">${esc(p.title)}</div>
+        <div class="pmtags">${esc(p.role_label)} · ${esc(p.level)} · ${p.steps.length} 步</div></div>
+      <span class="x" id="pmX">✕</span>
+    </div>
+    <div class="pmbody">
+      <div class="pmgoal">${esc(p.goal)}</div>
+      ${p.status==='draft'?`<div class="pmnote">草稿 · 书序待定稿</div>`:''}
+      ${p.steps.map((s,i)=>`
+        <div class="pmstep" data-id="${s.id}">
+          <div class="n">${i+1}</div>
+          <div><div class="st">${esc(s.title)}</div>
+            <div class="sw">${esc(s.why)}</div>
+            <div class="sm">${RTYPE_N[s.rtype]||'书籍'} · ${esc(s.family)} · 点击在雷达上看 →</div></div>
+        </div>`).join('')}
+    </div>`;
+  document.getElementById('pathModal').classList.add('on');
+  card.querySelector('#pmX').onclick=closePathModal;
+  card.querySelectorAll('.pmstep').forEach(el=>el.onclick=()=>{
+    const id=el.dataset.id; closePathModal(); showSpace('radar');
+    if(!curRole){ toast('先选一个能力族进入雷达，再看这本书'); return; }
+    const bd=bodies.find(x=>x.b.id===id);
+    if(bd && bd.data){ active=bd; logEvent('open',id,{src:'path'}); showBook(bd); }
+    else toast('这本书不在当前能力族 · 切到它所在的族再看');
+  });
+}
+function closePathModal(){ document.getElementById('pathModal').classList.remove('on'); }
+document.getElementById('pathModal').addEventListener('click',e=>{
+  if(e.target.id==='pathModal') closePathModal();
+});
+
+// ── 社区（独立页：成长路径 + 全站推荐流）──
 let comSort='recent';
 async function loadCommunity(){
+  loadPaths();
   const feed=document.getElementById('comFeed');
   feed.innerHTML='<div class="cempty">加载中…</div>';
   let list; try{ list=await fetch(`/api/community?sort=${comSort}`).then(r=>r.json()); }
   catch{ feed.innerHTML='<div class="cempty">加载失败</div>'; return; }
   if(!list.length){ feed.innerHTML='<div class="cempty">还没有书评 · 去雷达上标记「读过」，写下第一条</div>'; return; }
   feed.innerHTML=list.map(r=>{
-    const q=QUAD[r.quadrant]||QUAD.applied;
-    return `<div class="citem" data-isbn="${r.isbn}">
-      <div class="cbook"><span class="dot" style="background:${q.ink}"></span>${r.book_title}</div>
+    const col=FAMILY_COLOR[r.quadrant]||'#16181d';
+    const sc=r.score?`<span style="color:#b0761c;font-size:11px;letter-spacing:1px;margin-left:7px">${'★'.repeat(r.score)}${'☆'.repeat(5-r.score)}</span>`:'';
+    return `<div class="citem" data-id="${r.isbn}">
+      <div class="cbook"><span class="dot" style="background:${col}"></span>${esc(r.book_title||'')}${sc}</div>
       <div class="ctxt">${esc(r.text)}</div>
       <div class="cfoot"><span class="cwho">${r.actor.slice(0,11)}…</span><span class="cup">👍 有用 ${r.up||0}</span></div>
     </div>`;
   }).join('');
   feed.querySelectorAll('.citem').forEach(el=>el.onclick=()=>{
     showSpace('radar');
-    if(!curRole){ toast('先选一个角色进入雷达，看这本书'); return; }
-    const bd=bodies.find(x=>x.b.isbn===el.dataset.isbn);
-    if(bd){ active=bd; showBook(bd); }
+    if(!curRole){ toast('先选一个能力族进入雷达，看这项资料'); return; }
+    const bd=bodies.find(x=>x.b.id===el.dataset.id);
+    if(bd && bd.data){ active=bd; showBook(bd); }
+    else toast('这项不属于当前能力族 · 切到它所在的族再看');
   });
 }
 document.querySelectorAll('.csort button').forEach(b=>b.onclick=()=>{
@@ -1330,8 +1747,298 @@ document.querySelectorAll('.csort button').forEach(b=>b.onclick=()=>{
 });
 initLibFilters();
 
+// ── 个人空间：书架 + 个人雷达（拖书）+ 推荐 + 分享 ──
+const PC=document.getElementById('pc'), PX=PC.getContext('2d');
+let peTab='want', peViewActor=null, pePlaced=[], peHover=null, galaxyById={};
+let PW,PH,PCX,PCY,PR;
+const PSTANCE_ORDER=['now','invest','know'];
+const PBAND={now:.30,invest:.60,know:.92};
+const STATE_N={want:'未读',reading:'在读',read:'已读'};
+
+function bookMeta(id){
+  if(!Object.keys(galaxyById).length) galaxy.forEach(g=>galaxyById[g.id]=g);
+  if(galaxyById[id]) return galaxyById[id];
+  const s=shelf[id];
+  if(s&&s.meta) return {id,title:s.meta.title,authors:s.meta.authors||[],
+    family:s.meta.quadrant||'全员通用',rtype:'book',difficulty:3,content_type:'tool'};
+  return {id,title:id,family:'全员通用',rtype:'book',difficulty:3,content_type:'tool'};
+}
+
+async function renderPersonal(){
+  const ro=!!peViewActor;
+  document.getElementById('peExit').style.display=ro?'':'none';
+  document.getElementById('peShareLink').style.display=ro?'none':'';
+  document.getElementById('peShareImg').style.display=ro?'none':'';
+  document.querySelector('#personal .pshelf').style.display=ro?'none':'';
+  document.getElementById('peHint').style.display=ro?'none':'';
+  document.getElementById('peTitle').textContent=ro?'TA 的雷达':'我的雷达';
+  document.getElementById('peSub').textContent=ro
+    ? '别人分享的个人雷达 · 只读'
+    : '把书从左侧书架拖到雷达 · 环 = 你自己的立场 · 可分享给同行';
+
+  if(ro){
+    let d; try{ d=await fetch('/api/personal?actor='+encodeURIComponent(peViewActor)).then(r=>r.json()); }
+    catch{ d={radar:[],recommendations:[]}; }
+    pePlaced=d.radar.map(r=>({id:r.id,stance:r.stance,title:r.title||r.id,family:r.family,
+      rtype:r.rtype||'book',difficulty:+(r.difficulty||3),content_type:r.content_type}));
+    renderRecs(d.recommendations);
+  }else{
+    initPlanner();
+    renderShelfList();
+    pePlaced=Object.entries(shelf).filter(([,s])=>s.stance).map(([id,s])=>{
+      const m=bookMeta(id);
+      return {id,stance:s.stance,title:m.title,family:m.family,rtype:m.rtype,
+        difficulty:+(m.difficulty||3),content_type:m.content_type};
+    });
+    if(actor) fetch('/api/personal?actor='+encodeURIComponent(actor))
+      .then(r=>r.json()).then(d=>renderRecs(d.recommendations)).catch(()=>{});
+  }
+  sizePersonalCanvas(); drawPersonal();
+}
+
+function renderShelfList(){
+  document.querySelectorAll('#peTabs button').forEach(b=>b.classList.toggle('on',b.dataset.st===peTab));
+  const box=document.getElementById('peShelf');
+  const ids=Object.keys(shelf).filter(id=>shelf[id].state===peTab);
+  if(!ids.length){ box.innerHTML=`<div class="pempty">「${STATE_N[peTab]}」还是空的。<br>去雷达或图书馆标记书籍。</div>`; return; }
+  box.innerHTML=ids.map(id=>{
+    const m=bookMeta(id), col=FAMILY_COLOR[m.family]||'#888a94', s=shelf[id];
+    const placed=s.stance
+      ? `<span class="placed">${STANCE_N[s.stance]}</span>`
+      : `<span style="color:var(--ink-3)">拖我上雷达 →</span>`;
+    return `<div class="pitem" draggable="true" data-id="${id}" style="--cc:${col}">
+      <div class="pt">${esc(m.title)}</div>
+      <div class="pm"><span>${RTYPE_N[m.rtype]||'书籍'}</span><span>${esc(m.family)}</span>${placed}</div></div>`;
+  }).join('');
+  box.querySelectorAll('.pitem').forEach(el=>{
+    el.addEventListener('dragstart',e=>{
+      e.dataTransfer.setData('text/plain',el.dataset.id); e.dataTransfer.effectAllowed='copy';
+    });
+    el.addEventListener('click',()=>openDetailFor(el.dataset.id));   // 点击=看详情
+  });
+}
+
+function renderRecs(list){
+  const box=document.getElementById('peRecs');
+  if(!list||!list.length){
+    box.innerHTML=`<div class="pempty">还没有推荐。在任意书的详情里标记「读过」，就能写推荐（打分 + 理由）。</div>`;
+    return;
+  }
+  box.innerHTML=list.map(r=>{
+    const stars=r.score?`<span class="ps">${'★'.repeat(r.score)}${'☆'.repeat(5-r.score)}</span>`:'';
+    return `<div class="prec"><div class="pb">${esc(r.book_title||'')}${stars}</div>
+      <div class="ptx">${esc(r.text)}</div></div>`;
+  }).join('');
+}
+
+function sizePersonalCanvas(){
+  const box=document.querySelector('.pradar'); if(!box) return;
+  const r=box.getBoundingClientRect();
+  PW=PC.width=Math.max(1,r.width*DPR); PH=PC.height=Math.max(1,r.height*DPR);
+  PC.style.width=r.width+'px'; PC.style.height=r.height+'px';
+  PCX=PW/2; PCY=PH/2; PR=Math.min(PW,PH)*0.42;
+}
+
+function drawPersonal(){
+  if(!PW) return;
+  PX.clearRect(0,0,PW,PH);
+  PX.fillStyle='#f4f1e8'; PX.fillRect(0,0,PW,PH);
+  // 立场三环
+  PX.textAlign='center'; PX.textBaseline='middle';
+  PSTANCE_ORDER.forEach(st=>{
+    const rad=PBAND[st]*PR;
+    PX.strokeStyle='#16181d'; PX.globalAlpha=.22; PX.lineWidth=(st==='now'?1.4:1)*DPR;
+    PX.beginPath(); PX.arc(PCX,PCY,rad,0,6.28); PX.stroke(); PX.globalAlpha=1;
+    const lbl=STANCE_EN[st]+'　'+STANCE_N[st];
+    PX.font=`600 ${9.5*DPR}px "SF Mono",ui-monospace,monospace`;
+    const w=PX.measureText(lbl).width+10*DPR;
+    PX.fillStyle='#f4f1e8'; PX.fillRect(PCX-w/2,PCY-rad-6.5*DPR,w,13*DPR);
+    PX.fillStyle='#16181d'; PX.fillText(lbl,PCX,PCY-rad);
+  });
+  PX.fillStyle='#16181d'; PX.beginPath(); PX.arc(PCX,PCY,2.6*DPR,0,6.28); PX.fill();
+  // 放置的书，按环分组、按角度铺开
+  const byRing={now:[],invest:[],know:[]};
+  pePlaced.forEach(p=>(byRing[p.stance]||byRing.know).push(p));
+  PSTANCE_ORDER.forEach((st,ri)=>{
+    const list=byRing[st], n=list.length, rad=PBAND[st]*PR;
+    list.forEach((p,i)=>{
+      const ang=-Math.PI/2 + (i/Math.max(n,1))*6.28318 + ri*0.5;
+      let x=PCX+Math.cos(ang)*rad, y=PCY+Math.sin(ang)*rad;
+      if(peDrag && peDrag.p===p){ x=peDrag.cx; y=peDrag.cy; }   // 被拖的星球跟随光标
+      drawPersonalBody(p, x, y);
+    });
+  });
+  if(!pePlaced.length){
+    PX.fillStyle='#8a8f9c'; PX.font=`${11*DPR}px "PingFang SC",sans-serif`;
+    PX.fillText(peViewActor?'（这个雷达还没放书）':'把左侧的书拖进来', PCX, PCY+PR*.55);
+  }
+}
+
+function drawPersonalBody(p,x,y){
+  const col=FAMILY_COLOR[p.family]||'#888a94';
+  const on=peHover===p || (peDrag&&peDrag.p===p), s=(on?10.5:8)*DPR;
+  const g=PX.createRadialGradient(x-s*.3,y-s*.3,s*.1,x,y,s);
+  g.addColorStop(0,mixHex(col,'#ffffff',.42)); g.addColorStop(1,col);
+  PX.fillStyle=g; PX.beginPath(); PX.arc(x,y,s,0,6.28); PX.fill();
+  PX.strokeStyle=mixHex(col,'#0d0f14',.4); PX.globalAlpha=.6; PX.lineWidth=1*DPR;
+  PX.beginPath(); PX.arc(x,y,s,0,6.28); PX.stroke(); PX.globalAlpha=1;
+  if(p.rtype==='course'){ PX.strokeStyle=col; PX.lineWidth=1.4*DPR;
+    PX.beginPath(); PX.ellipse(x,y,s*1.7,s*1.7*.32,-.4,0,6.28); PX.stroke(); }
+  else if(p.rtype==='doc'){ PX.fillStyle=mixHex(col,'#0d0f14',.35); PX.globalAlpha=.5;
+    PX.fillRect(x-s*.4,y-s*.4,s*.8,s*.8); PX.globalAlpha=1; }
+  const t=p.title.length>16?p.title.slice(0,15)+'…':p.title;
+  PX.font=`600 ${10*DPR}px "PingFang SC",sans-serif`; PX.textAlign='center'; PX.textBaseline='top';
+  PX.fillStyle=on?'#16181d':'#3a3d45'; PX.fillText(t,x,y+s+3*DPR);
+  p._x=x; p._y=y; p._r=s;
+}
+
+function stanceFromClient(clientX,clientY){
+  const r=PC.getBoundingClientRect();
+  const cx=r.width/2, cy=r.height/2, Rc=Math.min(r.width,r.height)*0.42;
+  const rr=Math.hypot(clientX-r.left-cx, clientY-r.top-cy)/Rc;
+  return rr<0.45?'now':rr<0.76?'invest':'know';
+}
+
+// 拖放：书架卡片 → 雷达环
+const pradarEl=document.querySelector('.pradar');
+pradarEl.addEventListener('dragover',e=>{ if(peViewActor)return; e.preventDefault();
+  e.dataTransfer.dropEffect='copy'; pradarEl.classList.add('drag'); });
+pradarEl.addEventListener('dragleave',()=>pradarEl.classList.remove('drag'));
+pradarEl.addEventListener('drop',e=>{
+  e.preventDefault(); pradarEl.classList.remove('drag'); if(peViewActor)return;
+  const id=e.dataTransfer.getData('text/plain'); if(!id||!shelf[id]) return;
+  const stance=stanceFromClient(e.clientX,e.clientY);
+  setShelf(id,{stance}); renderPersonal();
+  toast('已放到「'+STANCE_N[stance]+'」环');
+});
+// 个人雷达上：点击=看详情；拖动=改立场（拖回环内）或移出（拖出雷达）
+let peDrag=null;
+function peHit(e){
+  const r=PC.getBoundingClientRect();
+  const mx=(e.clientX-r.left)*DPR, my=(e.clientY-r.top)*DPR;
+  return pePlaced.find(p=>p._x!=null && Math.hypot(p._x-mx,p._y-my)<p._r+6*DPR);
+}
+PC.addEventListener('mousedown',e=>{
+  const hit=peHit(e);
+  if(hit) peDrag={p:hit,sx:e.clientX,sy:e.clientY,cx:0,cy:0,moved:false};
+});
+PC.addEventListener('mousemove',e=>{
+  const r=PC.getBoundingClientRect();
+  const mx=(e.clientX-r.left)*DPR, my=(e.clientY-r.top)*DPR;
+  if(peDrag){
+    if(Math.hypot(e.clientX-peDrag.sx,e.clientY-peDrag.sy)>4) peDrag.moved=true;
+    peDrag.cx=mx; peDrag.cy=my; PC.style.cursor='grabbing'; drawPersonal(); return;
+  }
+  let h=null; pePlaced.forEach(p=>{ if(p._x!=null && Math.hypot(p._x-mx,p._y-my)<p._r+6*DPR) h=p; });
+  if(h!==peHover){ peHover=h; PC.style.cursor=h?'pointer':'default'; drawPersonal(); }
+});
+addEventListener('mouseup',e=>{
+  if(!peDrag) return;
+  const d=peDrag; peDrag=null; PC.style.cursor='default';
+  if(!d.moved){ openDetailFor(d.p.id); return; }          // 没拖动 = 点击 → 详情
+  if(peViewActor){ drawPersonal(); return; }               // 只读不改
+  const r=PC.getBoundingClientRect();
+  const inside=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+  const cx=r.width/2, cy=r.height/2, Rc=Math.min(r.width,r.height)*0.42;
+  const rr=Math.hypot(e.clientX-r.left-cx, e.clientY-r.top-cy)/Rc;
+  const id=d.p.id;
+  if(inside && rr<=1.12){                                   // 拖回环内 = 改立场
+    const st=stanceFromClient(e.clientX,e.clientY);
+    setShelf(id,{stance:st}); renderPersonal(); toast('已移到「'+STANCE_N[st]+'」环');
+  }else{                                                    // 拖出雷达 = 移除
+    if(shelf[id]){ shelf[id].stance=null; saveShelf(); syncShelf(id); }
+    renderPersonal(); toast('已从雷达移出 · 书架保留');
+  }
+});
+
+document.querySelectorAll('#peTabs button').forEach(b=>b.onclick=()=>{ peTab=b.dataset.st; renderShelfList(); });
+document.getElementById('peShareLink').onclick=async()=>{
+  if(!actor){ toast('账号初始化中，稍等'); return; }
+  const url=location.origin+location.pathname+'?me='+encodeURIComponent(actor);
+  try{ await navigator.clipboard.writeText(url); toast('链接已复制 · 别人打开即可看你的雷达'); }
+  catch{ toast(url); }
+};
+document.getElementById('peShareImg').onclick=()=>{
+  const a=document.createElement('a'); a.download='我的AI读书雷达.png';
+  a.href=PC.toDataURL('image/png'); a.click(); toast('已保存你的雷达图');
+};
+document.getElementById('peExit').onclick=()=>{ peViewActor=null;
+  history.replaceState(null,'',location.pathname); renderPersonal(); };
+addEventListener('resize',()=>{ if(space==='personal'){ sizePersonalCanvas(); drawPersonal(); } });
+
+// ── Phase 3：个性化规划器 ──
+let ppDaysV=30;
+async function initPlanner(){
+  const sel=document.getElementById('ppGoal');
+  if(sel.dataset.init) return;
+  let gs; try{ gs=await fetch('/api/goals').then(r=>r.json()); }catch{ return; }
+  sel.innerHTML=gs.map(g=>`<option value="${g.id}">${esc(g.title)}（${esc(g.level)}）</option>`).join('');
+  sel.dataset.init='1';
+}
+document.querySelectorAll('#ppDays button').forEach(b=>b.onclick=()=>{
+  ppDaysV=+b.dataset.d;
+  document.querySelectorAll('#ppDays button').forEach(x=>x.classList.toggle('on',x===b));
+});
+document.getElementById('ppGo').onclick=async()=>{
+  const goal=document.getElementById('ppGoal').value;
+  const box=document.getElementById('ppResult');
+  box.innerHTML='<div style="font-size:11px;color:var(--ink-3);padding-top:12px">规划中…</div>';
+  let d; try{ d=await fetch('/api/plan',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({actor,goal,days:ppDaysV})}).then(r=>r.json()); }
+  catch{ box.innerHTML='<div style="font-size:11px;color:var(--ink-3)">规划失败</div>'; return; }
+  if(!d.steps||!d.steps.length){ box.innerHTML='<div style="font-size:11px;color:var(--ink-3);padding-top:12px">这个目标下暂无可推荐（可能你都读过了）</div>'; return; }
+  box.style.setProperty('--rc',d.color);
+  box.innerHTML=`<div class="ppr-head"><span>${esc(d.goal)} · ${d.steps.length} 步 · 共约 ${d.total_hours} 小时（${d.days} 天）· <span style="color:var(--ink-3)">${esc(d.note)}</span></span>
+      <button class="ppr-add" id="ppAdd">把整条加到我的雷达</button></div>`+
+    d.steps.map((s,i)=>`<div class="ppstep" data-id="${s.id}"><div class="n">${i+1}</div>
+      <div><div class="st">${esc(s.title)}${s.on_topic?'':' <span style="color:var(--ink-3);font-weight:400;font-size:10px">· 邻域</span>'}</div>
+        <div class="sw">${esc(s.why)}</div>
+        <div class="sm">${STANCE_N[s.stance]} · 约 ${s.hours}h · 点击在雷达上看 →</div></div></div>`).join('');
+  box.querySelector('#ppAdd').onclick=()=>{
+    d.steps.forEach(s=>{
+      if(!shelf[s.id]) setShelf(s.id,{state:'want',stance:s.stance});
+      else setShelf(s.id,{stance:s.stance});
+    });
+    toast('已把整条路径加到我的雷达'); renderPersonal();
+  };
+  box.querySelectorAll('.ppstep').forEach(el=>el.onclick=()=>{
+    logEvent('open',el.dataset.id,{src:'plan'}); openDetailFor(el.dataset.id);
+  });
+};
+
+// ── Phase 2：飞轮评审台 ──
+async function loadFlywheel(){
+  const body=document.getElementById('fwBody');
+  body.innerHTML='<div style="font-size:11px;color:var(--ink-3)">加载中…</div>';
+  let d; try{ d=await fetch('/api/flywheel').then(r=>r.json()); }catch{ body.innerHTML='加载失败'; return; }
+  const p=d.thresholds.promote, dm=d.thresholds.demote;
+  const row=(c,kind)=>{
+    const m=c.metrics;
+    const met=`浏览 ${m.V} · 读过 ${m.R} · 推荐 ${m.S} · 均分 ${m.sbar} · 有用 ${Math.round(m.useful_rate*100)}% · 转化 ${Math.round(m.conversion*100)}%`;
+    let v,cls,extra='';
+    if(kind==='promote'){
+      if(c.verdict==='promote'){ v='✅ 建议入雷达'; cls='pass'; }
+      else { v='⏸ 待够信号'; cls='hold'; extra=`<div class="fwfail">未满足：${c.fails.join('、')}</div>`; }
+    }else{ v='⚠ 建议降级'; cls='demote'; extra=`<div class="fwfail">${c.reasons.join('、')}</div>`; }
+    return `<div class="fwrow"><div class="fwt"><div class="fwname">${esc(c.title)}</div>
+      <div class="fwm">${met}</div>${extra}</div><div class="fwv ${cls}">${v}</div></div>`;
+  };
+  body.innerHTML=`
+    <div class="fwbanner">${esc(d.note)}</div>
+    <div class="fwth">
+      <span>准入门槛：<b>读过≥${p.R_MIN} · 推荐≥${p.S_MIN} · 均分≥${p.SBAR_MIN} · 有用≥${Math.round(p.USEFUL_MIN*100)}%</b></span>
+      <span>降级：<b>读过≥${dm.R_MIN}且均分≤${dm.SBAR_MAX}，或有用≤${Math.round(dm.USEFUL_MAX*100)}%</b></span>
+    </div>
+    <div class="fwsec">准入队列 · 按有用度排序（防「热门更热门」）</div>
+    ${d.promote.map(c=>row(c,'promote')).join('')}
+    <div class="fwsec">降级 / Hold 队列</div>
+    ${d.demote.length?d.demote.map(c=>row(c,'demote')).join(''):'<div style="font-size:11px;color:var(--ink-3);padding:10px 0">暂无</div>'}`;
+}
+document.getElementById('fwOpen').onclick=()=>showSpace('flywheel');
+document.getElementById('fwBack').onclick=()=>showSpace('community');
+
 async function addExternalBook(b){
-  const quadrant='applied';   // 外部书默认象限，个人图层语义中性
+  const quadrant=(radar&&radar.family)||'全员通用';   // 外部书归到当前能力族的最外圈
   shelf[b.isbn]={state:'want',curated:0,
     meta:{title:b.title,authors:b.authors||[],published:b.published,quadrant},ts:Date.now()};
   saveShelf(); updateMine();
@@ -1341,29 +2048,25 @@ async function addExternalBook(b){
   if(scene==='radar'){ appendExternalBodies(); recompute(); }
 }
 
-// 外部书（个人图层）：放各象限最外圈，作为「我的待读」弧带
-function makeExternalBody(isbn, meta, idxInQuad, nInQuad){
-  const quad=meta.quadrant||'applied', q=QUAD[quad];
-  const pad=.16, f=nInQuad<=1?.5:pad+(idxInQuad/(nInQuad-1))*(1-2*pad);
-  const ang=q.a0+f*(q.a1-q.a0), rf=1.02;   // assess(.96) 之外，最外缘
+// 外部书（个人图层）：放当前能力族雷达的最外圈，作为「我的待读」弧带
+function makeExternalBody(id, meta, idx, n){
+  const pad=.16, f=n<=1?.5:pad+(idx/(n-1))*(1-2*pad);
+  const ang=-Math.PI/2 + (0.2+0.6*f)*6.28318*0.25, rf=1.04;   // know(.98) 之外，最外缘
   return {
-    b:{isbn,title:meta.title,authors:meta.authors||[],published:meta.published,
-       quadrant:quad,difficulty:'intermediate',kind:'timely',
-       content_type:'narrative',paradigm:'llm'},
+    b:{id,title:meta.title,authors:meta.authors||[],published:meta.published,
+       family:meta.quadrant||'全员通用',rtype:'book',difficulty:3,
+       content_type:'tool',rec:3},
     external:true, ring:'mine', data:null,
+    color: FAMILY_COLOR[meta.quadrant]||'#8a8f9c',
     ang, rf, rx:Math.cos(ang)*rf, ry:Math.sin(ang)*rf,
-    gx:0,gy:0,x:0,y:0, size:SIZE.intermediate*0.85,
-    material:'gas', hot:false, seed:(isbn.length*131)>>>0,
+    gx:0,gy:0,x:0,y:0, size:sizeOf(3)*0.85,
+    material:'rock', hot:false, seed:(id.length*131)>>>0,
   };
 }
 function appendExternalBodies(){
   bodies=bodies.filter(b=>!b.external);   // 先清旧的外部书，避免重复
   const ext=Object.entries(shelf).filter(([,s])=>s.curated===0 && s.meta);
-  const byQuad={};
-  ext.forEach(([isbn,s])=>{ (byQuad[s.meta.quadrant||'applied'] ||= []).push([isbn,s]); });
-  Object.values(byQuad).forEach(list=>{
-    list.forEach(([isbn,s],i)=> bodies.push(makeExternalBody(isbn,s.meta,i,list.length)));
-  });
+  ext.forEach(([id,s],i)=> bodies.push(makeExternalBody(id,s.meta,i,ext.length)));
 }
 
 boot();
