@@ -98,6 +98,25 @@ CREATE TABLE IF NOT EXISTS votes (
   useful    INTEGER,
   PRIMARY KEY (actor, review_id)
 );
+
+-- 社区讨论：帖子（话题）+ 回帖，知乎式
+CREATE TABLE IF NOT EXISTS threads (
+  id     INTEGER PRIMARY KEY AUTOINCREMENT,
+  title  TEXT,
+  body   TEXT,
+  actor  TEXT,
+  ts     INTEGER
+);
+CREATE TABLE IF NOT EXISTS posts (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  thread_id INTEGER,
+  actor     TEXT,
+  text      TEXT,
+  isbn      TEXT,      -- 回帖可选：引用一本书
+  score     INTEGER,   -- 可选：给引用的书打分（喂飞轮）
+  ts        INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_posts_thread ON posts(thread_id);
 """
 
 
@@ -105,6 +124,7 @@ def init_db():
     with conn() as c:
         c.executescript(SCHEMA)
     import_curated()
+    seed_threads()
 
 
 def import_curated():
@@ -216,8 +236,10 @@ def search_curated(q: str, limit: int = 8):
     like = f"%{q.lower()}%"
     with conn() as c:
         rows = c.execute(
-            """SELECT * FROM books
-               WHERE curated=1 AND (LOWER(title) LIKE ? OR LOWER(authors) LIKE ?)
+            """SELECT b.*,
+                      (SELECT COUNT(*) FROM shelf s WHERE s.isbn=b.isbn AND s.state='read') AS reads
+               FROM books b
+               WHERE b.curated=1 AND (LOWER(b.title) LIKE ? OR LOWER(b.authors) LIKE ?)
                LIMIT ?""",
             (like, like, limit),
         ).fetchall()
@@ -316,14 +338,17 @@ def has_read(actor, isbn):
 
 
 def all_books(actor=None):
-    """图书馆浏览：全部策展书 + 该用户加的外部书。"""
+    """图书馆浏览：全部策展书 + 该用户加的外部书。附阅读人数（标记读过的人数）。"""
+    reads_sub = "(SELECT COUNT(*) FROM shelf s WHERE s.isbn=b.isbn AND s.state='read') AS reads"
     with conn() as c:
-        rows = c.execute("SELECT * FROM books WHERE curated=1 ORDER BY quadrant, difficulty").fetchall()
+        rows = c.execute(
+            f"SELECT b.*, {reads_sub} FROM books b WHERE b.curated=1 "
+            "ORDER BY b.quadrant, b.difficulty").fetchall()
         out = [_book_row(r) for r in rows]
         if actor:                        # 附上该用户从图书馆加的外部书
             ext = c.execute(
-                """SELECT b.* FROM books b JOIN shelf s ON s.isbn=b.isbn
-                   WHERE b.curated=0 AND s.actor=?""", (actor,)).fetchall()
+                f"""SELECT b.*, {reads_sub} FROM books b JOIN shelf s ON s.isbn=b.isbn
+                    WHERE b.curated=0 AND s.actor=?""", (actor,)).fetchall()
             out += [_book_row(r) for r in ext]
     return out
 
@@ -343,6 +368,71 @@ def community_feed(sort="recent", limit=60):
             (limit,),
         ).fetchall()
     return [dict(r) for r in rows]
+
+
+# ── 社区讨论：帖子 + 回帖（知乎式）──
+def create_thread(actor, title, body):
+    with conn() as c:
+        cur = c.execute("INSERT INTO threads(title,body,actor,ts) VALUES (?,?,?,?)",
+                        (title, body, actor, int(time.time())))
+        return cur.lastrowid
+
+
+def add_post(actor, thread_id, text, isbn=None, score=None):
+    with conn() as c:
+        cur = c.execute(
+            "INSERT INTO posts(thread_id,actor,text,isbn,score,ts) VALUES (?,?,?,?,?,?)",
+            (thread_id, actor, text, isbn, score, int(time.time())))
+        return cur.lastrowid
+
+
+def list_threads():
+    """帖子列表，附回帖数与最后活跃时间。按最后活跃倒序。"""
+    with conn() as c:
+        rows = c.execute(
+            """SELECT t.id, t.title, t.body, t.actor, t.ts,
+                      COUNT(p.id) AS replies,
+                      COALESCE(MAX(p.ts), t.ts) AS last_ts
+               FROM threads t LEFT JOIN posts p ON p.thread_id=t.id
+               GROUP BY t.id ORDER BY last_ts DESC""").fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_thread(thread_id):
+    """一个帖子 + 全部回帖（附引用书名）。"""
+    with conn() as c:
+        t = c.execute("SELECT * FROM threads WHERE id=?", (thread_id,)).fetchone()
+        if not t:
+            return None
+        posts = c.execute(
+            """SELECT p.*, b.title AS book_title
+               FROM posts p LEFT JOIN books b ON b.isbn=p.isbn
+               WHERE p.thread_id=? ORDER BY p.ts ASC""", (thread_id,)).fetchall()
+    return {"thread": dict(t), "posts": [dict(p) for p in posts]}
+
+
+def seed_threads():
+    """新库没有帖子时，种几条示例讨论 —— 否则社区空着不像话。幂等。"""
+    with conn() as c:
+        n = c.execute("SELECT COUNT(*) FROM threads").fetchone()[0]
+        if n:
+            return
+    seeds = [
+        ("做 AI 产品，你读过最有用的一本书是？",
+         "分享一本你觉得对做 AI 产品最有帮助的书，顺便说说它帮你解决了什么问题。",
+         [("产品同学 A", "《AI Product Management》—— 把 AI 产品的需求、场景、生命周期讲清楚了，入门必读。"),
+          ("产品同学 B", "People + AI Guidebook，人机协作交互设计那部分，做 AI 功能少走很多弯路。")]),
+        ("Agent 开发，有没有绕不开的必读？",
+         "从 0 搭一个 Agent 系统，哪些书或资料是你觉得绕不开的？",
+         [("工程同学 C", "先 Designing LLM Applications 建立骨架，再 AI Agents in Action 动手，评估别忘了 Evals for AI Engineers。")]),
+        ("哪些 AI 书其实被高估了？",
+         "有没有那种名气很大、但你读完觉得不如预期的？大家避避坑。",
+         []),
+    ]
+    for title, body, replies in seeds:
+        tid = create_thread("读书雷达编辑部", title, body)
+        for who, txt in replies:
+            add_post(who, tid, txt)
 
 
 # ── 个人空间：个人雷达（书架里带 stance 的书）+ 我的推荐 ──

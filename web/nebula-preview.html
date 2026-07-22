@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>星云优化 · 效果示意图</title>
+<style>
+  :root{
+    --paper:#f0ede4; --paper-2:#e6e2d6;
+    --ink:#16181d; --ink-2:#4a4f5c; --ink-3:#8a8f9c;
+    --rule:#16181d1f;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden}
+  body{
+    background:var(--paper); color:var(--ink);
+    font:14px/1.6 "PingFang SC","Avenir Next","Helvetica Neue",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  #c{position:fixed;inset:0;display:block}
+
+  /* ── 对照控制条 ── */
+  #bar{
+    position:fixed; top:22px; left:50%; transform:translateX(-50%);
+    z-index:50; display:flex; align-items:center; gap:0;
+    background:#faf8f2; border:1px solid var(--ink);
+    box-shadow:5px 5px 0 #16181d0d; border-radius:6px; overflow:hidden;
+  }
+  #bar .seg{
+    padding:11px 22px; cursor:pointer; font:inherit; font-size:12.5px;
+    font-weight:600; letter-spacing:.02em; color:var(--ink-3);
+    background:transparent; border:none; transition:all .25s ease;
+    border-right:1px solid var(--rule);
+  }
+  #bar .seg:last-child{border-right:none}
+  #bar .seg.on{color:var(--ink); background:#00000008}
+  #bar .lab{
+    padding:0 16px 0 20px; font-size:9px; letter-spacing:.22em;
+    color:var(--ink-3); text-transform:uppercase; white-space:nowrap;
+  }
+
+  /* ── 图注 ── */
+  #note{
+    position:fixed; bottom:26px; left:46px; z-index:50;
+    max-width:300px; border-top:1px solid var(--ink); padding-top:11px;
+  }
+  #note .hd{font-size:9px; letter-spacing:.2em; color:var(--ink-3);
+            text-transform:uppercase; margin-bottom:9px;
+            display:flex; align-items:center; gap:6px}
+  #note .hd::after{content:''; flex:1; height:1px; background:var(--rule); margin-left:8px}
+  #note .item{display:flex; gap:9px; align-items:flex-start; margin-bottom:7px;
+              font-size:11px; line-height:1.55; color:var(--ink-2)}
+  #note .item b{color:var(--ink); font-weight:600; white-space:nowrap}
+  #note .dot{width:8px; height:8px; border-radius:50%; flex:none; margin-top:4px}
+
+  /* ── 角标 ── */
+  #tag{
+    position:fixed; top:22px; right:46px; z-index:50;
+    font-size:9px; letter-spacing:.24em; color:var(--ink-3);
+    text-transform:uppercase; text-align:right; line-height:1.5;
+  }
+  #tag b{display:block; font-size:13px; letter-spacing:-.01em;
+         color:var(--ink); text-transform:none; font-weight:600; margin-top:3px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="bar">
+  <span class="lab">效果对照</span>
+  <button class="seg" data-mode="before">当前</button>
+  <button class="seg on" data-mode="after">优化后</button>
+  <button class="seg" data-mode="split">左右对比</button>
+</div>
+
+<div id="tag">AI 读书雷达 · 主界面星云<b>效果示意图</b></div>
+
+<div id="note">
+  <div class="hd">优化要点 · Key</div>
+  <div class="item"><span class="dot" style="background:#2f6fed"></span>
+    <span><b>族星云</b>八支能力族各有一团极淡水彩晕染，资料聚成可见的「云团」</span></div>
+  <div class="item"><span class="dot" style="background:#8a8f9c"></span>
+    <span><b>背景星点</b>数百颗淡墨星点铺底，给星云以纵深，不再是空纸</span></div>
+  <div class="item"><span class="dot" style="background:#16181d"></span>
+    <span><b>尘埃带</b>几缕暗色弧线穿过云团，像真实星系的吸光尘带</span></div>
+  <div class="item"><span class="dot" style="background:#e8a020"></span>
+    <span><b>银心微光</b>圆心一抹暖晕，让整片星系有「核」</span></div>
+  <div class="item"><span class="dot" style="background:#c92a2a"></span>
+    <span><b>行星辉光</b>每颗行星带极淡大气晕，强推书发暖光</span></div>
+  <div class="item"><span class="dot" style="background:#16181d40"></span>
+    <span><b>暗角</b>四角微微压暗，收拢视线到中心</span></div>
+</div>
+
+<script>
+const C=document.getElementById('c'),X=C.getContext('2d');
+let W,H,CX,CY,R,DPR=Math.min(devicePixelRatio||1,2);
+let grain=null, mode='after', t=0;
+
+function resize(){
+  W=C.width=innerWidth*DPR; H=C.height=innerHeight*DPR;
+  C.style.width=innerWidth+'px'; C.style.height=innerHeight+'px';
+  CX=W*0.5; CY=H*0.52;
+  R=Math.min(W*0.40, H*0.40);
+  grain=makeGrain(); buildStars();
+}
+addEventListener('resize',resize);
+
+/* 纸张颗粒 */
+function makeGrain(){
+  const g=document.createElement('canvas'); g.width=200; g.height=200;
+  const gx=g.getContext('2d'), d=gx.createImageData(200,200);
+  for(let i=0;i<d.data.length;i+=4){
+    const v=Math.random()*255;
+    d.data[i]=d.data[i+1]=d.data[i+2]=v;
+    d.data[i+3]=Math.random()*11;
+  }
+  gx.putImageData(d,0,0); return g;
+}
+
+/* ── 八支能力族 ── */
+const FAMS=[
+  {label:'全员通用', color:'#2f6fed'},
+  {label:'技术·应用', color:'#e8590c'},
+  {label:'技术·数据', color:'#0b8457'},
+  {label:'技术·平台', color:'#7048e8'},
+  {label:'产品',     color:'#d6336c'},
+  {label:'测试',     color:'#1098ad'},
+  {label:'项目管理', color:'#e8a020'},
+  {label:'FDE',      color:'#c92a2a'},
+];
+const N=FAMS.length;
+
+/* 确定性随机 */
+function rng(seed){let s=seed>>>0||1;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+const lerp=(a,b,k)=>a+(b-a)*k;
+function mixHex(a,b,k){
+  const pa=[1,3,5].map(i=>parseInt(a.substr(i,2),16));
+  const pb=[1,3,5].map(i=>parseInt(b.substr(i,2),16));
+  return '#'+pa.map((v,i)=>Math.round(v+(pb[i]-v)*k).toString(16).padStart(2,'0')).join('');
+}
+
+/* 族扇区中心角（从顶部起，顺时针） */
+function famAngle(i,salt){
+  const a0=-Math.PI/2 + i/N*6.28318;
+  const span=6.28318/N;
+  return a0 + span*(.5 + .42*Math.sin(salt*1.7));
+}
+
+/* 行星直径 = 难度 */
+const sizeOf=d=>6.4+(Math.max(1,Math.min(5,d||3))-1)*1.9;
+
+/* 生成星体（模拟真实数据分布） */
+let bodies=[], stars=[];
+function buildBodies(){
+  bodies=[];
+  const titles=[
+    'Designing ML Systems','Hands-On ML','Deep Learning','Pattern Recognition','The Elements of Style',
+    'Building LLM Apps','AI Engineering','Prompt Patterns','RAG in Production','Vector Search',
+    'Data Engineering','The Data Warehouse','Streaming Systems','Knowledge Graphs','Data Quality',
+    'LLMOps','Serving ML Models','AI Infrastructure','Reliable ML','Security for AI',
+    'Inspired','Hooked','Lean Startup','Thinking Fast','The Mom Test',
+    'AI Quality','Test-Driven ML','Robustness','Bias Detection','Eval Frameworks',
+    'Measure What Matters','AI Project Risks','The Phoenix Project','Accelerate','Team Topologies',
+    'Field Notes','The Challenger Sale','Crossing the Chasm','Made to Stick','Influence'
+  ];
+  for(let i=0;i<40;i++){
+    const fi=i%N;
+    const g=i*2.39996;
+    const rr=.30+.70*Math.sqrt(((i*13)%19)/19);
+    const ang=famAngle(fi,g);
+    const diff=1+((i*7)%5);
+    const hot=(i*3)%5===0;
+    bodies.push({
+      gx:Math.cos(ang)*rr, gy:Math.sin(ang)*rr,
+      x:0,y:0,
+      color:FAMS[fi].color,
+      size:sizeOf(diff),
+      seed:(i*7919+11)>>>0,
+      material: i%3===0 ? 'gas':'rock',
+      hot, fi,
+      title: titles[i%titles.length]
+    });
+  }
+}
+
+/* 背景星点 */
+function buildStars(){
+  stars=[];
+  const r=rng(2024);
+  for(let i=0;i<420;i++){
+    const a=r()*6.28318, rad=Math.sqrt(r())*1.12;
+    stars.push({
+      x:Math.cos(a)*rad, y:Math.sin(a)*rad,
+      s:r()*1.2+0.4, a:r()*0.5+0.06,
+      bright: r()>0.93
+    });
+  }
+}
+
+buildBodies();
+
+/* ── 颜色工具：hex → rgba ── */
+function hexA(hex,a){
+  const r=parseInt(hex.substr(1,2),16),g=parseInt(hex.substr(3,2),16),b=parseInt(hex.substr(5,2),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/* ── 绘制：纸张 ── */
+function drawPaper(split){
+  X.fillStyle='#f0ede4'; X.fillRect(0,0,W,H);
+  if(grain){
+    const p=X.createPattern(grain,'repeat');
+    X.globalAlpha=.55; X.fillStyle=p; X.fillRect(0,0,W,H); X.globalAlpha=1;
+  }
+  if(split){
+    /* 左右对比的中线 */
+    X.strokeStyle='#16181d'; X.globalAlpha=.3; X.lineWidth=1*DPR;
+    X.setLineDash([4*DPR,5*DPR]);
+    X.beginPath(); X.moveTo(W/2,0); X.lineTo(W/2,H); X.stroke();
+    X.setLineDash([]); X.globalAlpha=1;
+    X.font=`600 ${9.5*DPR}px "SF Mono",ui-monospace,monospace`;
+    X.textAlign='center'; X.textBaseline='top';
+    X.fillStyle='#8a8f9c'; X.globalAlpha=.8;
+    X.fillText('当前', W*0.25, 70*DPR);
+    X.fillText('优化后', W*0.75, 70*DPR);
+    X.globalAlpha=1;
+  }
+}
+
+/* ── 优化：暗角 ── */
+function drawVignette(){
+  const g=X.createRadialGradient(CX,CY,R*0.55, CX,CY,R*1.55);
+  g.addColorStop(0,'#16181d00');
+  g.addColorStop(1,'#16181d14');
+  X.fillStyle=g; X.fillRect(0,0,W,H);
+}
+
+/* ── 优化：银心微光 ── */
+function drawCore(){
+  const g=X.createRadialGradient(CX,CY,0, CX,CY,R*0.42);
+  g.addColorStop(0,'rgba(232,160,32,0.10)');
+  g.addColorStop(0.5,'rgba(232,160,32,0.03)');
+  g.addColorStop(1,'rgba(232,160,32,0)');
+  X.fillStyle=g; X.fillRect(0,0,W,H);
+}
+
+/* ── 优化：族星云水彩 ── */
+function drawNebula(spin){
+  X.globalCompositeOperation='multiply';
+  FAMS.forEach((fam,i)=>{
+    const ang=famAngle(i, i*2.39996) + spin;
+    const cr=0.62;
+    const cx=CX+Math.cos(ang)*cr*R, cy=CY+Math.sin(ang)*cr*R;
+    const cloudR=R*0.34;
+    /* 主云团 —— 三层叠出有机感 */
+    for(let k=0;k<3;k++){
+      const off=rng(i*100+k)();
+      const ox=(off-0.5)*cloudR*0.5, oy=((off*7)%1-0.5)*cloudR*0.4;
+      const rr=cloudR*(0.7+off*0.4);
+      const g=X.createRadialGradient(cx+ox,cy+oy,0, cx+ox,cy+oy,rr);
+      const baseA=0.055-k*0.012;
+      g.addColorStop(0, hexA(fam.color, baseA));
+      g.addColorStop(0.5, hexA(fam.color, baseA*0.45));
+      g.addColorStop(1, hexA(fam.color, 0));
+      X.fillStyle=g; X.beginPath(); X.arc(cx+ox,cy+oy,rr,0,6.28); X.fill();
+    }
+  });
+  X.globalCompositeOperation='source-over';
+}
+
+/* ── 优化：尘埃带（暗弧穿过云团）── */
+function drawDustLanes(spin){
+  X.globalCompositeOperation='multiply';
+  for(let arm=0; arm<2; arm++){
+    const baseA=-Math.PI/2 + arm*Math.PI + spin;
+    X.strokeStyle='#3a3530'; X.lineWidth=R*0.028;
+    X.lineCap='round';
+    X.beginPath();
+    for(let s=0;s<=60;s++){
+      const f=s/60;
+      const rad=R*(0.20+ f*0.92);
+      const tw=f*2.4;
+      const ang=baseA + tw;
+      const px=CX+Math.cos(ang)*rad, py=CY+Math.sin(ang)*rad;
+      if(s===0) X.moveTo(px,py); else X.lineTo(px,py);
+    }
+    X.globalAlpha=0.06;
+    X.stroke();
+    /* 内层更窄更暗 */
+    X.lineWidth=R*0.012; X.globalAlpha=0.08;
+    X.stroke();
+  }
+  X.globalAlpha=1; X.globalCompositeOperation='source-over';
+}
+
+/* ── 背景/前景星点 ── */
+function drawStars(spin, enhanced){
+  X.globalCompositeOperation='multiply';
+  stars.forEach(s=>{
+    const cs=Math.cos(spin), sn=Math.sin(spin);
+    const gx=s.x*cs-s.y*sn, gy=s.x*sn+s.y*cs;
+    const px=CX+gx*R, py=CY+gy*R;
+    const a = enhanced ? s.a : s.a*0.35;
+    const sz = (s.bright && enhanced ? s.s*1.8 : s.s)*DPR;
+    X.fillStyle=`rgba(22,24,29,${a})`;
+    X.beginPath(); X.arc(px,py,sz,0,6.28); X.fill();
+    /* 亮星十字光芒 */
+    if(s.bright && enhanced){
+      X.globalAlpha=a*0.5; X.strokeStyle='#16181d'; X.lineWidth=0.5*DPR;
+      X.beginPath();
+      X.moveTo(px-sz*2.5,py); X.lineTo(px+sz*2.5,py);
+      X.moveTo(px,py-sz*2.5); X.lineTo(px,py+sz*2.5);
+      X.stroke(); X.globalAlpha=1;
+    }
+  });
+  X.globalCompositeOperation='source-over';
+}
+
+/* ── 行星辉光（优化层）── */
+function drawGlow(bd){
+  const s=bd.size*DPR;
+  const x=bd.x,y=bd.y;
+  /* 普通行星：极淡大气晕 */
+  const g=X.createRadialGradient(x,y,s*0.9, x,y,s*2.6);
+  g.addColorStop(0, hexA(bd.color, 0.14));
+  g.addColorStop(1, hexA(bd.color, 0));
+  X.fillStyle=g; X.beginPath(); X.arc(x,y,s*2.6,0,6.28); X.fill();
+  /* 强推：暖光脉动 */
+  if(bd.hot){
+    const pulse=0.18+0.08*Math.sin(t*0.0018+bd.seed);
+    const gg=X.createRadialGradient(x,y,s*0.9, x,y,s*3.0);
+    gg.addColorStop(0, `rgba(232,161,58,${pulse})`);
+    gg.addColorStop(1, 'rgba(232,161,58,0)');
+    X.fillStyle=gg; X.beginPath(); X.arc(x,y,s*3.0,0,6.28); X.fill();
+  }
+}
+
+/* ── 行星球体（复用真实渲染逻辑，精简版）── */
+function drawPlanet(bd){
+  const s=bd.size*DPR;
+  const x=bd.x,y=bd.y;
+  if(s<1.2) return;
+  const ink=bd.color;
+  const tilt=-0.30-((bd.seed%100)/100)*0.26;
+  const R2=rng(bd.seed);
+  const gas=bd.material==='gas';
+
+  X.save();
+  X.beginPath(); X.arc(x,y,s,0,6.28); X.clip();
+  const g=X.createRadialGradient(x-s*.16,y-s*.18,s*.04, x,y,s*1.03);
+  g.addColorStop(0, mixHex(ink,'#ffffff', gas?.34:.24));
+  g.addColorStop(.55, ink);
+  g.addColorStop(1, mixHex(ink,'#0d0f14',.44));
+  X.fillStyle=g; X.fillRect(x-s,y-s,s*2,s*2);
+
+  if(s>2.4*DPR){
+    X.save(); X.translate(x,y); X.rotate(tilt);
+    const LT=mixHex(ink,'#ffffff',.72), DK=mixHex(ink,'#0b0d12',.55);
+    if(gas){
+      const nb=4+Math.floor(R2()*3);
+      let cy=-1.05;
+      for(let i=0;i<nb&&cy<1.05;i++){
+        const h=.14+R2()*.20, light=i%2===0;
+        X.globalAlpha=light?.40:.34;
+        X.fillStyle=light?LT:DK;
+        X.fillRect(-s*1.05,cy*s,s*2.1,h*s);
+        cy+=h+.015;
+      }
+    } else {
+      const np=3+Math.floor(R2()*3);
+      for(let i=0;i<np;i++){
+        const a=R2()*6.28, rr=.15+R2()*.62, dx=Math.cos(a)*rr, dy=Math.sin(a)*rr;
+        const cs=s*(.15+R2()*.16);
+        X.globalAlpha=.42; X.fillStyle=DK;
+        X.beginPath(); X.arc(dx*s,dy*s,cs,0,6.28); X.fill();
+        X.globalAlpha=.5; X.strokeStyle=LT; X.lineWidth=Math.max(1,cs*.30);
+        X.beginPath(); X.arc(dx*s,dy*s,cs*.92,Math.PI*1.05,Math.PI*2.05); X.stroke();
+      }
+    }
+    X.globalAlpha=1; X.restore();
+  }
+  const term=X.createRadialGradient(x-s*.35,y-s*.4,s*.1, x-s*.35,y-s*.4,s*1.5);
+  term.addColorStop(0,'#0d0f1400'); term.addColorStop(1,'#0d0f1430');
+  X.fillStyle=term; X.fillRect(x-s,y-s,s*2,s*2);
+  X.restore();
+
+  X.strokeStyle=mixHex(ink,'#0d0f14',.55);
+  X.globalAlpha=.5; X.lineWidth=1*DPR;
+  X.beginPath(); X.arc(x,y,s,0,6.28); X.stroke(); X.globalAlpha=1;
+}
+
+/* ── 重算位置 ── */
+function recompute(spin){
+  bodies.forEach(b=>{
+    const cs=Math.cos(spin), sn=Math.sin(spin);
+    const gx=b.gx*cs-b.gy*sn, gy=b.gx*sn+b.gy*cs;
+    b.x=CX+gx*R; b.y=CY+gy*R;
+  });
+}
+
+/* ── 主循环 ── */
+function loop(now){
+  t=now; requestAnimationFrame(loop);
+  if(!W) return;
+  const spin=t*0.00004;
+  recompute(spin);
+
+  const split = mode==='split';
+
+  if(mode==='before'){
+    drawPaper(false);
+    drawStars(spin, false);
+    bodies.forEach(drawPlanet);
+  } else if(mode==='after'){
+    drawPaper(false);
+    drawVignette();
+    drawCore();
+    drawNebula(spin);
+    drawDustLanes(spin);
+    drawStars(spin, true);
+    bodies.forEach(drawGlow);
+    bodies.forEach(drawPlanet);
+  } else if(split){
+    /* 左半：当前 */
+    X.save();
+    X.beginPath(); X.rect(0,0,W/2,H); X.clip();
+    drawPaper(false);
+    drawStars(spin, false);
+    bodies.forEach(drawPlanet);
+    X.restore();
+    /* 右半：优化后 */
+    X.save();
+    X.beginPath(); X.rect(W/2,0,W/2,H); X.clip();
+    drawPaper(false);
+    drawVignette();
+    drawCore();
+    drawNebula(spin);
+    drawDustLanes(spin);
+    drawStars(spin, true);
+    bodies.forEach(drawGlow);
+    bodies.forEach(drawPlanet);
+    X.restore();
+    drawPaper(true);   /* 中线 + 标注（覆盖在上层） */
+  }
+}
+
+/* ── 控制条 ── */
+document.querySelectorAll('#bar .seg').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('#bar .seg').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    mode=btn.dataset.mode;
+  };
+});
+
+resize();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

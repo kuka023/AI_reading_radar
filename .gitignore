@@ -20,5 +20,8 @@ data/*.bak.json
 # 系统
 .DS_Store
 
+# 本地 Agent 协作状态
+.workbuddy/
+
 # 误建的空目录占位
 gitignore/

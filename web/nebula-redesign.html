@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 读书雷达 · 主界面重设计</title>
+<style>
+  :root{
+    --space:#0f0e1d;          /* 深空底色 */
+    --space-2:#1a1735;        /* 中层 */
+    --space-glow:#252047;     /* 晕染层 */
+    --star:#f0eee8;           /* 星光 / 主文字 */
+    --star-dim:#8a869c;       /* 淡星 / 次文字 */
+    --star-faint:#5c576e;     /* 极淡 / 图注 */
+    --glass:rgba(255,255,255,0.06);
+    --glass-border:rgba(255,255,255,0.12);
+    --glass-hover:rgba(255,255,255,0.10);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden}
+  body{
+    background:var(--space); color:var(--star);
+    font:14px/1.6 "PingFang SC","Avenir Next","Helvetica Neue",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ── Canvas 背景 ── */
+  #c{position:fixed;inset:0;display:block}
+
+  /* ── 覆盖层 ── */
+  #overlay{
+    position:fixed;inset:0;z-index:10;
+    display:flex;flex-direction:column;justify-content:space-between;
+    padding:56px 48px 28px;
+  }
+
+  /* ── Masthead ── */
+  .masthead{
+    display:flex;align-items:flex-start;justify-content:space-between;
+    border-bottom:1px solid rgba(240,238,232,.12);
+    padding-bottom:16px;
+  }
+  .masthead h1{
+    font-size:26px;font-weight:700;letter-spacing:-.03em;
+    color:var(--star);
+  }
+  .masthead .claim{
+    color:var(--star-dim);font-size:12px;margin-top:5px;
+    letter-spacing:.01em;
+  }
+  .masthead .tally{text-align:right;line-height:1.15}
+  .masthead .tally .n{
+    font-size:38px;font-weight:700;letter-spacing:-.04em;
+    color:var(--star);
+    font-family:"SF Mono",ui-monospace,monospace;
+    font-variant-numeric:tabular-nums;
+  }
+  .masthead .tally .l{
+    font-size:9px;letter-spacing:.2em;color:var(--star-faint);
+    text-transform:uppercase;margin-top:2px;
+  }
+
+  /* ── Bottom ── */
+  .foot{}
+  .cue{
+    font-size:10px;letter-spacing:.22em;color:var(--star-faint);
+    text-transform:uppercase;margin-bottom:14px;text-align:center;
+  }
+
+  /* ── 角色卡 ── 磨砂玻璃 */
+  .roles{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  }
+  .role{
+    padding:18px 16px 19px; cursor:pointer;
+    border-radius:10px;
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(18px) saturate(1.4);
+    -webkit-backdrop-filter:blur(18px) saturate(1.4);
+    transition:all .35s cubic-bezier(.4,0,.2,1);
+    position:relative; overflow:hidden;
+  }
+  .role::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
+    opacity:0;transition:opacity .35s ease;
+  }
+  .role::after{
+    content:'';position:absolute;inset:0;
+    background:var(--c);opacity:0;transition:opacity .35s ease;
+    border-radius:10px;
+  }
+  .role:hover{
+    background:var(--glass-hover);
+    border-color:rgba(255,255,255,.18);
+    transform:translateY(-2px);
+    box-shadow:0 12px 40px rgba(0,0,0,.35),
+               0 0 0 1px rgba(255,255,255,.06);
+  }
+  .role:hover::before{opacity:1}
+  .role:hover::after{opacity:.05}
+  .role:hover .glyph{transform:scale(1.25);box-shadow:0 0 12px var(--c)}
+  .role:hover .nm{color:var(--c)}
+  .role:hover .tg{color:var(--star-dim)}
+  .role .row{display:flex;align-items:center;gap:10px;margin-bottom:7px;position:relative;z-index:1}
+  .role .glyph{
+    width:12px;height:12px;border-radius:50%;background:var(--c);flex:none;
+    transition:all .35s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 0 6px var(--c)40;
+  }
+  .role .nm{
+    font-size:13.5px;font-weight:600;color:var(--star);
+    transition:all .3s ease;position:relative;z-index:1;
+  }
+  .role .tg{
+    color:var(--star-faint);font-size:11px;line-height:1.5;
+    transition:all .3s ease;position:relative;z-index:1;
+  }
+
+  /* ── 对照控制条 ── */
+  #bar{
+    position:fixed;top:20px;left:50%;transform:translateX(-50%);
+    z-index:20;display:flex;align-items:center;gap:0;
+    background:rgba(15,14,29,.75);border:1px solid rgba(255,255,255,.15);
+    backdrop-filter:blur(14px);border-radius:8px;overflow:hidden;
+  }
+  #bar .seg{
+    padding:9px 20px;cursor:pointer;font:inherit;font-size:12px;
+    font-weight:600;letter-spacing:.02em;color:var(--star-faint);
+    background:transparent;border:none;transition:all .25s ease;
+    border-right:1px solid rgba(255,255,255,.08);
+  }
+  #bar .seg:last-child{border-right:none}
+  #bar .seg.on{color:var(--star);background:rgba(255,255,255,.08)}
+  #bar .lab{
+    padding:0 14px 0 18px;font-size:8px;letter-spacing:.22em;
+    color:var(--star-faint);text-transform:uppercase;white-space:nowrap;
+  }
+
+  /* ── 角标 ── */
+  #tag{
+    position:fixed;top:20px;right:48px;z-index:20;
+    font-size:8px;letter-spacing:.24em;color:var(--star-faint);
+    text-transform:uppercase;text-align:right;line-height:1.5;
+  }
+  #tag b{display:block;font-size:12px;letter-spacing:-.01em;
+         color:var(--star-dim);text-transform:none;font-weight:600;margin-top:3px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="bar">
+  <span class="lab">效果对照</span>
+  <button class="seg" data-mode="before">当前 · 浅色纸本</button>
+  <button class="seg on" data-mode="after">重设计 · 深空夜幕</button>
+</div>
+
+<div id="tag">AI 读书雷达 · 主界面<b>重设计方案</b></div>
+
+<div id="overlay">
+  <div class="masthead">
+    <div>
+      <h1>AI 读书雷达</h1>
+      <div class="claim">环表达立场，不是难度 —— 按能力族拉近属于你的那片星云</div>
+    </div>
+    <div class="tally">
+      <div class="n" id="nTot">42</div>
+      <div class="l">项资料</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="cue">选一个角色 · 拉近属于你的那片星云</div>
+    <div class="roles" id="roles"></div>
+  </div>
+</div>
+
+<script>
+const C=document.getElementById('c'),X=C.getContext('2d');
+let W,H,CX,CY,R,DPR=Math.min(devicePixelRatio||1,2);
+let mode='after', t=0;
+
+/* ── 八支能力族 ── */
+const FAMS=[
+  {key:'all',     label:'全员通用',   color:'#2f6fed', tagline:'AI 时代的通用底座'},
+  {key:'applied', label:'技术 · 应用', color:'#e8590c', tagline:'把模型做成应用'},
+  {key:'data',    label:'技术 · 数据', color:'#0b8457', tagline:'喂养 AI 的数据侧'},
+  {key:'platform',label:'技术 · 平台', color:'#7048e8', tagline:'撑起 AI 的平台侧'},
+  {key:'product', label:'产品',       color:'#d6336c', tagline:'定义 AI 产品'},
+  {key:'test',    label:'测试',       color:'#1098ad', tagline:'验证 AI 的质量'},
+  {key:'pm',      label:'项目管理',   color:'#e8a020', tagline:'驾驭 AI 项目'},
+  {key:'fde',     label:'FDE',        color:'#c92a2a', tagline:'把 AI 交付到现场'},
+];
+const N=FAMS.length;
+
+/* ── 工具 ── */
+function rng(seed){let s=seed>>>0||1;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+const lerp=(a,b,k)=>a+(b-a)*k;
+function hexA(hex,a){
+  const r=parseInt(hex.substr(1,2),16),g=parseInt(hex.substr(3,2),16),b=parseInt(hex.substr(5,2),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function mixHex(a,b,k){
+  const pa=[1,3,5].map(i=>parseInt(a.substr(i,2),16));
+  const pb=[1,3,5].map(i=>parseInt(b.substr(i,2),16));
+  return '#'+pa.map((v,i)=>Math.round(v+(pb[i]-v)*k).toString(16).padStart(2,'0')).join('');
+}
+function hexToRGB(hex){
+  return {r:parseInt(hex.substr(1,2),16)/255,g:parseInt(hex.substr(3,2),16)/255,b:parseInt(hex.substr(5,2),16)/255};
+}
+const sizeOf=d=>6.4+(Math.max(1,Math.min(5,d||3))-1)*1.9;
+function famAngle(i,salt){
+  const a0=-Math.PI/2 + i/N*6.28318;
+  const span=6.28318/N;
+  return a0 + span*(.5 + .42*Math.sin(salt*1.7));
+}
+
+/* ── 行星数据 ── */
+let bodies=[], stars=[];
+const titles=[
+  'Designing ML Systems','Hands-On ML','Deep Learning','Pattern Recognition',
+  'Building LLM Apps','AI Engineering','Prompt Patterns','RAG in Production',
+  'Data Engineering','The Data Warehouse','Streaming Systems','Knowledge Graphs',
+  'LLMOps','Serving ML Models','AI Infrastructure','Security for AI',
+  'Inspired','Hooked','Lean Startup','Thinking Fast',
+  'AI Quality','Test-Driven ML','Robustness','Bias Detection',
+  'Measure What Matters','AI Project Risks','The Phoenix Project','Accelerate',
+  'Field Notes','The Challenger Sale','Crossing the Chasm','Made to Stick',
+  'Designing Data Apps','AI Blueprints','Transformer Handbook','Agent Design',
+  'Data Mesh','Feature Store','Resilient AI','Ethical AI','Deployment Patterns'
+];
+
+function buildBodies(){
+  bodies=[];
+  for(let i=0;i<40;i++){
+    const fi=i%N;
+    const g=i*2.39996;
+    const rr=.30+.70*Math.sqrt(((i*13)%19)/19);
+    const ang=famAngle(fi,g);
+    const diff=1+((i*7)%5);
+    const hot=(i*3)%5===0;
+    bodies.push({
+      gx:Math.cos(ang)*rr, gy:Math.sin(ang)*rr,
+      x:0,y:0,
+      color:FAMS[fi].color,
+      size:sizeOf(diff),
+      seed:(i*7919+11)>>>0,
+      material: i%3===0 ? 'gas':'rock',
+      hot, fi,
+      title: titles[i%titles.length]
+    });
+  }
+}
+
+function buildStars(){
+  stars=[];
+  const r=rng(2024);
+  for(let i=0;i<520;i++){
+    const a=r()*6.28318, rad=Math.sqrt(r())*1.15;
+    stars.push({
+      x:Math.cos(a)*rad, y:Math.sin(a)*rad,
+      s:r()*1.4+0.3, a:r()*0.55+0.05,
+      bright: r()>0.90,
+      pulse: r()>0.96,
+      phase: r()*6.28,
+      speed: .001+r()*.003
+    });
+  }
+}
+
+buildBodies(); buildStars();
+
+/* ── 生成角色卡 ── */
+document.getElementById('roles').innerHTML=FAMS.map(f=>{
+  return `<div class="role" style="--c:${f.color}" data-k="${f.key}">
+    <div class="row"><span class="glyph"></span><span class="nm">${f.label}</span></div>
+    <div class="tg">${f.tagline}</div></div>`;
+}).join('');
+
+/* ── Resize ── */
+function resize(){
+  W=C.width=innerWidth*DPR; H=C.height=innerHeight*DPR;
+  C.style.width=innerWidth+'px'; C.style.height=innerHeight+'px';
+  CX=W*0.50; CY=H*0.48;
+  R=Math.min(W*0.40, H*0.42);
+  buildStars();
+}
+addEventListener('resize',resize);
+
+/* ── 深空底色 ── */
+function drawSpace(){
+  const g=X.createRadialGradient(CX,CY,0,CX,CY,R*1.6);
+  g.addColorStop(0,'#1e1b3a');
+  g.addColorStop(0.4,'#151330');
+  g.addColorStop(1,'#0a0918');
+  X.fillStyle=g; X.fillRect(0,0,W,H);
+}
+
+/* ── 浅纸底色（对照用）── */
+function drawPaper(){
+  X.fillStyle='#f0ede4'; X.fillRect(0,0,W,H);
+  /* 颗粒 */
+  const g2=document.createElement('canvas'); g2.width=200; g2.height=200;
+  const gx=g2.getContext('2d'), d=gx.createImageData(200,200);
+  for(let i=0;i<d.data.length;i+=4){
+    const v=Math.random()*255;
+    d.data[i]=d.data[i+1]=d.data[i+2]=v;
+    d.data[i+3]=Math.random()*11;
+  }
+  gx.putImageData(d,0,0);
+  const p=X.createPattern(g2,'repeat');
+  X.globalAlpha=.55; X.fillStyle=p; X.fillRect(0,0,W,H); X.globalAlpha=1;
+}
+
+/* ── 族星云（深空版）── SCREEN blend 让颜色真正发光 ── */
+function drawNebulaDark(spin){
+  X.globalCompositeOperation='screen';
+  FAMS.forEach((fam,i)=>{
+    const ang=famAngle(i,i*2.39996)+spin;
+    const cr=0.62;
+    const cx=CX+Math.cos(ang)*cr*R, cy=CY+Math.sin(ang)*cr*R;
+    const cloudR=R*0.36;
+    for(let k=0;k<3;k++){
+      const off=rng(i*100+k)();
+      const ox=(off-0.5)*cloudR*0.45, oy=((off*7)%1-0.5)*cloudR*0.35;
+      const rr=cloudR*(0.65+off*0.45);
+      const g=X.createRadialGradient(cx+ox,cy+oy,0, cx+ox,cy+oy,rr);
+      const baseA=0.22-k*0.06;
+      g.addColorStop(0, hexA(fam.color, baseA));
+      g.addColorStop(0.35, hexA(fam.color, baseA*0.5));
+      g.addColorStop(0.7, hexA(fam.color, baseA*0.15));
+      g.addColorStop(1, hexA(fam.color, 0));
+      X.fillStyle=g; X.beginPath(); X.arc(cx+ox,cy+oy,rr,0,6.28); X.fill();
+    }
+  });
+  X.globalCompositeOperation='source-over';
+}
+
+/* ── 族星云（浅纸版 · 对照用）── multiply 混合 ── */
+function drawNebulaPaper(spin){
+  X.globalCompositeOperation='multiply';
+  FAMS.forEach((fam,i)=>{
+    const ang=famAngle(i,i*2.39996)+spin;
+    const cr=0.62;
+    const cx=CX+Math.cos(ang)*cr*R, cy=CY+Math.sin(ang)*cr*R;
+    const cloudR=R*0.34;
+    for(let k=0;k<3;k++){
+      const off=rng(i*100+k)();
+      const ox=(off-0.5)*cloudR*0.5, oy=((off*7)%1-0.5)*cloudR*0.4;
+      const rr=cloudR*(0.7+off*0.4);
+      const baseA=0.06-k*0.015;
+      const g=X.createRadialGradient(cx+ox,cy+oy,0, cx+ox,cy+oy,rr);
+      g.addColorStop(0, hexA(fam.color, baseA));
+      g.addColorStop(0.5, hexA(fam.color, baseA*0.45));
+      g.addColorStop(1, hexA(fam.color, 0));
+      X.fillStyle=g; X.beginPath(); X.arc(cx+ox,cy+oy,rr,0,6.28); X.fill();
+    }
+  });
+  X.globalCompositeOperation='source-over';
+}
+
+/* ── 银心微光（深空版）── */
+function drawCoreDark(){
+  X.globalCompositeOperation='screen';
+  const g=X.createRadialGradient(CX,CY,0, CX,CY,R*0.4);
+  g.addColorStop(0,'rgba(255,220,160,0.14)');
+  g.addColorStop(0.4,'rgba(255,220,160,0.04)');
+  g.addColorStop(1,'rgba(255,220,160,0)');
+  X.fillStyle=g; X.fillRect(0,0,W,H);
+  X.globalCompositeOperation='source-over';
+}
+
+/* ── 尘埃带（深空版）── */
+function drawDustDark(spin){
+  for(let arm=0;arm<2;arm++){
+    const baseA=-Math.PI/2+arm*Math.PI+spin;
+    X.beginPath();
+    for(let s=0;s<=60;s++){
+      const f=s/60;
+      const rad=R*(0.18+f*0.95);
+      const tw=f*2.4;
+      const ang=baseA+tw;
+      const px=CX+Math.cos(ang)*rad, py=CY+Math.sin(ang)*rad;
+      if(s===0)X.moveTo(px,py);else X.lineTo(px,py);
+    }
+    X.strokeStyle='rgba(10,9,24,0.35)';X.lineWidth=R*0.04;X.lineCap='round';X.stroke();
+    X.strokeStyle='rgba(10,9,24,0.5)';X.lineWidth=R*0.015;X.stroke();
+  }
+}
+
+/* ── 星点（深空版）── */
+function drawStarsDark(spin){
+  const cs=Math.cos(spin), sn=Math.sin(spin);
+  stars.forEach(s=>{
+    const gx=s.x*cs-s.y*sn, gy=s.x*sn+s.y*cs;
+    const px=CX+gx*R, py=CY+gy*R;
+    const pulseA = s.pulse ? s.a*(0.6+0.4*Math.sin(t*s.speed+s.phase)) : s.a;
+    const sz=(s.bright?s.s*1.6:s.s)*DPR;
+    X.fillStyle=`rgba(240,238,232,${pulseA})`;
+    X.beginPath(); X.arc(px,py,sz,0,6.28); X.fill();
+    if(s.bright){
+      /* 十字光芒 */
+      X.globalAlpha=pulseA*0.3; X.strokeStyle='#f0eee8'; X.lineWidth=0.5*DPR;
+      const fl=sz*3;
+      X.beginPath();
+      X.moveTo(px-fl,py); X.lineTo(px+fl,py);
+      X.moveTo(px,py-fl); X.lineTo(px,py+fl);
+      X.stroke(); X.globalAlpha=1;
+    }
+  });
+}
+
+/* ── 星点（浅纸版 · 对照用）── */
+function drawStarsPaper(spin){
+  const cs=Math.cos(spin), sn=Math.sin(spin);
+  stars.forEach(s=>{
+    const gx=s.x*cs-s.y*sn, gy=s.x*sn+s.y*cs;
+    const px=CX+gx*R, py=CY+gy*R;
+    const sz=s.s*DPR;
+    X.fillStyle=`rgba(22,24,29,${s.a*0.3})`;
+    X.beginPath(); X.arc(px,py,sz,0,6.28); X.fill();
+  });
+}
+
+/* ── 暗角 ── */
+function drawVignette(){
+  const g=X.createRadialGradient(CX,CY,R*0.5, CX,CY,R*1.7);
+  g.addColorStop(0,'rgba(10,9,24,0)');
+  g.addColorStop(1,'rgba(10,9,24,0.55)');
+  X.fillStyle=g; X.fillRect(0,0,W,H);
+}
+
+/* ── 行星辉光（深空版）── */
+function drawGlowDark(bd){
+  const s=bd.size*DPR;
+  const x=bd.x,y=bd.y;
+  X.globalCompositeOperation='screen';
+  const g=X.createRadialGradient(x,y,s*0.7, x,y,s*2.8);
+  g.addColorStop(0, hexA(bd.color, 0.25));
+  g.addColorStop(0.4, hexA(bd.color, 0.08));
+  g.addColorStop(1, hexA(bd.color, 0));
+  X.fillStyle=g; X.beginPath(); X.arc(x,y,s*2.8,0,6.28); X.fill();
+  if(bd.hot){
+    const pulse=0.25+0.10*Math.sin(t*0.002+bd.seed);
+    const gg=X.createRadialGradient(x,y,s*0.6, x,y,s*3.5);
+    gg.addColorStop(0, `rgba(255,220,140,${pulse})`);
+    gg.addColorStop(0.5, `rgba(255,220,140,${pulse*0.3})`);
+    gg.addColorStop(1, 'rgba(255,220,140,0)');
+    X.fillStyle=gg; X.beginPath(); X.arc(x,y,s*3.5,0,6.28); X.fill();
+  }
+  X.globalCompositeOperation='source-over';
+}
+
+/* ── 行星辉光（浅纸版 · 对照用）── */
+function drawGlowPaper(bd){
+  const s=bd.size*DPR;
+  const x=bd.x,y=bd.y;
+  X.globalCompositeOperation='multiply';
+  const g=X.createRadialGradient(x,y,s*0.9, x,y,s*2.6);
+  g.addColorStop(0, hexA(bd.color, 0.14));
+  g.addColorStop(1, hexA(bd.color, 0));
+  X.fillStyle=g; X.beginPath(); X.arc(x,y,s*2.6,0,6.28); X.fill();
+  X.globalCompositeOperation='source-over';
+}
+
+/* ── 行星球体 ── */
+function drawPlanet(bd, isDark){
+  const s=bd.size*DPR;
+  const x=bd.x,y=bd.y;
+  if(s<1.2)return;
+  const ink=bd.color;
+  const tilt=-0.30-((bd.seed%100)/100)*0.26;
+  const R2=rng(bd.seed);
+  const gas=bd.material==='gas';
+  const lightBase=isDark?'#ffffff':'#ffffff';
+  const darkBase=isDark?'#0f0e1d':'#0d0f14';
+
+  X.save();
+  X.beginPath(); X.arc(x,y,s,0,6.28); X.clip();
+  const g=X.createRadialGradient(x-s*.16,y-s*.18,s*.04, x,y,s*1.03);
+  g.addColorStop(0, mixHex(ink,lightBase, gas?.34:.24));
+  g.addColorStop(.55, ink);
+  g.addColorStop(1, mixHex(ink,darkBase, isDark?.30:.44));
+  X.fillStyle=g; X.fillRect(x-s,y-s,s*2,s*2);
+
+  if(s>2.4*DPR){
+    X.save(); X.translate(x,y); X.rotate(tilt);
+    const LT=mixHex(ink,'#ffffff',.72), DK=mixHex(ink,isDark?'#0f0e1d':'#0b0d12',isDark?.45:.55);
+    if(gas){
+      const nb=4+Math.floor(R2()*3);
+      let cy=-1.05;
+      for(let i=0;i<nb&&cy<1.05;i++){
+        const h=.14+R2()*.20, light=i%2===0;
+        X.globalAlpha=light?.40:.34;
+        X.fillStyle=light?LT:DK;
+        X.fillRect(-s*1.05,cy*s,s*2.1,h*s);
+        cy+=h+.015;
+      }
+    } else {
+      const np=3+Math.floor(R2()*3);
+      for(let i=0;i<np;i++){
+        const a=R2()*6.28, rr=.15+R2()*.62;
+        const dx=Math.cos(a)*rr, dy=Math.sin(a)*rr;
+        const cs=s*(.15+R2()*.16);
+        X.globalAlpha=.42; X.fillStyle=DK;
+        X.beginPath(); X.arc(dx*s,dy*s,cs,0,6.28); X.fill();
+      }
+    }
+    X.globalAlpha=1; X.restore();
+  }
+
+  /* 晨昏线 */
+  const term=X.createRadialGradient(x-s*.35,y-s*.4,s*.1, x-s*.35,y-s*.4,s*1.5);
+  term.addColorStop(0,isDark?'#0f0e1d00':'#0d0f1400');
+  term.addColorStop(1,isDark?'#0f0e1d30':'#0d0f1430');
+  X.fillStyle=term; X.fillRect(x-s,y-s,s*2,s*2);
+  X.restore();
+
+  /* 边缘线 */
+  X.strokeStyle=mixHex(ink,darkBase,isDark?.35:.55);
+  X.globalAlpha=isDark?.4:.5; X.lineWidth=1*DPR;
+  X.beginPath(); X.arc(x,y,s,0,6.28); X.stroke();
+  X.globalAlpha=1;
+}
+
+/* ── 重算位置 ── */
+function recompute(spin){
+  bodies.forEach(b=>{
+    const cs=Math.cos(spin), sn=Math.sin(spin);
+    const gx=b.gx*cs-b.gy*sn, gy=b.gx*sn+b.gy*cs;
+    b.x=CX+gx*R; b.y=CY+gy*R;
+  });
+}
+
+/* ── 主循环 ── */
+function loop(now){
+  t=now; requestAnimationFrame(loop);
+  if(!W) return;
+  const spin=t*0.00004;
+  recompute(spin);
+  const isDark=(mode==='after');
+
+  if(mode==='before'){
+    drawPaper();
+    drawStarsPaper(spin);
+    drawNebulaPaper(spin);
+    bodies.forEach(b=>drawGlowPaper(b));
+    bodies.forEach(b=>drawPlanet(b,false));
+  } else if(mode==='after'){
+    drawSpace();
+    drawVignette();
+    drawCoreDark();
+    drawNebulaDark(spin);
+    drawDustDark(spin);
+    drawStarsDark(spin);
+    bodies.forEach(b=>drawGlowDark(b));
+    bodies.forEach(b=>drawPlanet(b,true));
+  }
+}
+
+/* ── 控制条 ── */
+document.querySelectorAll('#bar .seg').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('#bar .seg').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    mode=btn.dataset.mode;
+    /* 同步 UI 覆盖层的视觉方向 */
+    const overlay=document.getElementById('overlay');
+    if(mode==='after'){
+      document.body.style.background='var(--space)';
+      overlay.style.color='var(--star)';
+    } else {
+      document.body.style.background='#f0ede4';
+      overlay.style.color='#16181d';
+    }
+  };
+});
+
+resize();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

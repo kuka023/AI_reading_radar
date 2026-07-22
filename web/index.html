@@ -124,9 +124,14 @@
     border-radius:2px;
   }
   #book.on{opacity:1;transform:none;pointer-events:auto;box-shadow:7px 7px 0 #16181d0d, 0 0 0 1px var(--rc)33}
-  #book .bar{padding:9px 18px;border-bottom:1px solid var(--ink);
+  #book .bar{padding:9px 40px 9px 18px;border-bottom:1px solid var(--ink);
              font-size:10px;letter-spacing:.16em;font-weight:700;color:#faf8f2;
              background:var(--rc)}
+  #book .bx{position:absolute;top:8px;right:10px;z-index:3;width:22px;height:22px;
+            display:flex;align-items:center;justify-content:center;cursor:pointer;
+            border-radius:50%;color:#faf8f2;font-size:14px;background:#ffffff22;
+            transition:background .18s}
+  #book .bx:hover{background:#ffffff44}
   #book .body{padding:18px}
   #book h3{font-size:17px;line-height:1.35;letter-spacing:-.01em;margin-bottom:8px}
   /* 封面 + 标题 + 评分 的头部 */
@@ -375,10 +380,10 @@
   .cpath .pmeta{font-size:10px;color:var(--ink-3);margin-top:11px;display:flex;justify-content:space-between;align-items:center}
   .cpath .draft{color:#b0761c}
 
-  /* 路径详情弹层 */
-  #pathModal{position:fixed;inset:0;z-index:60;background:#16181dcc;display:none;
+  /* 弹层（路径 / 帖子 / 发起讨论 共用）*/
+  #pathModal,#threadModal,#newThreadModal{position:fixed;inset:0;z-index:60;background:#16181dcc;display:none;
              align-items:center;justify-content:center;padding:30px}
-  #pathModal.on{display:flex}
+  #pathModal.on,#threadModal.on,#newThreadModal.on{display:flex}
   .pmcard{background:#faf8f2;border:1px solid var(--ink);border-radius:6px;width:min(560px,100%);
           max-height:86vh;overflow-y:auto;box-shadow:9px 9px 0 #00000022}
   .pmcard .pmbar{padding:16px 20px;border-bottom:1px solid var(--ink);color:#faf8f2;background:var(--pc);
@@ -397,6 +402,46 @@
   .pmstep .st{font-size:13px;font-weight:600;color:var(--ink);line-height:1.4}
   .pmstep .sw{font-size:11.5px;color:var(--ink-2);line-height:1.6;margin-top:4px}
   .pmstep .sm{font-size:9.5px;color:var(--ink-3);margin-top:4px}
+
+  /* ── 社区帖子（知乎式，原界面内联展开）── */
+  .cthreads{display:flex;flex-direction:column;margin-bottom:20px}
+  .cthread{border-bottom:1px solid var(--rule)}
+  .cthread .thead{padding:16px 0;cursor:pointer;transition:padding .18s}
+  .cthread .thead:hover,.cthread.open .thead{padding-left:5px}
+  .cthread .tt{font-size:14.5px;font-weight:600;color:var(--ink);line-height:1.4;
+               display:flex;align-items:center;gap:8px}
+  .cthread .tt .caret{color:var(--ink-3);font-size:11px;transition:transform .2s}
+  .cthread.open .tt .caret{transform:rotate(90deg)}
+  .cthread .tb{font-size:12px;color:var(--ink-2);line-height:1.6;margin-top:6px;
+               display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  .cthread.open .tb{display:none}
+  .cthread .tm{font-size:10.5px;color:var(--ink-3);margin-top:8px;display:flex;gap:12px}
+  .cthread .tm b{color:#b0761c;font-weight:600}
+  .cthread .tbody{padding:0 0 18px}
+  /* 内联展开：正文 / 回帖 / 回复框 */
+  .tmpost{padding:14px 16px;border:1px solid var(--rule);border-radius:5px;background:#16181d05;margin-bottom:6px}
+  .tmpost .txt{font-size:13px;color:var(--ink);line-height:1.7;white-space:pre-wrap}
+  .tmreplies{padding:2px 4px}
+  .tmreply{padding:13px 0;border-top:1px solid var(--rule)}
+  .tmreply:first-child{border-top:0}
+  .tmreply .who{font-size:11px;font-weight:600;color:var(--ink-2)}
+  .tmreply .txt{font-size:12.5px;color:var(--ink);line-height:1.65;margin-top:5px;white-space:pre-wrap}
+  .tmreply .bk{font-size:10px;color:#b0761c;margin-top:5px}
+  .tmcompose{padding:12px 4px 0;margin-top:8px;border-top:1px solid var(--rule)}
+  /* 内联发起讨论表单 */
+  .ntform{border:1px solid var(--rule);border-radius:6px;padding:16px;background:#faf8f2;margin-bottom:18px}
+  .ntrow{display:flex;gap:10px;align-items:center}
+  .ntcancel{border:1px solid var(--rule);background:none;color:var(--ink-2);font:inherit;
+    font-size:12px;padding:9px 16px;border-radius:4px;cursor:pointer}
+  .ntcancel:hover{border-color:var(--ink-3);color:var(--ink)}
+  .ntinput,.ntarea,.tmta{width:100%;font:inherit;border:1px solid var(--rule);border-radius:4px;
+    padding:10px 12px;color:var(--ink);background:#fff;box-sizing:border-box}
+  .ntinput{font-size:14px;font-weight:600;margin-bottom:10px}
+  .ntarea{font-size:12.5px;line-height:1.6;min-height:88px;resize:vertical;margin-bottom:12px}
+  .tmta{font-size:12.5px;line-height:1.6;min-height:60px;resize:vertical;margin-bottom:8px}
+  .ntbtn,.tmbtn{border:1px solid var(--ink);background:var(--ink);color:#faf8f2;font:inherit;
+    font-size:12px;padding:9px 18px;border-radius:4px;cursor:pointer;transition:opacity .18s}
+  .ntbtn:hover,.tmbtn:hover{opacity:.85}
 
   /* ── Phase 3：个性化规划器 ── */
   .pplan{margin-bottom:24px;border:1px solid var(--rule);border-radius:6px;padding:16px 18px;background:#faf8f2}
@@ -481,13 +526,15 @@
       <span class="fwlink" id="fwOpen">▸ 飞轮评审台（内部）</span>
     </div>
     <div class="cpaths" id="comPaths"></div>
-    <div class="csec">讨论 · 推荐流
-      <span class="csort">
-        <button data-sort="recent" class="on">最新</button>
-        <button data-sort="top">最有用</button>
-      </span>
+    <div class="csec">讨论 · 帖子
+      <span class="fwlink" id="newThread">＋ 发起讨论</span>
     </div>
-    <div class="cfeed" id="comFeed"></div>
+    <div class="ntform" id="ntForm" style="display:none">
+      <input id="ntTitle" class="ntinput" maxlength="120" placeholder="标题：想和同行聊点什么？">
+      <textarea id="ntBody" class="ntarea" maxlength="2000" placeholder="正文（可选）：把话题说清楚，大家更好接。"></textarea>
+      <div class="ntrow"><button id="ntPost" class="ntbtn">发布话题</button><button id="ntCancel" class="ntcancel">取消</button></div>
+    </div>
+    <div class="cthreads" id="comThreads"></div>
   </div>
 </div>
 
@@ -1289,6 +1336,7 @@ function showBook(bd){
     const btns=[['want','想读'],['reading','在读'],['read','读过']]
       .map(([k,n])=>`<button data-shelf="${k}" class="${s.state===k?'on':''}">${n}</button>`).join('');
     el.innerHTML=`
+      <div class="bx" id="bkClose" title="关闭">✕</div>
       <div class="bar" style="background:${col}">个人图层 · 未策展</div>
       <div class="body">
         <h3>${esc(b.title)}</h3>
@@ -1358,6 +1406,7 @@ function showBook(bd){
   const auth = [ (b.authors&&b.authors[0])?esc(b.authors[0]):'', b.published||'' ].filter(Boolean).join(' · ');
 
   el.innerHTML=`
+    <div class="bx" id="bkClose" title="关闭">✕</div>
     <div class="bar" style="background:${col}">${STANCE_N[b.stance]||''}　·　${esc(b.topic||'')}</div>
     <div class="body">
       <div class="chead">
@@ -1412,6 +1461,10 @@ function closeDetail(){
   document.body.classList.remove('bookopen');
   active=null;
 }
+// ✕ 关闭按钮（委托，innerHTML 每次重建也有效）
+document.getElementById('book').addEventListener('click',e=>{
+  if(e.target.closest('#bkClose')) closeDetail();
+});
 // 从任意空间按 id 打开书籍详情（策展书用星系数据，外部书用书架 meta）
 function openDetailFor(id){
   const g=galaxyById[id];
@@ -1604,26 +1657,24 @@ let libFilter=null;
 function cardHTML(b, curated, external){
   const col=FAMILY_COLOR[b.quadrant]||FAMILY_COLOR[b.family]||'#16181d', added=shelfOf(b.isbn||b.id);
   const rtypeName=RTYPE_N[b.rtype]||'书籍';
+  const reads=b.reads||0;
+  const readTag=`<span title="标记读过的人数">${reads} 人读过</span>`;
   const tags = curated
-    ? `<span>${b.quadrant||b.family||''}</span><span>${rtypeName}</span><span>${'★'.repeat(b.rec||3)}</span>`
-    : `<span style="color:${col}">外部 · 未策展</span>`;
+    ? `<span>${b.quadrant||b.family||''}</span><span>${rtypeName}</span><span>${'★'.repeat(b.rec||3)}</span>${readTag}`
+    : `<span style="color:${col}">外部 · 未策展</span>${readTag}`;
   const btn = external
     ? `<button class="cadd ${added?'added':''}" data-add="${encodeURIComponent(JSON.stringify({isbn:b.isbn,title:b.title,authors:b.authors,published:b.published}))}">${added?'已加入':'加进雷达'}</button>`
-    : `<button class="cadd" data-locate="${b.isbn||b.id}">在雷达上看 ↗</button>`;
-  return `<div class="card" style="--cc:${col}">
+    : `<button class="cadd" data-detail="${b.isbn||b.id}">查看详情 ↗</button>`;
+  return `<div class="card" style="--cc:${col}" data-detail="${curated?(b.isbn||b.id):''}">
     <div class="ct">${esc(b.title)}</div>
     <div class="cm">${esc((b.authors||[])[0]||'')}${b.published?' · '+b.published:''}</div>
     <div class="ctags">${tags}</div>${btn}</div>`;
 }
 function bindCards(box){
-  box.querySelectorAll('[data-locate]').forEach(btn=>btn.onclick=e=>{
+  box.querySelectorAll('[data-detail]').forEach(el=>el.onclick=e=>{
     e.stopPropagation();
-    const id=btn.dataset.locate;
-    showSpace('radar');
-    if(!curRole){ toast('先选一个能力族进入雷达，就能看到它'); return; }
-    const bd=bodies.find(x=>x.b.id===id);
-    if(bd && bd.data){ active=bd; logEvent('open',id,{role:curRole,src:'library'}); showBook(bd); }
-    else toast('这项不属于当前能力族 · 切到它所在的族再看');
+    const id=el.dataset.detail; if(!id) return;
+    logEvent('open',id,{src:'library'}); openDetailFor(id);
   });
   box.querySelectorAll('[data-add]').forEach(btn=>btn.onclick=e=>{
     e.stopPropagation();
@@ -1714,37 +1765,89 @@ document.getElementById('pathModal').addEventListener('click',e=>{
   if(e.target.id==='pathModal') closePathModal();
 });
 
-// ── 社区（独立页：成长路径 + 全站推荐流）──
-let comSort='recent';
+// ── 社区（成长路径 + 知乎式帖子）──
 async function loadCommunity(){
   loadPaths();
-  const feed=document.getElementById('comFeed');
-  feed.innerHTML='<div class="cempty">加载中…</div>';
-  let list; try{ list=await fetch(`/api/community?sort=${comSort}`).then(r=>r.json()); }
-  catch{ feed.innerHTML='<div class="cempty">加载失败</div>'; return; }
-  if(!list.length){ feed.innerHTML='<div class="cempty">还没有书评 · 去雷达上标记「读过」，写下第一条</div>'; return; }
-  feed.innerHTML=list.map(r=>{
-    const col=FAMILY_COLOR[r.quadrant]||'#16181d';
-    const sc=r.score?`<span style="color:#b0761c;font-size:11px;letter-spacing:1px;margin-left:7px">${'★'.repeat(r.score)}${'☆'.repeat(5-r.score)}</span>`:'';
-    return `<div class="citem" data-id="${r.isbn}">
-      <div class="cbook"><span class="dot" style="background:${col}"></span>${esc(r.book_title||'')}${sc}</div>
-      <div class="ctxt">${esc(r.text)}</div>
-      <div class="cfoot"><span class="cwho">${r.actor.slice(0,11)}…</span><span class="cup">👍 有用 ${r.up||0}</span></div>
-    </div>`;
-  }).join('');
-  feed.querySelectorAll('.citem').forEach(el=>el.onclick=()=>{
-    showSpace('radar');
-    if(!curRole){ toast('先选一个能力族进入雷达，看这项资料'); return; }
-    const bd=bodies.find(x=>x.b.id===el.dataset.id);
-    if(bd && bd.data){ active=bd; showBook(bd); }
-    else toast('这项不属于当前能力族 · 切到它所在的族再看');
+  loadThreads();
+}
+function fmtWho(a){ return a&&a.startsWith('anon_') ? a.slice(0,11)+'…' : (a||'匿名'); }
+function fmtTime(ts){ if(!ts) return ''; const d=(Date.now()/1000-ts);
+  if(d<3600) return Math.max(1,Math.round(d/60))+' 分钟前';
+  if(d<86400) return Math.round(d/3600)+' 小时前';
+  return Math.round(d/86400)+' 天前'; }
+
+async function loadThreads(){
+  const box=document.getElementById('comThreads');
+  let list; try{ list=await fetch('/api/threads').then(r=>r.json()); }
+  catch{ box.innerHTML='<div style="font-size:11px;color:var(--ink-3)">加载失败</div>'; return; }
+  if(!list.length){ box.innerHTML='<div style="font-size:11.5px;color:var(--ink-3);padding:12px 0">还没有讨论 · 点右上「发起讨论」开个头</div>'; return; }
+  box.innerHTML=list.map(t=>`
+    <div class="cthread" data-id="${t.id}">
+      <div class="thead">
+        <div class="tt"><span class="caret">▸</span>${esc(t.title)}</div>
+        ${t.body?`<div class="tb">${esc(t.body)}</div>`:''}
+        <div class="tm"><span>${esc(fmtWho(t.actor))}</span><span><b class="rcount">${t.replies}</b> 回复</span><span>${fmtTime(t.last_ts)}活跃</span></div>
+      </div>
+      <div class="tbody" style="display:none"></div>
+    </div>`).join('');
+  box.querySelectorAll('.cthread').forEach(card=>{
+    card.querySelector('.thead').onclick=()=>toggleThread(card, +card.dataset.id);
   });
 }
-document.querySelectorAll('.csort button').forEach(b=>b.onclick=()=>{
-  comSort=b.dataset.sort;
-  document.querySelectorAll('.csort button').forEach(x=>x.classList.toggle('on',x===b));
-  loadCommunity();
-});
+
+function toggleThread(card, id){
+  const body=card.querySelector('.tbody');
+  const open=card.classList.toggle('open');
+  body.style.display=open?'block':'none';
+  if(open && !body.dataset.loaded) renderThreadBody(card, id);
+}
+
+async function renderThreadBody(card, id){
+  const body=card.querySelector('.tbody');
+  body.innerHTML='<div style="font-size:11px;color:var(--ink-3);padding:8px 0">加载中…</div>';
+  let d; try{ d=await fetch('/api/threads/'+id).then(r=>r.json()); }catch{ return; }
+  const t=d.thread;
+  const rc=card.querySelector('.rcount'); if(rc) rc.textContent=d.posts.length;
+  body.innerHTML=`
+    ${t.body?`<div class="tmpost"><div class="txt">${esc(t.body)}</div></div>`:''}
+    <div class="tmreplies">${
+      d.posts.length ? d.posts.map(p=>`<div class="tmreply">
+        <div class="who">${esc(fmtWho(p.actor))} · ${fmtTime(p.ts)}</div>
+        <div class="txt">${esc(p.text)}</div>
+        ${p.book_title?`<div class="bk">📖 ${esc(p.book_title)}${p.score?' '+'★'.repeat(p.score):''}</div>`:''}
+      </div>`).join('') : '<div style="font-size:11.5px;color:var(--ink-3);padding:10px 0">还没有回帖 · 你可以第一个接</div>'
+    }</div>
+    <div class="tmcompose">
+      <textarea class="tmta" maxlength="2000" placeholder="写下你的看法 / 推荐一本书…"></textarea>
+      <button class="tmbtn">回帖</button>
+    </div>`;
+  body.dataset.loaded='1';
+  body.querySelector('.tmbtn').onclick=async()=>{
+    const text=body.querySelector('.tmta').value.trim();
+    if(text.length<2){ toast('回帖太短了'); return; }
+    const r=await fetch('/api/threads/'+id+'/posts',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({actor,text})}).then(x=>x.json()).catch(()=>({}));
+    if(r.ok){ toast('已回帖'); body.dataset.loaded=''; renderThreadBody(card,id); } else toast(r.detail||'发布失败');
+  };
+}
+
+// 内联发起讨论
+const ntForm=document.getElementById('ntForm');
+document.getElementById('newThread').onclick=()=>{
+  ntForm.style.display = ntForm.style.display==='none' ? 'block' : 'none';
+  if(ntForm.style.display==='block') document.getElementById('ntTitle').focus();
+};
+document.getElementById('ntCancel').onclick=()=>{ ntForm.style.display='none'; };
+document.getElementById('ntPost').onclick=async()=>{
+  const title=document.getElementById('ntTitle').value.trim();
+  const bodyv=document.getElementById('ntBody').value.trim();
+  if(title.length<2){ toast('标题太短了'); return; }
+  const r=await fetch('/api/threads',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({actor,title,body:bodyv})}).then(x=>x.json()).catch(()=>({}));
+  if(r.ok){ toast('话题已发布'); ntForm.style.display='none';
+    document.getElementById('ntTitle').value=''; document.getElementById('ntBody').value='';
+    loadThreads(); } else toast(r.detail||'发布失败');
+};
 initLibFilters();
 
 // ── 个人空间：书架 + 个人雷达（拖书）+ 推荐 + 分享 ──

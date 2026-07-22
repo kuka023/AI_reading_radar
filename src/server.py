@@ -259,6 +259,56 @@ def get_paths():
     return radar.paths()
 
 
+# ── 社区讨论：帖子 + 回帖（知乎式）──
+
+@app.get("/api/threads")
+def threads():
+    return db.list_threads()
+
+
+@app.get("/api/threads/{thread_id}")
+def thread(thread_id: int):
+    t = db.get_thread(thread_id)
+    if t is None:
+        raise HTTPException(404, "帖子不存在")
+    return t
+
+
+class ThreadReq(BaseModel):
+    actor: str
+    title: str
+    body: str = ""
+
+
+@app.post("/api/threads")
+def post_thread(t: ThreadReq):
+    title = (t.title or "").strip()
+    if not (2 <= len(title) <= 120):
+        raise HTTPException(400, "标题需在 2–120 字")
+    tid = db.create_thread(t.actor, title, (t.body or "").strip())
+    db.log_event(t.actor, "thread", value={"id": tid})
+    return {"ok": True, "id": tid}
+
+
+class PostReq(BaseModel):
+    actor: str
+    text: str
+    isbn: Optional[str] = None
+    score: Optional[int] = None
+
+
+@app.post("/api/threads/{thread_id}/posts")
+def post_reply(thread_id: int, p: PostReq):
+    text = (p.text or "").strip()
+    if not (2 <= len(text) <= 2000):
+        raise HTTPException(400, "回帖长度需在 2–2000 字")
+    if db.get_thread(thread_id) is None:
+        raise HTTPException(404, "帖子不存在")
+    pid = db.add_post(p.actor, thread_id, text, p.isbn, p.score)
+    db.log_event(p.actor, "reply", p.isbn, value={"thread": thread_id})
+    return {"ok": True, "id": pid}
+
+
 # ── Phase 3：个性化规划 ──
 
 @app.get("/api/goals")
