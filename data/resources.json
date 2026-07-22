@@ -1,0 +1,1893 @@
+[
+ {
+  "id": "book:aiengineering",
+  "title": "AI Engineering: Building Applications with Foundation Models",
+  "rtype": "book",
+  "family": "全员通用",
+  "families": [
+   "全员通用",
+   "技术·应用",
+   "技术·平台",
+   "FDE"
+  ],
+  "topic": "通用AI素养与AI Fluency 4D框架",
+  "topics": [
+   "通用AI素养与AI Fluency 4D框架",
+   "AI辅助开发(架构设计,  编码与代码审查等)",
+   "LLM应用技术选型与架构设计",
+   "LLMOps平台设计与模型全生命周期管理",
+   "模型推理优化与加速（量化/推理服务）",
+   "AI应用生产部署与交付实施"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "通用AI素养与AI Fluency 4D框架"
+   ],
+   "技术·应用": [
+    "AI辅助开发(架构设计,  编码与代码审查等)",
+    "LLM应用技术选型与架构设计"
+   ],
+   "技术·平台": [
+    "LLMOps平台设计与模型全生命周期管理",
+    "模型推理优化与加速（量化/推理服务）"
+   ],
+   "FDE": [
+    "AI应用生产部署与交付实施"
+   ]
+  },
+  "stance": "now",
+  "difficulty": 4,
+  "content_type": "tool",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": "9781098166304",
+  "authors": [
+   "Chip Huyen"
+  ],
+  "published": 2024,
+  "meta_pending": false
+ },
+ {
+  "id": "res:anthropic《aifluency:framework&foundations》(courser",
+  "title": "Anthropic《AI Fluency: Framework & Foundations》(Coursera，免费)",
+  "rtype": "course",
+  "family": "全员通用",
+  "families": [
+   "全员通用"
+  ],
+  "topic": "通用AI素养与AI Fluency 4D框架",
+  "topics": [
+   "通用AI素养与AI Fluency 4D框架"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "通用AI素养与AI Fluency 4D框架"
+   ]
+  },
+  "stance": "now",
+  "difficulty": 3,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.coursera.org/learn/ai-fluency-framework-foundations",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [
+   {
+    "name": "Skilljar版",
+    "link": "https://anthropic.skilljar.com/ai-fluency-framework-foundations"
+   },
+   {
+    "name": "Coursera Blog《Anthropic launches five free courses on Coursera》",
+    "link": "https://blog.coursera.org/anthropic-launches-five-free-courses-on-coursera-to-help-build-ai-fluency/"
+   }
+  ],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:designinglargelanguagemodelapplications",
+  "title": "Designing Large Language Model Applications",
+  "rtype": "book",
+  "family": "全员通用",
+  "families": [
+   "全员通用",
+   "技术·应用"
+  ],
+  "topic": "Prompt工程基础与进阶",
+  "topics": [
+   "Prompt工程基础与进阶",
+   "LLM应用技术选型与架构设计"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "Prompt工程基础与进阶"
+   ],
+   "技术·应用": [
+    "LLM应用技术选型与架构设计"
+   ]
+  },
+  "stance": "now",
+  "difficulty": 3,
+  "content_type": "tool",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [
+   {
+    "name": "O'Reilly图书页",
+    "link": "https://www.oreilly.com/library/view/ai-engineering/9781098166298/"
+   },
+   {
+    "name": "https://www.oreilly.com/library/view/designing-large-language/9781098150495/",
+    "link": "https://www.oreilly.com/library/view/designing-large-language/9781098150495/"
+   },
+   {
+    "name": "作者播客访谈 The Pragmatic Engineer《AI Engineering with Chip Huyen》",
+    "link": "https://newsletter.pragmaticengineer.com/p/ai-engineering-with-chip-huyen"
+   }
+  ],
+  "isbn": "9781098150501",
+  "authors": [
+   "Suhas Pai"
+  ],
+  "published": 2025,
+  "meta_pending": false
+ },
+ {
+  "id": "res:anthropic官方互动教程《promptengineeringinteractivetutori",
+  "title": "Anthropic官方互动教程《Prompt Engineering Interactive Tutorial》(GitHub，免费)",
+  "rtype": "course",
+  "family": "全员通用",
+  "families": [
+   "全员通用"
+  ],
+  "topic": "Prompt工程基础与进阶",
+  "topics": [
+   "Prompt工程基础与进阶"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "Prompt工程基础与进阶"
+   ]
+  },
+  "stance": "now",
+  "difficulty": 3,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://github.com/anthropics/prompt-eng-interactive-tutorial",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:deeplearning.ai《chatgptpromptengineeringfordevelop",
+  "title": "DeepLearning.AI《ChatGPT Prompt Engineering for Developers",
+  "rtype": "course",
+  "family": "全员通用",
+  "families": [
+   "全员通用"
+  ],
+  "topic": "Prompt工程基础与进阶",
+  "topics": [
+   "Prompt工程基础与进阶"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "Prompt工程基础与进阶"
+   ]
+  },
+  "stance": "now",
+  "difficulty": 3,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.deeplearning.ai/courses/",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:anthropicpromptengineering官方文档",
+  "title": "Anthropic Prompt Engineering官方文档",
+  "rtype": "article",
+  "family": "全员通用",
+  "families": [
+   "全员通用"
+  ],
+  "topic": "Prompt工程基础与进阶",
+  "topics": [
+   "Prompt工程基础与进阶"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "Prompt工程基础与进阶"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://docs.claude.com",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:buildingasecondbrain",
+  "title": "Building a Second Brain",
+  "rtype": "book",
+  "family": "全员通用",
+  "families": [
+   "全员通用"
+  ],
+  "topic": "知识工程与Context管理",
+  "topics": [
+   "知识工程与Context管理"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "知识工程与Context管理"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 1,
+  "content_type": "idea",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": "9781797143897",
+  "authors": [
+   "Tiago Forte"
+  ],
+  "published": 2022,
+  "meta_pending": false
+ },
+ {
+  "id": "res:notion官方文档",
+  "title": "Notion官方文档",
+  "rtype": "doc",
+  "family": "全员通用",
+  "families": [
+   "全员通用"
+  ],
+  "topic": "知识工程与Context管理",
+  "topics": [
+   "知识工程与Context管理"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "知识工程与Context管理"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.notion.com/help",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:obsidian官方文档",
+  "title": "Obsidian官方文档",
+  "rtype": "doc",
+  "family": "全员通用",
+  "families": [
+   "全员通用"
+  ],
+  "topic": "知识工程与Context管理",
+  "topics": [
+   "知识工程与Context管理"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "知识工程与Context管理"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://help.obsidian.md",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:githubcopilot官方文档",
+  "title": "GitHub Copilot官方文档",
+  "rtype": "doc",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用"
+  ],
+  "topic": "AI辅助开发(架构设计,  编码与代码审查等)",
+  "topics": [
+   "AI辅助开发(架构设计,  编码与代码审查等)"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "AI辅助开发(架构设计,  编码与代码审查等)"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://docs.github.com/copilot",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:anthropicclaudecode官方文档",
+  "title": "Anthropic Claude Code官方文档",
+  "rtype": "doc",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用"
+  ],
+  "topic": "AI辅助开发(架构设计,  编码与代码审查等)",
+  "topics": [
+   "AI辅助开发(架构设计,  编码与代码审查等)"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "AI辅助开发(架构设计,  编码与代码审查等)"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://docs.claude.com/en/docs/claude-code",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [
+   {
+    "name": "GitHub仓库 chiphuyen/aie-book（书籍配套资源）",
+    "link": "https://github.com/chiphuyen/aie-book"
+   }
+  ],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:aiagentsinaction",
+  "title": "AI Agents in Action, Second Edition",
+  "rtype": "book",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用",
+   "技术·平台"
+  ],
+  "topic": "Agent系统设计与多智能体架构",
+  "topics": [
+   "Agent系统设计与多智能体架构",
+   "AgentOS平台搭建与Agent运行时"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "Agent系统设计与多智能体架构"
+   ],
+   "技术·平台": [
+    "AgentOS平台搭建与Agent运行时"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": "tool",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [
+   {
+    "name": "Manning图书页",
+    "link": "https://www.manning.com/books/ai-agents-in-action-second-edition"
+   }
+  ],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "res:anthropicmodelcontextprotocol官方文档",
+  "title": "Anthropic Model Context Protocol官方文档",
+  "rtype": "doc",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用"
+  ],
+  "topic": "Agent系统设计与多智能体架构",
+  "topics": [
+   "Agent系统设计与多智能体架构"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "Agent系统设计与多智能体架构"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://modelcontextprotocol.io",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [
+   {
+    "name": "Manning liveBook试读",
+    "link": "https://livebook.manning.com/book/ai-agents-in-action-second-edition"
+   }
+  ],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:evalsforaiengineers",
+  "title": "Evals for AI Engineers",
+  "rtype": "book",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用",
+   "测试"
+  ],
+  "topic": "AI系统与Agent评估监测",
+  "topics": [
+   "AI系统与Agent评估监测",
+   "AI辅助测试工程与LLM/Agent测试评估"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "AI系统与Agent评估监测"
+   ],
+   "测试": [
+    "AI辅助测试工程与LLM/Agent测试评估"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": "tool",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "res:maven课程《aievalsforengineers&pms》",
+  "title": "Maven课程《AI Evals For Engineers & PMs",
+  "rtype": "course",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用",
+   "测试"
+  ],
+  "topic": "AI系统与Agent评估监测",
+  "topics": [
+   "AI系统与Agent评估监测",
+   "AI辅助测试工程与LLM/Agent测试评估"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "AI系统与Agent评估监测"
+   ],
+   "测试": [
+    "AI辅助测试工程与LLM/Agent测试评估"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://maven.com/parlance-labs/evals",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:deeplearning.ai《automatedtestingforllmops》",
+  "title": "DeepLearning.AI《Automated Testing for LLMOps",
+  "rtype": "course",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用",
+   "技术·平台",
+   "测试"
+  ],
+  "topic": "AI系统与Agent评估监测",
+  "topics": [
+   "AI系统与Agent评估监测",
+   "LLMOps平台设计与模型全生命周期管理",
+   "智能质量门禁与测试左移"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "AI系统与Agent评估监测"
+   ],
+   "技术·平台": [
+    "LLMOps平台设计与模型全生命周期管理"
+   ],
+   "测试": [
+    "智能质量门禁与测试左移"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.deeplearning.ai/short-courses/automated-testing-llmops",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:hamelhusain个人博客/substack",
+  "title": "Hamel Husain个人博客/Substack",
+  "rtype": "article",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用"
+  ],
+  "topic": "AI系统与Agent评估监测",
+  "topics": [
+   "AI系统与Agent评估监测"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "AI系统与Agent评估监测"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://hamelhusain.substack.com/",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:asimpleguidetoretrievalaugmentedgeneration",
+  "title": "A Simple Guide to Retrieval Augmented Generation",
+  "rtype": "book",
+  "family": "技术·数据",
+  "families": [
+   "技术·数据"
+  ],
+  "topic": "语义检索系统设计与RAG",
+  "topics": [
+   "语义检索系统设计与RAG"
+  ],
+  "fam_topics": {
+   "技术·数据": [
+    "语义检索系统设计与RAG"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 2,
+  "content_type": "tool",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [
+   {
+    "name": "Manning图书页",
+    "link": "https://www.amazon.com/Simple-Guide-Retrieval-Augmented-Generation/dp/1633435857"
+   }
+  ],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "res:deeplearning.ai《buildingapplicationswithvectordata",
+  "title": "DeepLearning.AI《Building Applications with Vector Databases》(Pinecone) 见",
+  "rtype": "course",
+  "family": "技术·数据",
+  "families": [
+   "技术·数据"
+  ],
+  "topic": "语义检索系统设计与RAG",
+  "topics": [
+   "语义检索系统设计与RAG"
+  ],
+  "fam_topics": {
+   "技术·数据": [
+    "语义检索系统设计与RAG"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.deeplearning.ai/courses",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:designingdataintensiveapplications",
+  "title": "Designing Data-Intensive Applications",
+  "rtype": "book",
+  "family": "技术·数据",
+  "families": [
+   "技术·数据"
+  ],
+  "topic": "实时数据流与AI集成",
+  "topics": [
+   "实时数据流与AI集成"
+  ],
+  "fam_topics": {
+   "技术·数据": [
+    "实时数据流与AI集成"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 4,
+  "content_type": "tool",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": "9788426734679",
+  "authors": [
+   "Martin Kleppmann"
+  ],
+  "published": 2017,
+  "meta_pending": false
+ },
+ {
+  "id": "res:apachekafka官方文档",
+  "title": "Apache Kafka官方文档",
+  "rtype": "doc",
+  "family": "技术·数据",
+  "families": [
+   "技术·数据"
+  ],
+  "topic": "实时数据流与AI集成",
+  "topics": [
+   "实时数据流与AI集成"
+  ],
+  "fam_topics": {
+   "技术·数据": [
+    "实时数据流与AI集成"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://kafka.apache.org/documentation/",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:apacheflink官方文档",
+  "title": "Apache Flink官方文档",
+  "rtype": "doc",
+  "family": "技术·数据",
+  "families": [
+   "技术·数据"
+  ],
+  "topic": "实时数据流与AI集成",
+  "topics": [
+   "实时数据流与AI集成"
+  ],
+  "fam_topics": {
+   "技术·数据": [
+    "实时数据流与AI集成"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://nightlies.apache.org/flink/flink-docs-stable/",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:damadmbok",
+  "title": "DAMA-DMBOK: Data Management Body of Knowledge",
+  "rtype": "book",
+  "family": "技术·数据",
+  "families": [
+   "技术·数据"
+  ],
+  "topic": "面向AI的数据治理",
+  "topics": [
+   "面向AI的数据治理"
+  ],
+  "fam_topics": {
+   "技术·数据": [
+    "面向AI的数据治理"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 3,
+  "content_type": "tool",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "res:googlecloudskillsboost《introductiontoresponsibleai",
+  "title": "Google Cloud Skills Boost《Introduction to Responsible AI》(免费)",
+  "rtype": "course",
+  "family": "技术·数据",
+  "families": [
+   "技术·数据"
+  ],
+  "topic": "面向AI的数据治理",
+  "topics": [
+   "面向AI的数据治理"
+  ],
+  "fam_topics": {
+   "技术·数据": [
+    "面向AI的数据治理"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.cloudskillsboost.google",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:neo4jgraphacademy（免费课程）",
+  "title": "Neo4j GraphAcademy（免费课程）",
+  "rtype": "course",
+  "family": "技术·数据",
+  "families": [
+   "技术·数据"
+  ],
+  "topic": "业务知识建模与知识图谱构建",
+  "topics": [
+   "业务知识建模与知识图谱构建"
+  ],
+  "fam_topics": {
+   "技术·数据": [
+    "业务知识建模与知识图谱构建"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://graphacademy.neo4j.com",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:deeplearning.ai×googlecloud《llmops》",
+  "title": "DeepLearning.AI × Google Cloud《LLMOps",
+  "rtype": "course",
+  "family": "技术·平台",
+  "families": [
+   "技术·平台"
+  ],
+  "topic": "LLMOps平台设计与模型全生命周期管理",
+  "topics": [
+   "LLMOps平台设计与模型全生命周期管理"
+  ],
+  "fam_topics": {
+   "技术·平台": [
+    "LLMOps平台设计与模型全生命周期管理"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.deeplearning.ai/short-courses/llmops/",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:modelcontextprotocol官方文档",
+  "title": "Model Context Protocol官方文档",
+  "rtype": "doc",
+  "family": "技术·平台",
+  "families": [
+   "技术·平台"
+  ],
+  "topic": "AgentOS平台搭建与Agent运行时",
+  "topics": [
+   "AgentOS平台搭建与Agent运行时"
+  ],
+  "fam_topics": {
+   "技术·平台": [
+    "AgentOS平台搭建与Agent运行时"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://modelcontextprotocol.io",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:langgraph官方文档",
+  "title": "LangGraph官方文档",
+  "rtype": "doc",
+  "family": "技术·平台",
+  "families": [
+   "技术·平台"
+  ],
+  "topic": "AgentOS平台搭建与Agent运行时",
+  "topics": [
+   "AgentOS平台搭建与Agent运行时"
+  ],
+  "fam_topics": {
+   "技术·平台": [
+    "AgentOS平台搭建与Agent运行时"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://langchain-ai.github.io/langgraph/",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:vllm官方文档",
+  "title": "vLLM官方文档",
+  "rtype": "doc",
+  "family": "技术·平台",
+  "families": [
+   "技术·平台",
+   "FDE"
+  ],
+  "topic": "模型推理优化与加速（量化/推理服务）",
+  "topics": [
+   "模型推理优化与加速（量化/推理服务）",
+   "AI应用生产部署与交付实施"
+  ],
+  "fam_topics": {
+   "技术·平台": [
+    "模型推理优化与加速（量化/推理服务）"
+   ],
+   "FDE": [
+    "AI应用生产部署与交付实施"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://docs.vllm.ai",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:sitereliabilityengineering",
+  "title": "Site Reliability Engineering",
+  "rtype": "book",
+  "family": "技术·平台",
+  "families": [
+   "技术·平台"
+  ],
+  "topic": "AI基础设施运维与可观测性（SRE for AI）",
+  "topics": [
+   "AI基础设施运维与可观测性（SRE for AI）"
+  ],
+  "fam_topics": {
+   "技术·平台": [
+    "AI基础设施运维与可观测性（SRE for AI）"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": "tool",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": "9781491929124",
+  "authors": [
+   "Betsy Beyer",
+   "Jones, Chris (Computer engineer)"
+  ],
+  "published": 2016,
+  "meta_pending": false
+ },
+ {
+  "id": "res:googlesrebooks官方网站",
+  "title": "Google SRE Books官方网站",
+  "rtype": "doc",
+  "family": "技术·平台",
+  "families": [
+   "技术·平台"
+  ],
+  "topic": "AI基础设施运维与可观测性（SRE for AI）",
+  "topics": [
+   "AI基础设施运维与可观测性（SRE for AI）"
+  ],
+  "fam_topics": {
+   "技术·平台": [
+    "AI基础设施运维与可观测性（SRE for AI）"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://sre.google/books/",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:airiskmanagementframework",
+  "title": "AI Risk Management Framework",
+  "rtype": "book",
+  "family": "技术·平台",
+  "families": [
+   "技术·平台"
+  ],
+  "topic": "AI安全治理与AI Governance",
+  "topics": [
+   "AI安全治理与AI Governance"
+  ],
+  "fam_topics": {
+   "技术·平台": [
+    "AI安全治理与AI Governance"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": "idea",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "res:nistairmf官网",
+  "title": "NIST AI RMF官网",
+  "rtype": "doc",
+  "family": "技术·平台",
+  "families": [
+   "技术·平台"
+  ],
+  "topic": "AI安全治理与AI Governance",
+  "topics": [
+   "AI安全治理与AI Governance"
+  ],
+  "fam_topics": {
+   "技术·平台": [
+    "AI安全治理与AI Governance"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.nist.gov/itl/ai-risk-management-framework",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:anthropicresponsiblescalingpolicy",
+  "title": "Anthropic Responsible Scaling Policy",
+  "rtype": "doc",
+  "family": "技术·平台",
+  "families": [
+   "技术·平台"
+  ],
+  "topic": "AI安全治理与AI Governance",
+  "topics": [
+   "AI安全治理与AI Governance"
+  ],
+  "fam_topics": {
+   "技术·平台": [
+    "AI安全治理与AI Governance"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.anthropic.com/rsp",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:aiproductmanagement",
+  "title": "AI Product Management",
+  "rtype": "book",
+  "family": "产品",
+  "families": [
+   "产品"
+  ],
+  "topic": "AI产品需求分析与场景探索",
+  "topics": [
+   "AI产品需求分析与场景探索",
+   "AI产品设计与人机协作交互设计",
+   "快速原型验证与Vibe Coding"
+  ],
+  "fam_topics": {
+   "产品": [
+    "AI产品需求分析与场景探索",
+    "AI产品设计与人机协作交互设计",
+    "快速原型验证与Vibe Coding"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 2,
+  "content_type": "idea",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [
+   {
+    "name": "O'Reilly图书页",
+    "link": "https://www.oreilly.com/library/view/ai-product-management/0642572251048/"
+   }
+  ],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "res:dukeuniversity《aiproductmanagement》specialization(",
+  "title": "Duke University《AI Product Management》Specialization(Coursera)",
+  "rtype": "course",
+  "family": "产品",
+  "families": [
+   "产品"
+  ],
+  "topic": "AI产品需求分析与场景探索",
+  "topics": [
+   "AI产品需求分析与场景探索"
+  ],
+  "fam_topics": {
+   "产品": [
+    "AI产品需求分析与场景探索"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.classcentral.com/course/ai-product-management-duke-89505",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:googlepeople+airesearch(pair)guidebook",
+  "title": "Google People + AI Research (PAIR) Guidebook",
+  "rtype": "doc",
+  "family": "产品",
+  "families": [
+   "产品"
+  ],
+  "topic": "AI产品设计与人机协作交互设计",
+  "topics": [
+   "AI产品设计与人机协作交互设计"
+  ],
+  "fam_topics": {
+   "产品": [
+    "AI产品设计与人机协作交互设计"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://pair.withgoogle.com/guidebook",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:cursor官方文档",
+  "title": "Cursor官方文档",
+  "rtype": "doc",
+  "family": "产品",
+  "families": [
+   "产品"
+  ],
+  "topic": "快速原型验证与Vibe Coding",
+  "topics": [
+   "快速原型验证与Vibe Coding"
+  ],
+  "fam_topics": {
+   "产品": [
+    "快速原型验证与Vibe Coding"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://docs.cursor.com",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:arizeai《thedefinitiveguidetollmevaluation》",
+  "title": "Arize AI《The Definitive Guide to LLM Evaluation",
+  "rtype": "article",
+  "family": "测试",
+  "families": [
+   "测试"
+  ],
+  "topic": "AI辅助测试工程与LLM/Agent测试评估",
+  "topics": [
+   "AI辅助测试工程与LLM/Agent测试评估"
+  ],
+  "fam_topics": {
+   "测试": [
+    "AI辅助测试工程与LLM/Agent测试评估"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://arize.com/llm-evaluation/",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:peopleaiguidebook",
+  "title": "People + AI Guidebook",
+  "rtype": "book",
+  "family": "测试",
+  "families": [
+   "测试"
+  ],
+  "topic": "AI系统专项质量验证（对抗测试/偏见检测/可解释性）",
+  "topics": [
+   "AI系统专项质量验证（对抗测试/偏见检测/可解释性）"
+  ],
+  "fam_topics": {
+   "测试": [
+    "AI系统专项质量验证（对抗测试/偏见检测/可解释性）"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 2,
+  "content_type": "idea",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "res:googlepairguidebook",
+  "title": "Google PAIR Guidebook",
+  "rtype": "doc",
+  "family": "测试",
+  "families": [
+   "测试"
+  ],
+  "topic": "AI系统专项质量验证（对抗测试/偏见检测/可解释性）",
+  "topics": [
+   "AI系统专项质量验证（对抗测试/偏见检测/可解释性）"
+  ],
+  "fam_topics": {
+   "测试": [
+    "AI系统专项质量验证（对抗测试/偏见检测/可解释性）"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://pair.withgoogle.com/guidebook",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:nistairmf",
+  "title": "NIST AI RMF",
+  "rtype": "doc",
+  "family": "测试",
+  "families": [
+   "测试"
+  ],
+  "topic": "AI系统专项质量验证（对抗测试/偏见检测/可解释性）",
+  "topics": [
+   "AI系统专项质量验证（对抗测试/偏见检测/可解释性）"
+  ],
+  "fam_topics": {
+   "测试": [
+    "AI系统专项质量验证（对抗测试/偏见检测/可解释性）"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.nist.gov/itl/ai-risk-management-framework",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:pmi《artificialintelligenceinprojectmanagement》官方学习",
+  "title": "PMI《Artificial Intelligence in Project Management》官方学习中心",
+  "rtype": "course",
+  "family": "项目管理",
+  "families": [
+   "项目管理"
+  ],
+  "topic": "AI辅助项目管理与项目管理数字化工具",
+  "topics": [
+   "AI辅助项目管理与项目管理数字化工具"
+  ],
+  "fam_topics": {
+   "项目管理": [
+    "AI辅助项目管理与项目管理数字化工具"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.pmi.org/learning/ai-in-project-management",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:pmi《generativeaioverviewforprojectmanagers》",
+  "title": "PMI《Generative AI Overview for Project Managers",
+  "rtype": "doc",
+  "family": "项目管理",
+  "families": [
+   "项目管理"
+  ],
+  "topic": "AI辅助项目管理与项目管理数字化工具",
+  "topics": [
+   "AI辅助项目管理与项目管理数字化工具"
+  ],
+  "fam_topics": {
+   "项目管理": [
+    "AI辅助项目管理与项目管理数字化工具"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.pmi.org/shop/p-/elearning/generative-ai-overview-for-project-managers/el083",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:pmi-cpmai认证学习路径",
+  "title": "PMI-CPMAI认证学习路径",
+  "rtype": "course",
+  "family": "项目管理",
+  "families": [
+   "项目管理"
+  ],
+  "topic": "AI项目组合管理与数据驱动决策",
+  "topics": [
+   "AI项目组合管理与数据驱动决策"
+  ],
+  "fam_topics": {
+   "项目管理": [
+    "AI项目组合管理与数据驱动决策"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.pmi.org/learning/ai-in-project-management",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:bpmnmethodandstyle",
+  "title": "BPMN Method and Style",
+  "rtype": "book",
+  "family": "FDE",
+  "families": [
+   "FDE"
+  ],
+  "topic": "业务流程建模与重构（价值流/业务本体/知识管理等)",
+  "topics": [
+   "业务流程建模与重构（价值流/业务本体/知识管理等)"
+  ],
+  "fam_topics": {
+   "FDE": [
+    "业务流程建模与重构（价值流/业务本体/知识管理等)"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": "tool",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": "9780982368114",
+  "authors": [
+   "Bruce Silver"
+  ],
+  "published": 2011,
+  "meta_pending": false
+ },
+ {
+  "id": "res:omgbpmn官方规范",
+  "title": "OMG BPMN官方规范",
+  "rtype": "doc",
+  "family": "FDE",
+  "families": [
+   "FDE"
+  ],
+  "topic": "业务流程建模与重构（价值流/业务本体/知识管理等)",
+  "topics": [
+   "业务流程建模与重构（价值流/业务本体/知识管理等)"
+  ],
+  "fam_topics": {
+   "FDE": [
+    "业务流程建模与重构（价值流/业务本体/知识管理等)"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://www.omg.org/spec/BPMN",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:leadingchange",
+  "title": "Leading Change",
+  "rtype": "book",
+  "family": "FDE",
+  "families": [
+   "FDE"
+  ],
+  "topic": "流程变革推动与变革管理",
+  "topics": [
+   "流程变革推动与变革管理"
+  ],
+  "fam_topics": {
+   "FDE": [
+    "流程变革推动与变革管理"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 2,
+  "content_type": "idea",
+  "rec": 3,
+  "link": "",
+  "reason": "来自AI-Native能力模型_学习进阶路径与参考资料库的官方推荐",
+  "companions": [],
+  "isbn": "9780875847474",
+  "authors": [
+   "John P. Kotter"
+  ],
+  "published": 1996,
+  "meta_pending": false
+ },
+ {
+  "id": "book:ai",
+  "title": "本体驱动的AI数据管理",
+  "rtype": "book",
+  "family": "技术·数据",
+  "families": [
+   "技术·数据"
+  ],
+  "topic": "面向AI的数据治理",
+  "topics": [
+   "面向AI的数据治理"
+  ],
+  "fam_topics": {
+   "技术·数据": [
+    "面向AI的数据治理"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": "tool",
+  "rec": 3,
+  "link": "https://baike.baidu.com/item/%E6%9C%AC%E4%BD%93%E9%A9%B1%E5%8A%A8%E7%9A%84AI%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/67865910",
+  "reason": "AI时代，数据管理已发生重大变化，基于本体驱动的AI数据管理将是未来的主要方向之一",
+  "companions": [],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "res:followbulider",
+  "title": "Follow bulider",
+  "rtype": "article",
+  "family": "全员通用",
+  "families": [
+   "全员通用"
+  ],
+  "topic": "通用AI素养与AI Fluency 4D框架",
+  "topics": [
+   "通用AI素养与AI Fluency 4D框架"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "通用AI素养与AI Fluency 4D框架"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://github.com/zarazhangrui/follow-builders",
+  "reason": "本人订阅了部分在 AI 领域活跃度较高的博主或行业资深人士的相关资讯。",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:rtk",
+  "title": "RTK",
+  "rtype": "doc",
+  "family": "全员通用",
+  "families": [
+   "全员通用"
+  ],
+  "topic": "知识工程与Context管理",
+  "topics": [
+   "知识工程与Context管理"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "知识工程与Context管理"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://github.com/rtk-ai/rtk",
+  "reason": "能减少token消耗",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:针对奔驰研发客户出的《corefunctionai提效》6周培训课",
+  "title": "针对奔驰研发客户出的《Core Function AI提效》6周培训课",
+  "rtype": "article",
+  "family": "全员通用",
+  "families": [
+   "全员通用",
+   "技术·应用",
+   "技术·平台"
+  ],
+  "topic": "AI安全治理与AI Governance",
+  "topics": [
+   "AI安全治理与AI Governance"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "AI安全治理与AI Governance"
+   ],
+   "技术·应用": [
+    "AI安全治理与AI Governance"
+   ],
+   "技术·平台": [
+    "AI安全治理与AI Governance"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 3,
+  "link": "https://inspiregroup.feishu.cn/drive/folder/RoDTfZuiKlg5tkdvWsec1yRZnk9",
+  "reason": "这个是针对奔驰客户出的，目前还不能直接拿去给其他客户，需要脱敏。资料目前只做了3期，需要可以联系我。",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "book:handsonlargelanguagemodels",
+  "title": "Hands-On Large Language Models",
+  "rtype": "book",
+  "family": "全员通用",
+  "families": [
+   "全员通用"
+  ],
+  "topic": "通用AI素养与AI Fluency 4D框架",
+  "topics": [
+   "通用AI素养与AI Fluency 4D框架"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "通用AI素养与AI Fluency 4D框架"
+   ]
+  },
+  "stance": "now",
+  "difficulty": 3,
+  "content_type": "tool",
+  "rec": 4,
+  "link": "https://www.oreilly.com/library/view/hands-on-large-language/9781098150969/",
+  "reason": "构建对transformers与embeddings如何处理文本的\"可视直觉\"。Jay Alammar以机器学习可视化指南闻名，本书把这种可视方法贯穿LLM全生命周期，把抽象数学讲得很\"落地\"。",
+  "companions": [],
+  "isbn": "9781098150969",
+  "authors": [
+   "Jay Alammar",
+   "Maarten Grootendorst"
+  ],
+  "published": 2024,
+  "meta_pending": false
+ },
+ {
+  "id": "book:llmengineershandbook",
+  "title": "LLM Engineer's Handbook",
+  "rtype": "book",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用"
+  ],
+  "topic": "AI辅助开发(架构设计,  编码与代码审查等)",
+  "topics": [
+   "AI辅助开发(架构设计,  编码与代码审查等)"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "AI辅助开发(架构设计,  编码与代码审查等)"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 4,
+  "content_type": "tool",
+  "rec": 4,
+  "link": "https://www.packtpub.com/en-US/product/llm-engineers-handbook-9781836200079",
+  "reason": "动手实现完整的数据与fine-tuning生命周期。手把手带你构建开源系统LLM Twin，从数据收集到模型部署的完整生命周期。你会学到SFT与preference alignment的实用差异，以及parameter-efficient fine-tuning。",
+  "companions": [],
+  "isbn": "9781836200079",
+  "authors": [
+   "Paul Iusztin",
+   "Maxime Labonne"
+  ],
+  "published": 2024,
+  "meta_pending": false
+ },
+ {
+  "id": "book:designingmultiagentsystems",
+  "title": "Designing Multi-Agent Systems",
+  "rtype": "book",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用"
+  ],
+  "topic": "Agent系统设计与多智能体架构",
+  "topics": [
+   "Agent系统设计与多智能体架构"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "Agent系统设计与多智能体架构"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 4,
+  "content_type": "tool",
+  "rec": 4,
+  "link": "https://www.manning.com/books/designing-multi-agent-systems",
+  "reason": "从零学习agent architecture的第一性原理。Victor Dibia是微软首席研究员、AutoGen Studio作者，本书走first-principles路子：从零实现feature-complete的agent库。覆盖collaboration、observability、interruptibility等模式。",
+  "companions": [],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "book:buildingagenticai",
+  "title": "Building Agentic AI",
+  "rtype": "book",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用"
+  ],
+  "topic": "Agent系统设计与多智能体架构",
+  "topics": [
+   "Agent系统设计与多智能体架构"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "Agent系统设计与多智能体架构"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 3,
+  "content_type": "tool",
+  "rec": 4,
+  "link": "https://www.informit.com/store/building-agentic-ai-workflows-fine-tuning-optimization-9780135489772",
+  "reason": "为企业环境优化agent workflows。Sinan Ozdemir带你超越基本chatbots，构建能产生可量化业务价值的autonomous agents。覆盖multimodal AI、quantization、speculative decoding等优化。",
+  "companions": [],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "book:agenticaiengineering",
+  "title": "Agentic AI Engineering",
+  "rtype": "book",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用"
+  ],
+  "topic": "AI系统与Agent评估监测",
+  "topics": [
+   "AI系统与Agent评估监测"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "AI系统与Agent评估监测"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 4,
+  "content_type": "tool",
+  "rec": 4,
+  "link": "https://argolong.com/agentic-engineering-book",
+  "reason": "让agents扛住真实世界与合规审计。Yi Zhou提出Agentic Stack、Agentic Maturity Ladder、Trust Envelope。你会为\"运动中的信任\"而工程化——让系统在不确定中推理、又能负责任地自适应。",
+  "companions": [],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "book:llmops",
+  "title": "LLMOps: Managing Large Language Models in Production",
+  "rtype": "book",
+  "family": "技术·平台",
+  "families": [
+   "技术·平台"
+  ],
+  "topic": "LLMOps平台设计与模型全生命周期管理",
+  "topics": [
+   "LLMOps平台设计与模型全生命周期管理"
+  ],
+  "fam_topics": {
+   "技术·平台": [
+    "LLMOps平台设计与模型全生命周期管理"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 4,
+  "content_type": "tool",
+  "rec": 4,
+  "link": "https://www.oreilly.com/library/view/llmops/9781098154165/",
+  "reason": "在真金白银场景下让LLM systems平稳运行。Abi Aryan讲清新的LLMOps学科：如何处理prompt drift、如何运行automated regression tests。传统MLOps面对generative AI会\"土崩瓦解\"。",
+  "companions": [],
+  "isbn": "9781098154202",
+  "authors": [
+   "Abi Aryan"
+  ],
+  "published": 2025,
+  "meta_pending": false
+ },
+ {
+  "id": "book:aisystemsperformanceengineering",
+  "title": "AI Systems Performance Engineering",
+  "rtype": "book",
+  "family": "技术·平台",
+  "families": [
+   "技术·平台"
+  ],
+  "topic": "模型推理优化与加速（量化/推理服务）",
+  "topics": [
+   "模型推理优化与加速（量化/推理服务）"
+  ],
+  "fam_topics": {
+   "技术·平台": [
+    "模型推理优化与加速（量化/推理服务）"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 5,
+  "content_type": "tool",
+  "rec": 4,
+  "link": "",
+  "reason": "在hardware、software、algorithms三层做硬核优化。Chris Fregly深入GPU memory management、CUDA kernels与基于PyTorch的算法。你会学会profile、诊断并清除复杂AI pipelines的performance bottlenecks。",
+  "companions": [],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "book:generativeaidesignpatterns",
+  "title": "Generative AI Design Patterns",
+  "rtype": "book",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用"
+  ],
+  "topic": "LLM应用技术选型与架构设计",
+  "topics": [
+   "LLM应用技术选型与架构设计"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "LLM应用技术选型与架构设计"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 4,
+  "content_type": "tool",
+  "rec": 4,
+  "link": "",
+  "reason": "32个成熟的设计模式，直击你每天遇到的挑战：hallucinations、nondeterministic responses、knowledge cutoffs。每个pattern都描述特定问题、给出带代码的验证解，并讨论取舍。你和团队会拥有共享词汇。",
+  "companions": [],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "book:masteringretrievalaugmentedgeneration",
+  "title": "Mastering Retrieval-Augmented Generation",
+  "rtype": "book",
+  "family": "技术·数据",
+  "families": [
+   "技术·数据"
+  ],
+  "topic": "语义检索系统设计与RAG",
+  "topics": [
+   "语义检索系统设计与RAG"
+  ],
+  "fam_topics": {
+   "技术·数据": [
+    "语义检索系统设计与RAG"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 4,
+  "content_type": "tool",
+  "rec": 4,
+  "link": "",
+  "reason": "把RAG从周末原型扩到企业级生产系统。Ranajoy Bose系统讲解document processing与vector optimization的成熟技巧，覆盖graph-based approaches与multi-modal systems等高级检索策略。你会学到如何fine-tune embedding models。",
+  "companions": [],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "book:systemdesignforlargelanguagemodels",
+  "title": "System Design For Large Language Models",
+  "rtype": "book",
+  "family": "技术·应用",
+  "families": [
+   "技术·应用"
+  ],
+  "topic": "LLM应用技术选型与架构设计",
+  "topics": [
+   "LLM应用技术选型与架构设计"
+  ],
+  "fam_topics": {
+   "技术·应用": [
+    "LLM应用技术选型与架构设计"
+   ]
+  },
+  "stance": "invest",
+  "difficulty": 4,
+  "content_type": "tool",
+  "rec": 4,
+  "link": "",
+  "reason": "把prompts当成\"严肃的系统边界\"，而非\"文案活儿\"。Marc Rolland构建严谨的systems框架，汲取systems engineering、safety analysis、control theory的方法。你会打造让failure\"可被观测\"的observability mechanisms。",
+  "companions": [],
+  "isbn": null,
+  "authors": [],
+  "meta_pending": true
+ },
+ {
+  "id": "res:anthropicofficialblog",
+  "title": "Anthropic Official Blog",
+  "rtype": "article",
+  "family": "全员通用",
+  "families": [],
+  "topic": "",
+  "topics": [],
+  "fam_topics": {},
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 4,
+  "link": "https://claude.com/blog",
+  "reason": "Anthropic 作为全球领先的 AI 实验室，其官方博客是获取最新前沿资讯和企业级 AI 使用最佳实践的便捷渠道。",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ },
+ {
+  "id": "res:tw93撰写的系列文章",
+  "title": "tw93 撰写的系列文章",
+  "rtype": "article",
+  "family": "全员通用",
+  "families": [
+   "全员通用"
+  ],
+  "topic": "通用AI素养与AI Fluency 4D框架",
+  "topics": [
+   "通用AI素养与AI Fluency 4D框架"
+  ],
+  "fam_topics": {
+   "全员通用": [
+    "通用AI素养与AI Fluency 4D框架"
+   ]
+  },
+  "stance": "know",
+  "difficulty": 2,
+  "content_type": null,
+  "rec": 4,
+  "link": "https://tw93.fun/2026-03-21/agent.html",
+  "reason": "Tw93 写了三篇，一篇比一篇深：非技术人怎么上手 AI Coding → Claude Code 怎么工程化地用 → Agent 原理和架构。实战踩坑多，不是那种空讲趋势的文章。",
+  "companions": [],
+  "isbn": null,
+  "authors": []
+ }
+]

@@ -14,6 +14,9 @@ data/*.bak
 data/*.bak.json
 *.bak
 
+# 业务原始共建工作文件（不公开；处理后的 data/resources.json 已入库）
+*.xlsx
+
 # 系统
 .DS_Store
 

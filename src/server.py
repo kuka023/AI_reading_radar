@@ -1,15 +1,16 @@
 """后端 API。
 
-阶段一：排环走纯规则（placement.py），不调 LLM —— 免费、瞬时、确定性。
-阶段二：等打分数据攒够，把 engine 切到 personalize.py（LLM 版），接口不变。
+数据源 = 业务共建资料库（data/resources.json，由 ingest_xlsx + enrich_isbn 生成）。
+角色 = 8 个业务能力族；环 = 立场（策展观点）；星球外形 = 资料类型。
+排环走纯规则（radar.py），不调 LLM —— 免费、瞬时、确定性。
 
-  GET /api/roles           角色列表（前端的入口）
-  GET /api/radar/{role}    该角色的雷达（四环 + 阅读路径）
-  GET /api/stats           书目库总览
+  GET /api/roles           能力族列表（前端的入口）
+  GET /api/galaxy          全景星云（全部资料）
+  GET /api/radar/{role}    该能力族的雷达（三立场环）
+  GET /api/stats           资料库总览
   GET /                    前端
 """
 
-import json
 from pathlib import Path
 from typing import Optional
 
@@ -19,87 +20,49 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 import db
-import decay
-import placement
+import radar
 
 ROOT = Path(__file__).resolve().parent.parent
 WEB = ROOT / "web"
-ROLES = ROOT / "data" / "roles.json"
 
 app = FastAPI(title="AI 读书雷达")
-
-# 雷达是确定性的（纯规则），启动时全部算好，请求直接命中缓存。
-_CACHE = {}
-
-
-def _warm() -> None:
-    roles = json.loads(ROLES.read_text())["roles"]
-    for key in roles:
-        _CACHE[key] = placement.build(key)
 
 
 @app.on_event("startup")
 def startup() -> None:
-    db.init_db()                     # 建表 + 导入策展书（幂等）
-    _warm()
-    any_radar = next(iter(_CACHE.values()))
-    s = any_radar["stats"]
-    print(f"  书目库 {s['total']} 本  ·  存活 {s['alive']}  ·  Hold {s['dead']}")
-    print(f"  {len(_CACHE)} 个角色的雷达已预热")
+    db.init_db()                     # 建表 + 导入资料库（幂等）
+    s = radar.stats()
+    print(f"  资料库 {s['total']} 项  ·  书 {s['books']} / 课 {s['courses']} / 文档 {s['docs']} / 文章 {s['articles']}")
+    print(f"  立场  现在就读 {s['now']} · 值得投入 {s['invest']} · 知道即可 {s['know']}")
+    print(f"  {s['families']} 个能力族")
     print(f"  DB: {db.stats()}")
 
 
 @app.get("/api/roles")
 def get_roles():
-    roles = json.loads(ROLES.read_text())["roles"]
-    return [
-        {
-            "key": k,
-            "label": v["label"],
-            "tagline": v["tagline"],
-            "goal": v["goal"],
-            "color": v["color"],
-            "math_tolerance": v["math_tolerance"],
-        }
-        for k, v in roles.items()
-    ]
+    return radar.roles()
 
 
 @app.get("/api/galaxy")
 def get_galaxy():
-    """第一屏：全部书目组成的一整片星云，还没分环。
+    """第一屏：全部资料组成的一整片星云，还没分环。
 
-    用户先看到「这个领域的全貌」，选了角色才拉近到属于他的那一部分。
+    用户先看到「这个领域的全貌」，选了能力族才拉近到属于他的那一部分。
     """
-    assessed = decay.run()
-    return [
-        {
-            "isbn": b["isbn"],
-            "title": b["title"],
-            "authors": b["authors"],
-            "published": b["published"],
-            "quadrant": b["quadrant"],
-            "difficulty": b["difficulty"],
-            "kind": b["kind"],
-            # 材质用于渲染：思想书=气态，工具书=岩石
-            "content_type": b["decay"]["content_type"],
-            "paradigm": b["decay"]["paradigm"],
-            "dead": b["decay_result"]["verdict"] == "dead",
-        }
-        for b in assessed
-    ]
+    return radar.galaxy()
 
 
 @app.get("/api/radar/{role}")
 def get_radar(role: str):
-    if role not in _CACHE:
-        raise HTTPException(404, f"未知角色: {role}")
-    return _CACHE[role]
+    r = radar.radar(role)
+    if r is None:
+        raise HTTPException(404, f"未知能力族: {role}")
+    return r
 
 
 @app.get("/api/stats")
 def get_stats():
-    return next(iter(_CACHE.values()))["stats"]
+    return radar.stats()
 
 
 # ── L1 地基核心：账号 / 事件流 / 书架 ──
@@ -132,24 +95,29 @@ def post_event(e: EventReq):
 class ShelfReq(BaseModel):
     actor: str
     isbn: str
-    state: Optional[str] = None       # want | reading | read | (缺省=删除)
+    state: Optional[str] = None       # want | reading | read | (全空=删除)
     finished: Optional[str] = None
     useful: Optional[str] = None
     curated: int = 1
     meta: Optional[dict] = None
+    stance: Optional[str] = None      # 个人雷达立场 now/invest/know，""=移出雷达
 
 
 @app.put("/api/shelf")
 def put_shelf(s: ShelfReq):
-    """更新一本书的书架状态/打分，同时落一条 event。"""
-    if s.state is None and s.finished is None and s.useful is None:
+    """更新一本书的书架状态/打分/个人雷达立场，同时落一条 event。"""
+    if (s.state is None and s.finished is None and s.useful is None
+            and s.stance is None):
         db.remove_shelf(s.actor, s.isbn)
         db.log_event(s.actor, "shelve", s.isbn, value={"state": "removed"})
         return {"ok": True, "removed": True}
-    db.upsert_shelf(s.actor, s.isbn, s.state, s.finished, s.useful, s.curated, s.meta)
-    action = "rate" if (s.finished or s.useful) else "shelve"
+    db.upsert_shelf(s.actor, s.isbn, s.state, s.finished, s.useful,
+                    s.curated, s.meta, s.stance)
+    action = ("place" if s.stance is not None else
+              "rate" if (s.finished or s.useful) else "shelve")
     db.log_event(s.actor, action, s.isbn,
-                 value={"state": s.state, "finished": s.finished, "useful": s.useful})
+                 value={"state": s.state, "finished": s.finished,
+                        "useful": s.useful, "stance": s.stance})
     return {"ok": True}
 
 
@@ -240,18 +208,22 @@ class ReviewReq(BaseModel):
     actor: str
     isbn: str
     text: str
+    score: Optional[int] = None       # 推荐打分 1–5（可空）
 
 
 @app.post("/api/reviews")
 def post_review(r: ReviewReq):
-    """发书评。防刷：必须先标「读过」——评价资格绑定阅读行为。"""
+    """发书评/推荐。防刷：必须先标「读过」——评价资格绑定阅读行为。"""
     if not db.has_read(r.actor, r.isbn):
         raise HTTPException(403, "标记「读过」后才能写书评")
     text = (r.text or "").strip()
     if not (2 <= len(text) <= 2000):
         raise HTTPException(400, "书评长度需在 2–2000 字")
-    rid = db.add_review(r.actor, r.isbn, text)
-    db.log_event(r.actor, "review", r.isbn)
+    score = r.score
+    if score is not None and not (1 <= score <= 5):
+        raise HTTPException(400, "打分需在 1–5")
+    rid = db.add_review(r.actor, r.isbn, text, score)
+    db.log_event(r.actor, "review", r.isbn, value={"score": score})
     return {"ok": True, "id": rid}
 
 
@@ -279,6 +251,111 @@ def books(actor: Optional[str] = None):
 def community(sort: str = "recent", limit: int = 60):
     """社区：全站书评流。"""
     return db.community_feed(sort, min(limit, 200))
+
+
+@app.get("/api/paths")
+def get_paths():
+    """成长路径（社区主页）：按角色的目标导向学习序列。"""
+    return radar.paths()
+
+
+# ── Phase 3：个性化规划 ──
+
+@app.get("/api/goals")
+def get_goals():
+    return radar.goals()
+
+
+class PlanReq(BaseModel):
+    actor: Optional[str] = None
+    goal: str
+    days: int = 30
+
+
+@app.post("/api/plan")
+def post_plan(p: PlanReq):
+    """按目标 + 时限 + 阅读史，在策展库内规划一条学习路径。"""
+    read_ids = []
+    if p.actor:
+        shelf = db.get_shelf(p.actor)
+        read_ids = [i for i, s in shelf.items() if s.get("state") == "read"]
+    return radar.plan(p.goal, p.days, read_ids)
+
+
+# ── Phase 2：飞轮评审台（模拟信号）──
+
+import flywheel
+
+
+@app.get("/api/flywheel")
+def get_flywheel():
+    """飞轮：准入 / 降级的专家评审队列（现阶段模拟信号驱动）。"""
+    return flywheel.run()
+
+
+# ── 个人空间：个人雷达 + 我的推荐（也用于分享时按 actor 只读加载）──
+
+@app.get("/api/personal")
+def personal(actor: str):
+    """某用户放到个人雷达上的书（含分享只读加载）。"""
+    return {"radar": db.personal_radar(actor),
+            "recommendations": db.recommendations(actor)}
+
+
+# ── 星球详情：封面 / 简介（仅取自 Open Library，绝不由模型生成）+ 聚合评分 ──
+
+_OL_CACHE = {}
+
+
+def _ol_detail(isbn: str) -> dict:
+    """从 Open Library 拉封面 + 简介 + 出版信息。简介是真实数据，不臆造。缓存。"""
+    if not isbn:
+        return {}
+    if isbn in _OL_CACHE:
+        return _OL_CACHE[isbn]
+    out = {"cover_url": f"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg?default=false"}
+    try:
+        r = _rq.get(f"https://openlibrary.org/isbn/{isbn}.json", timeout=10)
+        if r.status_code == 200:
+            d = r.json()
+            out["pages"] = d.get("number_of_pages")
+            out["publish_date"] = d.get("publish_date")
+            pubs = d.get("publishers") or []
+            out["publisher"] = pubs[0] if pubs else None
+            works = d.get("works") or []
+            if works:
+                wk = works[0].get("key")
+                w = _rq.get(f"https://openlibrary.org{wk}.json", timeout=10)
+                if w.status_code == 200:
+                    desc = w.json().get("description")
+                    if isinstance(desc, dict):
+                        desc = desc.get("value")
+                    out["description"] = desc
+    except _rq.RequestException:
+        pass
+    _OL_CACHE[isbn] = out
+    return out
+
+
+@app.get("/api/detail")
+def detail(id: str):
+    """点开星球时按需拉：真实封面 + Open Library 简介 + 出版信息 + 聚合评分。"""
+    res = radar.get(id)
+    isbn = (res or {}).get("isbn")
+    ol = _ol_detail(isbn) if isbn else {}
+    pages = ol.get("pages")
+    read_hours = round(pages / 40) if pages else None       # ~40 页/小时的粗估
+    return {
+        "id": id,
+        "isbn": isbn,
+        "cover_url": ol.get("cover_url"),
+        "description": ol.get("description"),
+        "publisher": ol.get("publisher"),
+        "publish_date": ol.get("publish_date"),
+        "pages": pages,
+        "read_hours": read_hours,
+        "rating": db.book_rating(id),
+    }
 
 
 if WEB.exists():

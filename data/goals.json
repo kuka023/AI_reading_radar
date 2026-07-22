@@ -1,0 +1,15 @@
+{
+  "_comment": "个性化规划的结构化目标（Phase 3 初期）。role 对齐 roles.json 的 key；topics 用于排序加权，匹配 resources 的能力主题。",
+  "goals": [
+    {"id": "g-ai-fluency", "title": "打好通用 AI 素养", "role": "all", "level": "入门",
+     "topics": ["通用AI素养与AI Fluency 4D框架", "Prompt工程基础与进阶"]},
+    {"id": "g-agent-intro", "title": "入门 Agent 系统开发", "role": "applied", "level": "入门",
+     "topics": ["Agent系统设计与多智能体架构", "AI辅助开发(架构设计,  编码与代码审查等)"]},
+    {"id": "g-rag-app", "title": "上线一个 RAG 检索应用", "role": "data", "level": "进阶",
+     "topics": ["语义检索系统设计与RAG"]},
+    {"id": "g-ai-product", "title": "建立 AI 产品认知", "role": "product", "level": "入门",
+     "topics": ["AI产品需求分析与场景探索", "AI产品设计与人机协作交互设计"]},
+    {"id": "g-llmops", "title": "把 LLM 应用送上生产", "role": "platform", "level": "进阶",
+     "topics": ["LLMOps平台设计与模型全生命周期管理", "模型推理优化与加速（量化/推理服务）"]}
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "_comment": "成长路径。初期人工撰写；以下书序为草稿（status=draft），待你/领域专家定稿。AI 不生成书序，只在有数据后辅助推荐候选。role 对齐 roles.json 的 key。",
+  "paths": [
+    {
+      "id": "p-ai-product-intro",
+      "title": "AI 产品入门",
+      "role": "product",
+      "level": "入门",
+      "goal": "建立 AI 产品的基本认知，能参与需求探索与人机协作设计。",
+      "status": "draft",
+      "author": "草稿 · 待定稿",
+      "steps": [
+        {"resource_id": "book:aiproductmanagement", "why": "建立 AI 产品的全局框架：需求、场景、生命周期。"},
+        {"resource_id": "book:peopleaiguidebook", "why": "人机协作交互设计的基本范式（Google PAIR）。"},
+        {"resource_id": "book:handsonlargelanguagemodels", "why": "对 LLM 的能力边界有直观理解，能与技术团队对话。"}
+      ]
+    },
+    {
+      "id": "p-agent-dev-intro",
+      "title": "Agent 开发入门",
+      "role": "applied",
+      "level": "入门",
+      "goal": "从零理解并动手搭一个可用的 Agent 系统。",
+      "status": "draft",
+      "author": "草稿 · 待定稿",
+      "steps": [
+        {"resource_id": "book:designinglargelanguagemodelapplications", "why": "先建立 LLM 应用的骨架与技术选型直觉。"},
+        {"resource_id": "book:aiagentsinaction", "why": "Agent 系统的动手入门。"},
+        {"resource_id": "book:buildingagenticai", "why": "进一步的 agentic 模式与工程实践。"},
+        {"resource_id": "book:evalsforaiengineers", "why": "学会评估 Agent —— 别只会搭、不会验。"}
+      ]
+    },
+    {
+      "id": "p-ai-product-advanced",
+      "title": "AI 产品从入门到高阶",
+      "role": "product",
+      "level": "入门 → 高阶",
+      "goal": "从参与 AI 产品，到能做架构级的产品判断。",
+      "status": "draft",
+      "author": "草稿 · 待定稿",
+      "steps": [
+        {"resource_id": "book:aiproductmanagement", "why": "全局框架：需求、场景、生命周期。"},
+        {"resource_id": "book:peopleaiguidebook", "why": "人机协作交互设计范式。"},
+        {"resource_id": "book:handsonlargelanguagemodels", "why": "LLM 能力边界的直观理解。"},
+        {"resource_id": "book:aiengineering", "why": "理解 AI 工程全链路，能主导技术取舍。"},
+        {"resource_id": "book:systemdesignforlargelanguagemodels", "why": "架构级的系统设计判断。"}
+      ]
+    }
+  ]
+}

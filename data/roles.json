@@ -1,55 +1,61 @@
 {
-  "_comment": "角色 = 前端的入口。用户先选角色，穿梭机把他带进对应的星云。",
+  "_comment": "角色轴 = 业务 AI-Native 能力模型的 8 个能力族。family 字段对齐 data/resources.json 里的 families。",
   "roles": {
-    "applied-llm-dev": {
-      "label": "LLM 应用开发者",
-      "tagline": "把大模型变成能上线的产品",
-      "role": "applied-llm-dev",
-      "goal": "独立设计并上线一个生产级 agent 系统，含评估与可观测性",
-      "math_tolerance": "medium",
-      "read": [],
-      "time_budget": "2h/week",
-      "color": "#5eead4"
+    "all": {
+      "label": "全员通用",
+      "family": "全员通用",
+      "tagline": "AI 时代的通用底座",
+      "goal": "建立 AI 素养、Prompt 工程与知识工程的通识 —— 人人都要过的第一关。",
+      "color": "#2f6fed"
     },
-    "ml-engineer": {
-      "label": "ML 工程师",
-      "tagline": "训练、部署、然后让它在线上活着",
-      "role": "ml-engineer",
-      "goal": "端到端负责 ML 系统：从数据管线到线上监控",
-      "math_tolerance": "medium",
-      "read": [],
-      "time_budget": "4h/week",
-      "color": "#818cf8"
+    "applied": {
+      "label": "技术 · 应用",
+      "family": "技术·应用",
+      "tagline": "把模型做成应用",
+      "goal": "LLM 应用架构、Agent 系统设计、AI 辅助开发与系统评估。",
+      "color": "#e8590c"
     },
-    "researcher": {
-      "label": "研究员",
-      "tagline": "读懂论文，然后写出论文",
-      "role": "researcher",
-      "goal": "读懂并复现前沿论文，最终提出自己的方法",
-      "math_tolerance": "high",
-      "read": [],
-      "time_budget": "8h/week",
-      "color": "#f0abfc"
+    "data": {
+      "label": "技术 · 数据",
+      "family": "技术·数据",
+      "tagline": "喂养 AI 的数据侧",
+      "goal": "RAG 检索、实时数据流、面向 AI 的数据治理与知识建模。",
+      "color": "#0b8457"
     },
-    "ai-pm": {
-      "label": "AI 产品经理",
-      "tagline": "判断什么该做，什么是幻觉",
-      "role": "ai-pm",
-      "goal": "判断 AI 能力边界，设计真正可落地的产品",
-      "math_tolerance": "low",
-      "read": [],
-      "time_budget": "3h/week",
-      "color": "#fbbf24"
+    "platform": {
+      "label": "技术 · 平台",
+      "family": "技术·平台",
+      "tagline": "撑起 AI 的平台侧",
+      "goal": "LLMOps、AgentOS、推理优化、SRE 与 AI 安全治理。",
+      "color": "#7048e8"
     },
-    "data-scientist": {
-      "label": "数据科学家",
-      "tagline": "从数据里挖出可靠的决策",
-      "role": "data-scientist",
-      "goal": "用统计与因果方法从数据中得到经得起检验的结论",
-      "math_tolerance": "high",
-      "read": [],
-      "time_budget": "5h/week",
-      "color": "#fb7185"
+    "product": {
+      "label": "产品",
+      "family": "产品",
+      "tagline": "定义 AI 产品",
+      "goal": "需求探索、人机协作设计、快速原型与 Vibe Coding。",
+      "color": "#d6336c"
+    },
+    "test": {
+      "label": "测试",
+      "family": "测试",
+      "tagline": "验证 AI 的质量",
+      "goal": "LLM / Agent 测试评估、对抗与偏见检测、质量门禁。",
+      "color": "#1098ad"
+    },
+    "pm": {
+      "label": "项目管理",
+      "family": "项目管理",
+      "tagline": "驾驭 AI 项目",
+      "goal": "AI 辅助项目管理、组合管理与数据驱动决策。",
+      "color": "#e8a020"
+    },
+    "fde": {
+      "label": "FDE",
+      "family": "FDE",
+      "tagline": "把 AI 交付到现场",
+      "goal": "业务流程重构、生产部署交付与变革管理。",
+      "color": "#c92a2a"
     }
   }
 }
