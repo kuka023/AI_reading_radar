@@ -38,17 +38,62 @@
 
 ---
 
-## 快速开始
+## 下载与运行
+
+### 环境要求
+
+- Python 3.10 或更高版本
+- 不需要安装 Node.js
+- 图书外部搜索、封面和详情功能需要访问 Open Library
+
+### 获取项目
+
+可以在 GitHub 页面选择 **Code → Download ZIP**，解压后进入项目目录；也可以使用 Git：
+
+```bash
+git clone https://github.com/kuka023/AI_reading_radar.git
+cd AI_reading_radar
+```
+
+> 不要复制其他电脑生成的 `.venv`。虚拟环境需要在本机重新创建。
+
+### macOS / Linux
+
+在项目根目录执行：
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
+./.venv/bin/python -m pip install --upgrade pip
+./.venv/bin/python -m pip install -r requirements.txt
 
-cd src && ../.venv/bin/python -m uvicorn server:app --host 127.0.0.1 --port 8000
-# → 打开 http://127.0.0.1:8000
+cd src
+../.venv/bin/python -m uvicorn server:app --host 127.0.0.1 --port 8000
 ```
 
-首次启动会自动建 SQLite 库并导入策展书目（`db.init_db`）。
+### Windows PowerShell
+
+在项目根目录执行：
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+
+cd src
+..\.venv\Scripts\python.exe -m uvicorn server:app --host 127.0.0.1 --port 8000
+```
+
+启动成功后，在浏览器打开：
+
+```text
+http://127.0.0.1:8000
+```
+
+保持 Terminal 或 PowerShell 窗口运行；停止服务时按 `Ctrl+C`。
+
+首次启动会自动创建 `data/radar.db`，并导入策展书目（`db.init_db`）。该数据库是本机运行数据，不会提交到 GitHub。
+
+如果提示 8000 端口已被占用，把启动命令结尾改成 `--port 8001`，然后打开 `http://127.0.0.1:8001`。
 
 ---
 
